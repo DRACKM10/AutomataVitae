@@ -1,30 +1,30 @@
 {
-  "name": "cv-analyzer",
+  "name": "automatavitae-cv-analyzer",
   "version": "1.0.0",
-  "main": "index.js",
+  "description": "Servicio de análisis de CVs con IA",
+  "main": "dist/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "nodemon --exec ts-node src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.78.0",
-    "cors": "^2.8.6",
-    "dotenv": "^17.3.1",
-    "express": "^5.2.1",
-    "multer": "^2.1.1",
-    "pdf-parse": "^2.4.5",
-    "zod": "^4.3.6"
+    "@anthropic-ai/sdk": "^0.32.1",
+    "@supabase/supabase-js": "^2.99.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "multer": "^1.4.5-lts.1",
+    "pdf-parse": "^1.1.1",
+    "zod": "^3.22.4"
   },
   "devDependencies": {
-    "@types/cors": "^2.8.19",
-    "@types/express": "^5.0.6",
-    "@types/multer": "^2.1.0",
-    "@types/node": "^25.5.0",
-    "nodemon": "^3.1.14",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "@types/multer": "^1.4.11",
+    "@types/node": "^20.10.5",
+    "nodemon": "^3.0.2",
     "ts-node": "^10.9.2",
-    "typescript": "^5.9.3"
-  },
-  "description": ""
+    "typescript": "^5.3.3"
+  }
 }
