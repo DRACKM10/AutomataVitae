@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router';
-import { useResume, Education } from '../store';
-import { Input } from './ui/input';
-import { Label } from './ui/label';
-import { Button } from './ui/button';
-import { AIAssistant } from './AIAssistant';
+import { useResume, Education } from '../context/store';
+import { Input } from '../components/ui/input';
+import { Label } from '../components/ui/label';
+import { Button } from '../components/ui/button';
+import { AIAssistant } from '../components/AIAssistant';
 import { ArrowRight, Plus, Trash2, GraduationCap } from 'lucide-react';
-import { Checkbox } from './ui/checkbox';
+import { Checkbox } from '../components/ui/checkbox';
 import { motion } from 'motion/react';
 
 export const StepEducation: React.FC = () => {

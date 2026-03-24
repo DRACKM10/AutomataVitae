@@ -1,5 +1,5 @@
 import React from 'react';
-import { useResume } from '../store';
+import { useResume } from '../context/store';
 import { Mail, Phone, MapPin, Calendar, FileText } from 'lucide-react';
 
 export const ResumePreview: React.FC = () => {

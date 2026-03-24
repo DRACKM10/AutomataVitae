@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router';
-import { useResume } from '../store';
-import { Input } from './ui/input';
-import { Label } from './ui/label';
-import { Textarea } from './ui/textarea';
-import { Button } from './ui/button';
-import { AIAssistant } from './AIAssistant';
+import { useResume } from '../context/store';
+import { Input } from '../components/ui/input';
+import { Label } from '../components/ui/label';
+import { Textarea } from '../components/ui/textarea';
+import { Button } from '../components/ui/button';
+import { AIAssistant } from '../components/AIAssistant';
 import { ArrowRight } from 'lucide-react';
 import { motion } from 'motion/react';
 

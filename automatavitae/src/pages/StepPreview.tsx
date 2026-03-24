@@ -1,8 +1,8 @@
 import React, { useRef } from 'react';
 import { useNavigate } from 'react-router';
-import { useResume } from '../store';
-import { Button } from './ui/button';
-import { AIAssistant } from './AIAssistant';
+import { useResume } from '../context/store';
+import { Button } from '../components/ui/button';
+import { AIAssistant } from '../components/AIAssistant';
 import { Download, RefreshCw, CheckCircle } from 'lucide-react';
 import { ResumePreview } from './ResumePreview';
 import { motion } from 'motion/react';

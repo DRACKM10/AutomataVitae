@@ -1,10 +1,10 @@
 import { createBrowserRouter } from 'react-router';
-import { Layout } from './components/Layout';
-import { StepPersonalInfo } from './components/StepPersonalInfo';
-import { StepExperience } from './components/StepExperience';
-import { StepEducation } from './components/StepEducation';
-import { StepSkills } from './components/StepSkills';
-import { StepPreview } from './components/StepPreview';
+import { Layout } from '../layouts/Layout';
+import { StepPersonalInfo } from '../pages/StepPersonalInfo';
+import { StepExperience } from '../pages/StepExperience';
+import { StepEducation } from '../pages/StepEducation';
+import { StepSkills } from '../pages/StepSkills';
+import { StepPreview } from '../pages/StepPreview';
 
 export const router = createBrowserRouter([
   {

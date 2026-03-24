@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router';
-import { Progress } from './ui/progress';
+import { Progress } from '../components/ui/progress';
 import { ArrowLeft, Eye, EyeOff, FileText } from 'lucide-react';
-import { Button } from './ui/button';
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from './ui/sheet';
-import { ResumePreview } from './ResumePreview';
+import { Button } from '../components/ui/button';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '../components/ui/sheet';
+import { ResumePreview } from '../pages/ResumePreview';
 import { motion } from 'motion/react';
 
 const steps = [

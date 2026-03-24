@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router';
-import { useResume } from '../store';
-import { Input } from './ui/input';
-import { Label } from './ui/label';
-import { Button } from './ui/button';
-import { AIAssistant } from './AIAssistant';
+import { useResume } from '../context/store';
+import { Input } from '../components/ui/input';
+import { Label } from '../components/ui/label';
+import { Button } from '../components/ui/button';
+import { AIAssistant } from '../components/AIAssistant';
 import { ArrowRight, Plus, X } from 'lucide-react';
-import { Badge } from './ui/badge';
+import { Badge } from '../components/ui/badge';
 import { motion } from 'motion/react';
 
 const suggestedSkills = [
