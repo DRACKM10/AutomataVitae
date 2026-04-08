@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">AutomataVitae</string>
+    <string name="title_activity_main">AutomataVitae</string>
+    <string name="package_name">com.automatavitae.app</string>
+    <string name="custom_url_scheme">com.automatavitae.app</string>
+</resources>
