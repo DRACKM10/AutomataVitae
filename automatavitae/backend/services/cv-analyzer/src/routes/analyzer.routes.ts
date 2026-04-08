@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { upload } from '../config/multer';
-import { uploadAndAnalyze } from '../controllers/analyzer.controller';
+import { uploadAndAnalyze, suggestForStep } from '../controllers/analyzer.controller';
 
 const router = Router();
 
@@ -10,5 +10,11 @@ const router = Router();
  * Body: FormData con key 'cv' y archivo PDF
  */
 router.post('/upload', upload.single('cv'), uploadAndAnalyze);
+
+/**
+ * POST /api/analyze/suggest
+ * Retorna sugerencias para el CV usando IA
+ */
+router.post('/suggest', suggestForStep);
 
 export default router;

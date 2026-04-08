@@ -48,11 +48,11 @@ export const StepExperience: React.FC = () => {
     if (isAdding && currentExp.company) {
       handleAddExperience();
     }
-    navigate('/education');
+    navigate('/app/education');
   };
 
   const handleSkip = () => {
-    navigate('/education');
+    navigate('/app/education');
   };
 
   return (

@@ -57,11 +57,11 @@ export const StepSkills: React.FC = () => {
 
   const handleNext = () => {
     updateSkills(skills);
-    navigate('/preview');
+    navigate('/app/preview');
   };
 
   const handleSkip = () => {
-    navigate('/preview');
+    navigate('/app/preview');
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {

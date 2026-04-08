@@ -1,11 +1,11 @@
+import dotenv from 'dotenv';
+// Configurar dotenv ANTES de importar otras rutas internas
+dotenv.config();
+
 import express, { Application } from 'express';
 import cors from 'cors';
-import dotenv from 'dotenv';
 import analyzerRoutes from './routes/analyzer.routes';
 import { errorHandler } from './middleware/errorHandler';
-
-// Cargar variables de entorno
-dotenv.config();
 
 const app: Application = express();
 const PORT = process.env.PORT || 3002;

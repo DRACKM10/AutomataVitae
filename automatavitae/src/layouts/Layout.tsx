@@ -8,11 +8,11 @@ import { ResumePreview } from '../pages/ResumePreview';
 import { motion } from 'motion/react';
 
 const steps = [
-  { path: '/', label: 'Personal', step: 1 },
-  { path: '/experience', label: 'Experiencia', step: 2 },
-  { path: '/education', label: 'Educación', step: 3 },
-  { path: '/skills', label: 'Habilidades', step: 4 },
-  { path: '/preview', label: 'Revisar', step: 5 },
+  { path: '/app', label: 'Personal', step: 1 },
+  { path: '/app/experience', label: 'Experiencia', step: 2 },
+  { path: '/app/education', label: 'Educación', step: 3 },
+  { path: '/app/skills', label: 'Habilidades', step: 4 },
+  { path: '/app/preview', label: 'Revisar', step: 5 },
 ];
 
 export const Layout: React.FC = () => {
@@ -50,7 +50,10 @@ export const Layout: React.FC = () => {
                   <span className="hidden sm:inline">Atrás</span>
                 </Button>
               )}
-              <h1 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-blue-700 to-blue-900 bg-clip-text text-transparent flex items-center gap-2">
+              <h1 
+                onClick={() => navigate('/')}
+                className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-blue-700 to-blue-900 bg-clip-text text-transparent flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity"
+              >
                 <FileText className="w-6 h-6 sm:w-7 sm:h-7 text-blue-700" />
                 AutomataVitae
               </h1>

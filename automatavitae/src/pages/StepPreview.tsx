@@ -32,7 +32,7 @@ export const StepPreview: React.FC = () => {
 
   const handleStartOver = () => {
     if (confirm('¿Estás seguro de que quieres empezar de nuevo? Se perderá toda la información ingresada.')) {
-      navigate('/');
+      navigate('/app');
     }
   };
 

@@ -91,3 +91,27 @@ export const uploadAndAnalyze = async (
     next(error); // Pasar al middleware de errores
   }
 };
+
+/**
+ * Controller para obtener sugerencias de un paso del CV
+ */
+export const suggestForStep = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { step, context } = req.body;
+    if (!step) {
+      return res.status(400).json({ error: 'Falta el paso (step)' });
+    }
+    
+    console.log(`🤖 Generando sugerencias para paso: ${step}...`);
+    const suggestions = await aiAnalysis.suggestStep(step, context || '{}');
+    console.log(`✅ ${suggestions.length} sugerencias generadas.`);
+    
+    res.json({ success: true, suggestions });
+  } catch (error) {
+    next(error);
+  }
+};

@@ -25,7 +25,7 @@ export const StepPersonalInfo: React.FC = () => {
   };
 
   const handleNext = () => {
-    navigate('/experience');
+    navigate('/app/experience');
   };
 
   const isValid = formData.fullName && formData.email && formData.title;

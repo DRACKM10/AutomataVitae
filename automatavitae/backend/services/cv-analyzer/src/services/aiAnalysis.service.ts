@@ -108,4 +108,43 @@ Sé específico, constructivo y honesto.`;
       throw new Error('Error al procesar la respuesta de la IA');
     }
   }
+
+  /**
+   * Genera sugerencias específicas para un paso en la creación de CV
+   * @param step - El paso actual (personal, experience, education, skills, preview)
+   * @param contextData - String JSON con los datos actuales del formulario
+   * @returns Array de sugerencias
+   */
+  async suggestStep(step: string, contextData: string): Promise<any[]> {
+    try {
+      const systemPrompt = `Eres un experto reclutador. El usuario está creando su CV en el paso: "${step}".
+Aquí están los datos que ha rellenado en este paso:
+${contextData}
+
+Analiza los datos y devuelve un array JSON con sugerencias para mejorar. Cada sugerencia debe ser un objeto:
+{
+  "id": "1",
+  "text": "Tu sugerencia aquí",
+  "type": "tip" | "improvement" | "warning"
+}
+Si los datos están vacíos, da consejos generales para este paso. Devuelve MÁXIMO 3 sugerencias. ÚNICAMENTE devuelve JSON válido (Array), sin explicaciones.`;
+
+      const response = await anthropic.messages.create({
+        model: MODEL,
+        max_tokens: MAX_TOKENS,
+        system: systemPrompt,
+        messages: [{ role: 'user', content: 'Dame el array JSON de sugerencias ahora.' }],
+      });
+
+      const content = response.content[0];
+      if (content.type !== 'text') throw new Error('Respuesta inesperada');
+      
+      let cleanText = content.text.trim();
+      cleanText = cleanText.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+      return JSON.parse(cleanText);
+    } catch (error: any) {
+      console.error('❌ Error en suggestStep:', error.message);
+      return []; // graceful fallback
+    }
+  }
 }

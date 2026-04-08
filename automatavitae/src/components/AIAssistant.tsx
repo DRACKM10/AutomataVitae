@@ -14,103 +14,44 @@ interface AIAssistantProps {
   context?: string;
 }
 
-// Simulación de sugerencias según el paso
-const getSuggestionsForStep = (step: string, context?: string): Suggestion[] => {
-  const suggestions: Record<string, Suggestion[]> = {
-    personal: [
-      {
-        id: '1',
-        text: 'Usa un título profesional que refleje tu objetivo de carrera, como "Desarrollador Full Stack" o "Diseñador UX/UI".',
-        type: 'tip',
-      },
-      {
-        id: '2',
-        text: 'El resumen profesional debe ser conciso (2-3 líneas) y destacar tus principales logros y habilidades.',
-        type: 'improvement',
-      },
-      {
-        id: '3',
-        text: 'Asegúrate de que tu correo electrónico sea profesional.',
-        type: 'tip',
-      },
-    ],
-    experience: [
-      {
-        id: '1',
-        text: 'Cuantifica tus logros con números: "Aumenté las ventas en un 30%" es más impactante que "Mejoré las ventas".',
-        type: 'improvement',
-      },
-      {
-        id: '2',
-        text: 'Usa verbos de acción al inicio de cada punto: "Desarrollé", "Implementé", "Lideré", etc.',
-        type: 'tip',
-      },
-      {
-        id: '3',
-        text: 'Enfócate en resultados y logros, no solo en responsabilidades.',
-        type: 'improvement',
-      },
-    ],
-    education: [
-      {
-        id: '1',
-        text: 'Lista tus estudios en orden cronológico inverso (más reciente primero).',
-        type: 'tip',
-      },
-      {
-        id: '2',
-        text: 'Incluye certificaciones relevantes o cursos especializados que complementen tu formación.',
-        type: 'improvement',
-      },
-    ],
-    skills: [
-      {
-        id: '1',
-        text: 'Agrupa tus habilidades por categorías: técnicas, blandas, idiomas, herramientas, etc.',
-        type: 'tip',
-      },
-      {
-        id: '2',
-        text: 'Incluye solo habilidades relevantes para el puesto que buscas. Evita listar demasiadas habilidades básicas.',
-        type: 'improvement',
-      },
-      {
-        id: '3',
-        text: 'Sé honesto sobre tu nivel en cada habilidad. Los reclutadores pueden verificarlo en entrevistas.',
-        type: 'warning',
-      },
-    ],
-    preview: [
-      {
-        id: '1',
-        text: 'Revisa que no haya errores ortográficos o gramaticales antes de descargar.',
-        type: 'warning',
-      },
-      {
-        id: '2',
-        text: 'Tu CV debe caber idealmente en una página, máximo dos si tienes mucha experiencia.',
-        type: 'tip',
-      },
-    ],
-  };
-
-  return suggestions[step] || [];
-};
-
 export const AIAssistant: React.FC<AIAssistantProps> = ({ step, context }) => {
   const [loading, setLoading] = useState(true);
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [isExpanded, setIsExpanded] = useState(true);
 
   useEffect(() => {
-    setLoading(true);
-    // Simular carga de AI (skeleton screen)
-    const timer = setTimeout(() => {
-      setSuggestions(getSuggestionsForStep(step, context));
-      setLoading(false);
-    }, 1200);
+    let isMounted = true;
+    
+    const fetchSuggestions = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch('http://localhost:3001/api/cv/suggest', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ step, context })
+        });
+        
+        if (!response.ok) throw new Error('Error de red');
+        const data = await response.json();
+        
+        if (isMounted) {
+          if (data.success && Array.isArray(data.suggestions)) {
+            setSuggestions(data.suggestions);
+          } else {
+            setSuggestions([]);
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching suggestions:', error);
+        if (isMounted) setSuggestions([]);
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    };
 
-    return () => clearTimeout(timer);
+    fetchSuggestions();
+
+    return () => { isMounted = false; };
   }, [step, context]);
 
   const getIconColor = (type: string) => {
