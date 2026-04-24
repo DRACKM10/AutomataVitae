@@ -23,7 +23,6 @@ export default function AnalyzePage() {
   // Theme & Particles State
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
-  const [particles, setParticles] = useState<any[]>([]);
 
   // Analysis State
   const [file, setFile] = useState<File | null>(null);
@@ -58,30 +57,6 @@ export default function AnalyzePage() {
     }
   };
 
-  // Particles Init
-  useEffect(() => {
-    if (!dimensions.width) return;
-    const p = [];
-    const colors = ['bg-blue-500', 'bg-indigo-400', 'bg-sky-400', 'bg-purple-500', 'bg-violet-400', 'bg-pink-400'];
-    const total = 75; // slightly less than landing page for focus
-    for (let i = 0; i < total; i++) {
-      const t = i / total * Math.PI * 20; 
-      const radius = (i / total) * (Math.min(dimensions.width, dimensions.height) * 0.45);
-      const baseX = Math.cos(t) * radius;
-      const baseY = Math.sin(t) * radius;
-      p.push({
-        id: i,
-        color: colors[Math.floor(Math.random() * colors.length)],
-        width: Math.random() * 4 + 2,
-        height: Math.random() * 8 + 3,
-        x: baseX,
-        y: baseY,
-        angle: Math.atan2(baseY, baseX) * (180 / Math.PI),
-        delay: Math.random() * 2,
-      });
-    }
-    setParticles(p);
-  }, [dimensions]);
 
   // Dropzone Logic
   const onDrop = useCallback((acceptedFiles: File[]) => {
@@ -132,7 +107,7 @@ export default function AnalyzePage() {
   };
 
   return (
-    <div className="relative min-h-screen overflow-x-hidden bg-slate-50 dark:bg-[#09090b] text-gray-900 dark:text-gray-100 transition-colors duration-500 font-sans flex flex-col pt-20">
+    <div className="relative min-h-screen overflow-x-hidden bg-transparent text-gray-900 dark:text-gray-100 transition-colors duration-500 font-sans flex flex-col pt-20">
       
       {/* Global Navbar */}
       <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-4 border-b border-gray-200/50 dark:border-gray-800/50 backdrop-blur-md bg-white/50 dark:bg-[#09090b]/50">
@@ -164,30 +139,6 @@ export default function AnalyzePage() {
         </div>
       </nav>
 
-      {/* Particle Swirl Background */}
-      <div className="fixed inset-0 z-0 flex items-center justify-center pointer-events-none opacity-40">
-        <motion.div 
-          className="relative"
-          animate={{ rotate: -360 }} // counter-rotate vs landing page for variation
-          transition={{ duration: 180, repeat: Infinity, ease: "linear" }}
-        >
-          {particles.map((p) => (
-            <motion.div
-              key={p.id}
-              className={`absolute rounded-full ${p.color} opacity-60 dark:opacity-70`}
-              style={{
-                width: p.width, height: p.height, left: p.x, top: p.y, transform: `rotate(${p.angle}deg)`,
-              }}
-              animate={{
-                x: [0, Math.random() * 8 - 4, 0],
-                y: [0, Math.random() * 8 - 4, 0],
-                opacity: [0.2, 0.6, 0.2],
-              }}
-              transition={{ duration: Math.random() * 3 + 2, repeat: Infinity, ease: "easeInOut", delay: p.delay }}
-            />
-          ))}
-        </motion.div>
-      </div>
 
       <main className="relative z-10 flex-1 flex flex-col items-center px-4 py-8 sm:py-16 md:px-6 w-full max-w-4xl mx-auto">
         <div className="w-full space-y-8">

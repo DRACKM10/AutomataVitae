@@ -3,7 +3,9 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
 import { useRouter } from 'next/navigation';
-import { Rocket, Moon, Sun, Download } from 'lucide-react';
+import Link from 'next/link';
+import { Rocket, Moon, Sun, Download, Sparkles, LogIn, UserPlus } from 'lucide-react';
+import { ParticleBackground } from '@/components/ParticleBackground';
 
 export default function LandingPage() {
   const router = useRouter();
@@ -38,92 +40,51 @@ export default function LandingPage() {
     }
   };
 
-  const [particles, setParticles] = useState<any[]>([]);
-  useEffect(() => {
-    if (!dimensions.width) return;
-    const p = [];
-    const colors = ['bg-blue-500', 'bg-red-400', 'bg-yellow-400', 'bg-purple-500', 'bg-green-400', 'bg-pink-400'];
-    const total = 100;
-    
-    for (let i = 0; i < total; i++) {
-      const t = i / total * Math.PI * 20; 
-      const radius = (i / total) * (Math.min(dimensions.width, dimensions.height) * 0.45);
-      const baseX = Math.cos(t) * radius;
-      const baseY = Math.sin(t) * radius;
-      
-      p.push({
-        id: i,
-        color: colors[Math.floor(Math.random() * colors.length)],
-        width: Math.random() * 4 + 2,
-        height: Math.random() * 8 + 3,
-        x: baseX,
-        y: baseY,
-        angle: Math.atan2(baseY, baseX) * (180 / Math.PI),
-        delay: Math.random() * 2,
-      });
-    }
-    setParticles(p);
-  }, [dimensions]);
-
   return (
     <div className="relative w-screen h-screen overflow-hidden bg-white dark:bg-[#09090b] text-gray-900 dark:text-gray-100 transition-colors duration-500 font-sans flex flex-col">
-      <nav className="relative z-30 flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-gray-800/50 backdrop-blur-md bg-white/50 dark:bg-[#09090b]/50">
+      <nav className="relative z-30 flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-gray-800/50 backdrop-blur-md bg-white/70 dark:bg-[#09090b]/70 sticky top-0">
         <div className="flex items-center gap-2">
-          <div className="text-2xl font-bold tracking-tighter flex items-center gap-2">
+          <Link href="/" className="text-2xl font-bold tracking-tighter flex items-center gap-2">
             <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500">
               A
             </span>
             <span className="font-semibold text-gray-800 dark:text-gray-100">Automata</span>
             <span className="font-light text-gray-500 dark:text-gray-400">Vitae</span>
-          </div>
+          </Link>
         </div>
         
         <div className="hidden md:flex items-center gap-8 text-sm font-medium text-gray-600 dark:text-gray-400">
-          <span className="hover:text-blue-500 cursor-pointer transition-colors">Producto</span>
-          <span className="hover:text-blue-500 cursor-pointer transition-colors">Casos de Uso</span>
-          <span className="hover:text-blue-500 cursor-pointer transition-colors">Plantillas</span>
+          <Link href="#features" className="hover:text-blue-500 cursor-pointer transition-colors">Características</Link>
+          <Link href="#pricing" className="hover:text-blue-500 cursor-pointer transition-colors">Planes</Link>
+          <Link href="#faq" className="hover:text-blue-500 cursor-pointer transition-colors">FAQ</Link>
         </div>
 
-        <div className="flex items-center gap-4">
-          <button onClick={toggleTheme} className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+        <div className="flex items-center gap-3">
+          <button onClick={toggleTheme} className="p-2 mr-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
             {theme === 'light' ? <Moon className="w-5 h-5 text-gray-600" /> : <Sun className="w-5 h-5 text-gray-300" />}
           </button>
+          
+          <div className="hidden sm:flex items-center gap-3">
+            <Link 
+              href="/login" 
+              className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 transition-colors flex items-center gap-2"
+            >
+              <LogIn className="w-4 h-4" />
+              Entrar
+            </Link>
+            <Link 
+              href="/register" 
+              className="px-5 py-2 text-sm font-medium text-white bg-gray-900 dark:bg-white dark:text-gray-900 rounded-full hover:bg-gray-800 dark:hover:bg-gray-100 transition-all flex items-center gap-2"
+            >
+              <UserPlus className="w-4 h-4" />
+              Registrarse
+            </Link>
+          </div>
         </div>
       </nav>
 
-      <div className="relative flex-1 flex flex-col justify-center items-center overflow-hidden">
-        <div className="absolute inset-0 z-0 flex items-center justify-center pointer-events-none">
-          <motion.div 
-            className="relative"
-            animate={{ rotate: 360 }}
-            transition={{ duration: 150, repeat: Infinity, ease: "linear" }}
-          >
-            {particles.map((p) => (
-              <motion.div
-                key={p.id}
-                className={`absolute rounded-full ${p.color} opacity-70 dark:opacity-80`}
-                style={{
-                  width: p.width,
-                  height: p.height,
-                  left: p.x,
-                  top: p.y,
-                  transform: `rotate(${p.angle}deg)`,
-                }}
-                animate={{
-                  x: [0, Math.random() * 10 - 5, 0],
-                  y: [0, Math.random() * 10 - 5, 0],
-                  opacity: [0.3, 0.8, 0.3],
-                }}
-                transition={{
-                  duration: Math.random() * 3 + 2,
-                  repeat: Infinity,
-                  ease: "easeInOut",
-                  delay: p.delay
-                }}
-              />
-            ))}
-          </motion.div>
-        </div>
+      <div className="relative flex-1 flex flex-col justify-center items-center overflow-hidden z-10 w-full">
+        <ParticleBackground baseOpacity="opacity-70 dark:opacity-80" animateOpacity={[0.3, 0.8, 0.3]} />
 
         <div className="relative z-20 text-center px-4">
           <motion.div
@@ -131,11 +92,18 @@ export default function LandingPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
           >
+            <div className="flex justify-center mb-6">
+              <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-sm font-medium border border-blue-200 dark:border-blue-800/50">
+                <Sparkles className="w-4 h-4" />
+                Automatiza tu éxito laboral
+              </span>
+            </div>
+
             <div className="inline-flex items-center justify-center gap-3 mb-6">
-               <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 text-4xl md:text-5xl font-extrabold tracking-tighter">
+               <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 text-5xl md:text-6xl font-extrabold tracking-tighter drop-shadow-sm">
                 A
               </span>
-              <h1 className="text-4xl md:text-5xl font-semibold text-gray-900 dark:text-white tracking-tight">
+              <h1 className="text-5xl md:text-6xl font-semibold text-gray-900 dark:text-white tracking-tight">
                 Automata <span className="font-light text-gray-500">Vitae</span>
               </h1>
             </div>
