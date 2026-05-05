@@ -5,22 +5,40 @@ import { motion } from 'motion/react';
 import { useRouter } from 'next/navigation';
 import { Mail, Lock, ArrowRight, User } from 'lucide-react';
 import Link from 'next/link';
+import { supabase } from '@/lib/supabase';
 
-export default function RegisterPage() {
+export default function page() {
   const router = useRouter();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleRegister = (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Implement actual registration logic
-    router.push('/create');
+    setError('');
+    setLoading(true);
+
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: { full_name: name },
+      },
+    });
+
+    if (error) {
+      setError(error.message);
+    } else {
+      router.push('/create');
+    }
+
+    setLoading(false);
   };
 
   return (
     <div className="min-h-screen relative flex flex-col justify-center items-center p-4 transition-colors duration-500 bg-transparent">
-
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -29,9 +47,7 @@ export default function RegisterPage() {
       >
         <div className="flex justify-center mb-8">
           <Link href="/" className="text-3xl font-bold tracking-tighter flex items-center gap-2">
-            <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500">
-              A
-            </span>
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500">A</span>
             <span className="font-semibold text-gray-800 dark:text-gray-100">Automata</span>
             <span className="font-light text-gray-500 dark:text-gray-400">Vitae</span>
           </Link>
@@ -44,6 +60,12 @@ export default function RegisterPage() {
           <p className="text-gray-500 dark:text-gray-400 text-center mb-8 text-sm">
             Comienza a construir tu mejor currículum gratis
           </p>
+
+          {error && (
+            <div className="mb-4 p-3 rounded-xl bg-red-50 border border-red-200 text-red-600 text-sm text-center">
+              {error}
+            </div>
+          )}
 
           <form onSubmit={handleRegister} className="space-y-5">
             <div className="group">
@@ -86,22 +108,24 @@ export default function RegisterPage() {
                 <input
                   type="password"
                   required
+                  minLength={6}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="block w-full pl-10 pr-3 py-3 border border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50/50 dark:bg-gray-800/50 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500 transition-all sm:text-sm"
-                  placeholder="Contraseña"
+                  placeholder="Contraseña (mínimo 6 caracteres)"
                 />
               </div>
             </div>
-            
+
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               type="submit"
-              className="w-full flex justify-center items-center py-3 px-4 mt-2 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-all"
+              disabled={loading}
+              className="w-full flex justify-center items-center py-3 px-4 mt-2 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              Registrarse ahora
-              <ArrowRight className="ml-2 h-4 w-4" />
+              {loading ? 'Creando cuenta...' : 'Registrarse ahora'}
+              {!loading && <ArrowRight className="ml-2 h-4 w-4" />}
             </motion.button>
           </form>
 

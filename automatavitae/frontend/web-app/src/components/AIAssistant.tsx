@@ -15,6 +15,9 @@ interface AIAssistantProps {
   context?: string;
 }
 
+// Puerto
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333';
+
 export const AIAssistant: React.FC<AIAssistantProps> = ({ step, context }) => {
   const [loading, setLoading] = useState(true);
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
@@ -22,19 +25,19 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ step, context }) => {
 
   useEffect(() => {
     let isMounted = true;
-    
+
     const fetchSuggestions = async () => {
       try {
         setLoading(true);
-        const response = await fetch('http://localhost:3001/api/cv/suggest', {
+        const response = await fetch(`${API_URL}/api/analyze/suggest`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ step, context })
+          body: JSON.stringify({ step, context }),
         });
-        
+
         if (!response.ok) throw new Error('Error de red');
         const data = await response.json();
-        
+
         if (isMounted) {
           if (data.success && Array.isArray(data.suggestions)) {
             setSuggestions(data.suggestions);
@@ -51,20 +54,15 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ step, context }) => {
     };
 
     fetchSuggestions();
-
     return () => { isMounted = false; };
   }, [step, context]);
 
   const getIconColor = (type: string) => {
     switch (type) {
-      case 'improvement':
-        return 'text-blue-600';
-      case 'tip':
-        return 'text-green-600';
-      case 'warning':
-        return 'text-amber-600';
-      default:
-        return 'text-gray-600';
+      case 'improvement': return 'text-blue-600';
+      case 'tip': return 'text-green-600';
+      case 'warning': return 'text-amber-600';
+      default: return 'text-gray-600';
     }
   };
 
@@ -106,6 +104,10 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ step, context }) => {
                     <Skeleton className="h-4 w-3/6" />
                   </div>
                 </>
+              ) : suggestions.length === 0 ? (
+                <p className="text-sm text-gray-500 text-center py-2">
+                  No hay sugerencias disponibles en este momento.
+                </p>
               ) : (
                 suggestions.map((suggestion) => (
                   <motion.div

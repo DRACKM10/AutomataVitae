@@ -8,7 +8,7 @@ import analyzerRoutes from './routes/analyzer.routes';
 import { errorHandler } from './middleware/errorHandler';
 
 const app: Application = express();
-const PORT = process.env.PORT || 3002;
+const PORT = process.env.PORT || 3000;
 
 // Middleware
 app.use(cors());
