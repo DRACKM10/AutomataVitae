@@ -72,15 +72,17 @@ export function ParticleBackground({
         this.density = (Math.random() * 25) + 5; 
         
         this.color = colors[Math.floor(Math.random() * colors.length)];
-        this.speed = (Math.random() * 0.001) + 0.0005; // Orbit speed
+        this.speed = (Math.random() * 0.0003) + 0.00015; // Velocidad reducida para no distraer
       }
 
       draw() {
         ctx!.beginPath();
         ctx!.arc(this.x, this.y, this.size, 0, Math.PI * 2);
         ctx!.closePath();
+        ctx!.globalAlpha = 0.35; // Opacidad reducida para hacerlas tenues
         ctx!.fillStyle = this.color;
         ctx!.fill();
+        ctx!.globalAlpha = 1.0; // Reset
       }
 
       update(canvasWidth: number, canvasHeight: number) {

@@ -1,33 +1,52 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { useRouter } from 'next/navigation';
-import { Mail, Lock, ArrowRight, User } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, Moon, Sun, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 
 export default function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
+  const [theme, setTheme] = useState<'light' | 'dark'>('light');
+
+  useEffect(() => {
+    const isDark = document.documentElement.classList.contains('dark');
+    if (isDark) setTheme('dark');
+    else {
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      if (prefersDark) {
+        setTheme('dark');
+        document.documentElement.classList.add('dark');
+      }
+    }
+  }, []);
+
+  const toggleTheme = () => {
+    if (theme === 'light') {
+      document.documentElement.classList.add('dark');
+      setTheme('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+      setTheme('light');
+    }
+  };
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Implement actual login logic
     router.push('/create');
   };
 
   return (
-    <div className="min-h-screen relative flex flex-col justify-center items-center p-4 transition-colors duration-500 bg-transparent">
-
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="relative z-10 w-full max-w-md"
-      >
-        <div className="flex justify-center mb-8">
-          <Link href="/" className="text-3xl font-bold tracking-tighter flex items-center gap-2">
+    <div className="relative w-screen min-h-screen flex flex-col overflow-x-hidden bg-transparent font-sans">
+      {/* Header idéntico al landing */}
+      <nav className="relative z-30 flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-gray-800/50 backdrop-blur-md bg-white/70 dark:bg-[#09090b]/70 sticky top-0">
+        <div className="flex items-center gap-2">
+          <Link href="/" className="text-2xl font-bold tracking-tighter flex items-center gap-2">
             <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500">
               A
             </span>
@@ -35,100 +54,175 @@ export default function LoginPage() {
             <span className="font-light text-gray-500 dark:text-gray-400">Vitae</span>
           </Link>
         </div>
+        
+        <div className="hidden md:flex items-center gap-8 text-sm font-medium text-gray-600 dark:text-gray-400">
+          <Link href="/#features" className="hover:text-blue-500 cursor-pointer transition-colors">Características</Link>
+          <Link href="/#pricing" className="hover:text-blue-500 cursor-pointer transition-colors">Planes</Link>
+          <Link href="/#faq" className="hover:text-blue-500 cursor-pointer transition-colors">FAQ</Link>
+        </div>
 
-        <div className="bg-white/70 dark:bg-gray-900/70 backdrop-blur-xl p-8 rounded-3xl border border-gray-100 dark:border-gray-800 shadow-xl">
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2 text-center">
-            Bienvenido de nuevo
-          </h2>
-          <p className="text-gray-500 dark:text-gray-400 text-center mb-8 text-sm">
-            Ingresa a tu cuenta para continuar
-          </p>
-
-          <form onSubmit={handleLogin} className="space-y-5">
-            <div className="group">
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400 group-focus-within:text-blue-500 transition-colors">
-                  <Mail className="h-5 w-5" />
-                </div>
-                <input
-                  type="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="block w-full pl-10 pr-3 py-3 border border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50/50 dark:bg-gray-800/50 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all sm:text-sm"
-                  placeholder="Tu correo electrónico"
-                />
-              </div>
-            </div>
-
-            <div className="group">
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400 group-focus-within:text-purple-500 transition-colors">
-                  <Lock className="h-5 w-5" />
-                </div>
-                <input
-                  type="password"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="block w-full pl-10 pr-3 py-3 border border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50/50 dark:bg-gray-800/50 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500 transition-all sm:text-sm"
-                  placeholder="Contraseña"
-                />
-              </div>
-            </div>
-            
-            <div className="flex items-center justify-end">
-              <a href="#" className="text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-500">
-                ¿Olvidaste tu contraseña?
-              </a>
-            </div>
-
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              type="submit"
-              className="w-full flex justify-center items-center py-3 px-4 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all"
+        <div className="flex items-center gap-3">
+          <button onClick={toggleTheme} className="p-2 mr-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+            {theme === 'light' ? <Moon className="w-5 h-5 text-gray-600" /> : <Sun className="w-5 h-5 text-gray-300" />}
+          </button>
+          
+          <div className="hidden sm:flex items-center gap-3">
+            <Link 
+              href="/register" 
+              className="px-5 py-2 text-sm font-medium text-white bg-gray-900 dark:bg-white dark:text-gray-900 rounded-full hover:bg-gray-800 dark:hover:bg-gray-100 transition-all"
             >
-              Iniciar Sesión
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </motion.button>
-          </form>
+              Registrarse
+            </Link>
+          </div>
+        </div>
+      </nav>
 
-          <div className="mt-8 relative">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-200 dark:border-gray-700"></div>
-            </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-white dark:bg-gray-900 text-gray-500">
-                O continúa con
-              </span>
+      {/* Tarjeta dividida con Glassmorphism */}
+      <div className="flex-1 flex items-center justify-center p-4 relative z-10">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="w-full max-w-5xl flex flex-col md:flex-row bg-white/70 dark:bg-[#09090b]/80 backdrop-blur-xl rounded-[2rem] border border-gray-100 dark:border-gray-800/60 shadow-2xl overflow-hidden"
+        >
+          {/* ── PANEL IZQUIERDO (Imagen) ── */}
+          <div className="hidden md:flex md:w-1/2 relative bg-gray-900">
+            <div 
+              className="absolute inset-0 bg-cover bg-center"
+              style={{ backgroundImage: "url('/auth-hero.jpg')" }}
+            />
+            {/* Overlay para oscurecer y dar gradiente */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+            
+            <div className="relative z-10 flex flex-col justify-end p-12 h-full w-full">
+              <h2 className="text-white text-3xl font-bold leading-tight mb-3">
+                Tu futuro profesional,<br />diseñado con IA.
+              </h2>
+              <p className="text-gray-300 text-sm">
+                Automatiza tu éxito laboral y destaca entre los candidatos con currículums optimizados.
+              </p>
+              
+              {/* Indicadores estilo carrusel */}
+              <div className="flex gap-2 mt-8">
+                <div className="w-8 h-1 bg-white rounded-full"></div>
+                <div className="w-4 h-1 bg-white/30 rounded-full"></div>
+                <div className="w-4 h-1 bg-white/30 rounded-full"></div>
+              </div>
             </div>
           </div>
 
-          <div className="mt-6 grid grid-cols-2 gap-3">
-            <button className="flex items-center justify-center px-4 py-2 border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
-              <svg className="h-5 w-5" viewBox="0 0 24 24">
+          {/* ── PANEL DERECHO (Formulario) ── */}
+          <div className="w-full md:w-1/2 p-8 md:p-12 flex flex-col justify-center">
+            <div className="mb-8">
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-white tracking-tight mb-2">Bienvenido de nuevo</h1>
+              <p className="text-gray-500 dark:text-gray-400 text-sm">
+                ¿No tienes cuenta?{' '}
+                <Link href="/register" className="font-semibold text-blue-600 dark:text-blue-400 hover:underline">
+                  Regístrate
+                </Link>
+              </p>
+            </div>
+
+            <form onSubmit={handleLogin} className="space-y-5">
+              {/* Email */}
+              <div>
+                <label htmlFor="login-email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+                  Correo electrónico
+                </label>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <input
+                    id="login-email"
+                    type="email"
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="usuario@correo.com"
+                    className="w-full pl-10 pr-4 py-3 text-sm rounded-xl bg-gray-50/50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all"
+                  />
+                </div>
+              </div>
+
+              {/* Password */}
+              <div>
+                <label htmlFor="login-password" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+                  Contraseña
+                </label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <input
+                    id="login-password"
+                    type={showPassword ? 'text' : 'password'}
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="••••••••"
+                    className="w-full pl-10 pr-12 py-3 text-sm rounded-xl bg-gray-50/50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    tabIndex={-1}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+                  >
+                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  </button>
+                </div>
+              </div>
+
+              {/* Remember + Forgot */}
+              <div className="flex items-center justify-between">
+                <label className="flex items-center gap-2 cursor-pointer select-none">
+                  <button
+                    id="remember-toggle"
+                    type="button"
+                    onClick={() => setRememberMe(!rememberMe)}
+                    className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors focus:outline-none ${rememberMe ? 'bg-blue-600' : 'bg-gray-200 dark:bg-gray-700'}`}
+                  >
+                    <span className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow transition-transform ${rememberMe ? 'translate-x-4' : 'translate-x-1'}`} />
+                  </button>
+                  <span className="text-sm text-gray-600 dark:text-gray-400">Recordar sesión</span>
+                </label>
+                <a href="#" className="text-sm font-medium text-blue-600 dark:text-blue-400 hover:underline">
+                  ¿Olvidaste tu contraseña?
+                </a>
+              </div>
+
+              {/* Submit */}
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                type="submit"
+                className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-base font-medium text-white bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-500/25 transition-all focus:outline-none focus:ring-2 focus:ring-blue-500/50 mt-2"
+              >
+                Iniciar Sesión
+                <ArrowRight className="w-5 h-5" />
+              </motion.button>
+            </form>
+
+            {/* Divider */}
+            <div className="my-6 flex items-center gap-3">
+              <div className="flex-1 h-px bg-gray-200 dark:bg-gray-800" />
+              <span className="text-sm text-gray-400 dark:text-gray-500 font-medium">O continuar con</span>
+              <div className="flex-1 h-px bg-gray-200 dark:bg-gray-800" />
+            </div>
+
+            {/* Google */}
+            <button
+              id="login-google"
+              className="w-full flex items-center justify-center gap-3 py-3 px-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-[#09090b] hover:bg-gray-50 dark:hover:bg-gray-900 text-sm font-medium text-gray-700 dark:text-gray-300 transition-all shadow-sm"
+            >
+              <svg className="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24">
                 <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
                 <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
                 <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
                 <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
               </svg>
-            </button>
-            <button className="flex items-center justify-center px-4 py-2 border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
-              <svg className="h-5 w-5 fill-current" viewBox="0 0 24 24">
-                <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
-              </svg>
+              Google
             </button>
           </div>
-        </div>
-
-        <p className="mt-8 text-center text-sm text-gray-600 dark:text-gray-400">
-          ¿No tienes una cuenta?{' '}
-          <Link href="/register" className="font-semibold text-blue-600 dark:text-blue-400 hover:underline transition-all">
-            Regístrate aquí
-          </Link>
-        </p>
-      </motion.div>
+        </motion.div>
+      </div>
     </div>
   );
 }
