@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ParticleBackground } from '@/components/ParticleBackground';
 import { GoogleOAuthProviderClient } from '@/components/GoogleOAuthProviderClient';
+import { Toaster } from 'sonner';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -45,6 +46,7 @@ export default function RootLayout({
             <ParticleBackground baseOpacity="opacity-40 dark:opacity-50" />
           </div>
           {children}
+          <Toaster position="top-right" richColors />
         </GoogleOAuthProviderClient>
       </body>
     </html>

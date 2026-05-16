@@ -55,6 +55,7 @@ export default function LoginPage() {
       }
 
       const data = await res.json();
+      localStorage.setItem('token', data.token);
       console.log("Login exitoso:", data.token);
       router.push('/create');
     } catch (error: any) {
@@ -76,9 +77,8 @@ export default function LoginPage() {
         }
 
         const data = await res.json();
+        localStorage.setItem('token', data.token);
         console.log("Login exitoso, token del backend:", data.token);
-        // Aquí podrías guardar el token en cookies/localStorage
-        // localStorage.setItem('token', data.token);
 
         router.push('/create');
       } catch (error) {

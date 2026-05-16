@@ -62,10 +62,10 @@ export const StepExperience: React.FC = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
-        className="bg-white rounded-lg shadow-md p-6 border border-gray-200"
+        className="bg-slate-900/60 backdrop-blur-xl rounded-lg shadow-xl p-6 border border-slate-800"
       >
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Experiencia Laboral</h2>
-        <p className="text-gray-600 mb-6">
+        <h2 className="text-2xl font-bold text-white mb-2">Experiencia Laboral</h2>
+        <p className="text-slate-400 mb-6">
           Agrega tu experiencia laboral relevante. Enfócate en logros y resultados medibles.
         </p>
 
@@ -102,52 +102,52 @@ export const StepExperience: React.FC = () => {
 
         {/* Formulario de nueva experiencia */}
         {isAdding ? (
-          <div className="space-y-4 p-4 bg-gray-50 rounded-md border border-gray-200">
+          <div className="space-y-4 p-4 bg-slate-950/40 rounded-md border border-slate-800">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="position">Cargo *</Label>
+                <Label className="text-slate-200" htmlFor="position">Cargo *</Label>
                 <Input
                   id="position"
                   value={currentExp.position}
                   onChange={(e) => setCurrentExp({ ...currentExp, position: e.target.value })}
                   placeholder="Ej: Desarrollador Frontend"
-                  className="mt-1"
+                  className="mt-1 bg-slate-950/50 border-slate-800 text-white placeholder:text-slate-600"
                 />
               </div>
 
               <div>
-                <Label htmlFor="company">Empresa *</Label>
+                <Label className="text-slate-200" htmlFor="company">Empresa *</Label>
                 <Input
                   id="company"
                   value={currentExp.company}
                   onChange={(e) => setCurrentExp({ ...currentExp, company: e.target.value })}
                   placeholder="Ej: Tech Solutions Inc."
-                  className="mt-1"
+                  className="mt-1 bg-slate-950/50 border-slate-800 text-white placeholder:text-slate-600"
                 />
               </div>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="startDate">Fecha de Inicio *</Label>
+                <Label className="text-slate-200" htmlFor="startDate">Fecha de Inicio *</Label>
                 <Input
                   id="startDate"
                   type="month"
                   value={currentExp.startDate}
                   onChange={(e) => setCurrentExp({ ...currentExp, startDate: e.target.value })}
-                  className="mt-1"
+                  className="mt-1 bg-slate-950/50 border-slate-800 text-white placeholder:text-slate-600"
                 />
               </div>
 
               <div>
-                <Label htmlFor="endDate">Fecha de Fin</Label>
+                <Label className="text-slate-200" htmlFor="endDate">Fecha de Fin</Label>
                 <Input
                   id="endDate"
                   type="month"
                   value={currentExp.endDate}
                   onChange={(e) => setCurrentExp({ ...currentExp, endDate: e.target.value })}
                   disabled={currentExp.current}
-                  className="mt-1"
+                  className="mt-1 bg-slate-950/50 border-slate-800 text-white placeholder:text-slate-600"
                 />
               </div>
             </div>
@@ -173,10 +173,10 @@ export const StepExperience: React.FC = () => {
                 onChange={(e) => setCurrentExp({ ...currentExp, description: e.target.value })}
                 placeholder="• Desarrollé una aplicación que aumentó la eficiencia en 30%&#10;• Lideré un equipo de 5 personas&#10;• Implementé metodologías ágiles"
                 rows={5}
-                className="mt-1"
+                className="mt-1 dark:bg-slate-900 dark:border-slate-700"
               />
-              <p className="text-xs text-gray-500 mt-1">
-                Usa viñetas (•) para listar tus logros y responsabilidades
+              <p className="text-xs text-gray-500 dark:text-slate-500 mt-1">
+                {currentExp.description.length} / 300 caracteres recomendados
               </p>
             </div>
 

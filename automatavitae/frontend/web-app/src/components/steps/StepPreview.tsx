@@ -14,6 +14,34 @@ export const StepPreview: React.FC = () => {
   const { resumeData } = useResume();
   const previewRef = useRef<HTMLDivElement>(null);
 
+  const handleSaveToDatabase = async () => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      toast.error('Sesión expirada', { description: 'Por favor, inicia sesión de nuevo.' });
+      router.push('/login');
+      return;
+    }
+
+    try {
+      const response = await fetch('http://localhost:3006/api/v1/cvs', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(resumeData)
+      });
+
+      if (!response.ok) throw new Error('Error al guardar el CV');
+
+      toast.success('¡CV guardado exitosamente!', {
+        description: 'Tu hoja de vida ha sido guardada en tu cuenta.',
+      });
+    } catch (error) {
+      toast.error('Error al guardar', { description: 'No se pudo conectar con el servidor.' });
+    }
+  };
+
   const handleDownload = () => {
     // Simulación de descarga - en producción usarías una librería como html2pdf o jsPDF
     toast.success('¡CV descargado exitosamente!', {
@@ -74,22 +102,23 @@ export const StepPreview: React.FC = () => {
         {/* Acciones */}
         <div className="flex flex-col sm:flex-row gap-3">
           <Button
-            onClick={handleDownload}
+            onClick={handleSaveToDatabase}
             disabled={!hasContent}
             size="lg"
-            className="flex-1 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white shadow-lg hover:shadow-xl transition-all"
+            className="flex-1 bg-blue-600 hover:bg-blue-700 text-white shadow-lg"
           >
-            <Download className="w-5 h-5 mr-2" />
-            Descargar CV en PDF
+            <CheckCircle className="w-5 h-5 mr-2" />
+            Guardar en mi Cuenta
           </Button>
           <Button
-            onClick={handleStartOver}
+            onClick={handleDownload}
+            disabled={!hasContent}
             variant="outline"
             size="lg"
-            className="flex-1 sm:flex-initial border-gray-300 hover:bg-gray-100"
+            className="flex-1 border-gray-300 dark:border-slate-700 hover:bg-gray-100 dark:hover:bg-slate-800"
           >
-            <RefreshCw className="w-4 h-4 mr-2" />
-            Empezar de Nuevo
+            <Download className="w-5 h-5 mr-2" />
+            Descargar PDF
           </Button>
         </div>
 

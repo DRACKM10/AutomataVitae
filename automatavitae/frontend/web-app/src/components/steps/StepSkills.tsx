@@ -78,10 +78,10 @@ export const StepSkills: React.FC = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
-        className="bg-white rounded-lg shadow-md p-6 border border-gray-200"
+        className="bg-white/90 dark:bg-slate-900/80 backdrop-blur-xl rounded-lg shadow-md p-6 border border-gray-200 dark:border-slate-800"
       >
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Habilidades</h2>
-        <p className="text-gray-600 mb-6">
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Habilidades y Aptitudes</h2>
+        <p className="text-gray-600 dark:text-slate-400 mb-6">
           Agrega tus habilidades técnicas y blandas más relevantes.
         </p>
 
