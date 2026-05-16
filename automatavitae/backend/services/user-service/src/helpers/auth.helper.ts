@@ -51,6 +51,37 @@ export class OAuthHelper {
         }
     }
 
+    // Intercambiar Code de GitHub por Access Token
+    static async exchangeGithubCodeForToken(code: string): Promise<string> {
+        const clientId = process.env.GITHUB_CLIENT_ID;
+        const clientSecret = process.env.GITHUB_CLIENT_SECRET;
+
+        if (!clientId || !clientSecret) {
+            throw new Error('Configuración de GitHub incompleta en el backend');
+        }
+
+        const response = await fetch('https://github.com/login/oauth/access_token', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+                client_id: clientId,
+                client_secret: clientSecret,
+                code: code
+            })
+        });
+
+        const data = await response.json() as { access_token?: string; error?: string };
+
+        if (data.error || !data.access_token) {
+            throw new Error(`Error de GitHub: ${data.error || 'Token no recibido'}`);
+        }
+
+        return data.access_token;
+    }
+
     // Validar Token de GitHub (Access Token recibido del Frontend)
     static async verifyGithubToken(accessToken: string): Promise<OAuthUserProfile> {
         try {

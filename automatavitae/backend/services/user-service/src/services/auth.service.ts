@@ -55,11 +55,15 @@ export class AuthService {
         return { user: userProfile, token };
     }
     // Lógica unificada para procesar el login de Terceros
-    async loginWithOAuth(provider: 'google' | 'github', token: string) {
+    async loginWithOAuth(provider: 'google' | 'github', tokenOrCode: string) {
         // 1. Validar externamente usando el Helper aislado
-        const profile: OAuthUserProfile = provider === 'google'
-            ? await OAuthHelper.verifyGoogleToken(token)
-            : await OAuthHelper.verifyGithubToken(token);
+        let profile: OAuthUserProfile;
+        if (provider === 'google') {
+            profile = await OAuthHelper.verifyGoogleToken(tokenOrCode);
+        } else {
+            const accessToken = await OAuthHelper.exchangeGithubCodeForToken(tokenOrCode);
+            profile = await OAuthHelper.verifyGithubToken(accessToken);
+        }
 
         let user = provider === 'google'
             ? await userRepository.findByGoogleId(profile.id)

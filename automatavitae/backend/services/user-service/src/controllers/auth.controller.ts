@@ -60,10 +60,10 @@ export class AuthController {
 
     async githubLogin(req: Request, res: Response): Promise<void> {
         try {
-            const { token } = req.body; // El accessToken enviado por el front
-            if (!token) { res.status(400).json({ error: 'Token de GitHub requerido' }); return; }
+            const { code } = req.body; // El authorization code enviado por el front
+            if (!code) { res.status(400).json({ error: 'Código de GitHub requerido' }); return; }
 
-            const result = await authService.loginWithOAuth('github', token);
+            const result = await authService.loginWithOAuth('github', code);
             res.status(200).json(result);
         } catch (error: any) {
             res.status(401).json({ error: error.message });
