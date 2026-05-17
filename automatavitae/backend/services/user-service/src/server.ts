@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import authRoutes from './routes/auth.routes';
 import { pool } from './config/db';
 
+// Cargar variables de entorno de autenticación
 dotenv.config();
 
 const app = express();

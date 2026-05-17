@@ -91,6 +91,7 @@ export class AuthService {
 
     // Helper para firmar el token JWT
     private generateToken(userId: string, email: string): string {
+        console.log("user-service signing with secret:", process.env.JWT_SECRET || 'fallback_secret');
         return jwt.sign(
             { userId, email },
             process.env.JWT_SECRET || 'fallback_secret',

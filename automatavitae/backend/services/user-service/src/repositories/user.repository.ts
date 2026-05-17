@@ -43,4 +43,10 @@ export class UserRepository {
         const result = await query(sql, [providerId, userId]);
         return result.rows[0];
     }
+
+    async updateProfile(userId: string, fullName: string) {
+        const sql = `UPDATE users SET full_name = $1, updated_at = NOW() WHERE id = $2 RETURNING id, full_name, email, avatar_url, created_at;`;
+        const result = await query(sql, [fullName, userId]);
+        return result.rows[0] || null;
+    }
 }
