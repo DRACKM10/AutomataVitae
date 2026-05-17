@@ -7,6 +7,20 @@ export const ResumePreview: React.FC = () => {
   const { resumeData } = useResume();
   const { personalInfo, experience, education, skills } = resumeData;
 
+  const formatDate = (dateStr: string) => {
+    if (!dateStr) return '';
+    const parts = dateStr.split('-');
+    if (parts.length !== 2) return dateStr;
+    const [year, month] = parts;
+    const months = [
+      'Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun',
+      'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'
+    ];
+    const monthIdx = parseInt(month, 10) - 1;
+    const monthName = months[monthIdx] || month;
+    return `${monthName} ${year}`;
+  };
+
   return (
     <div className="bg-white rounded-lg shadow-xl p-8 max-w-3xl mx-auto border-2 border-gray-100">
       {/* Header */}
@@ -63,7 +77,7 @@ export const ResumePreview: React.FC = () => {
                 <div className="flex items-center gap-1.5 text-sm text-gray-600 mb-2">
                   <Calendar className="w-3.5 h-3.5" />
                   <span>
-                    {exp.startDate} - {exp.current ? 'Presente' : exp.endDate}
+                    {formatDate(exp.startDate)} - {exp.current ? 'Presente' : formatDate(exp.endDate)}
                   </span>
                 </div>
                 <p className="text-gray-700 text-sm leading-relaxed whitespace-pre-line">
@@ -90,7 +104,7 @@ export const ResumePreview: React.FC = () => {
                 <div className="flex items-center gap-1.5 text-sm text-gray-600">
                   <Calendar className="w-3.5 h-3.5" />
                   <span>
-                    {edu.startDate} - {edu.current ? 'Presente' : edu.endDate}
+                    {formatDate(edu.startDate)} - {edu.current ? 'Presente' : formatDate(edu.endDate)}
                   </span>
                 </div>
               </div>

@@ -94,7 +94,7 @@ export const StepPersonalInfo: React.FC = () => {
                 value={formData.email}
                 onChange={(e) => handleChange('email', e.target.value)}
                 placeholder="correo@ejemplo.com"
-                className="mt-1"
+                className="mt-1 bg-slate-950/50 border-slate-800 text-white placeholder:text-slate-600 focus-visible:ring-blue-500/50"
               />
             </div>
 
@@ -106,7 +106,7 @@ export const StepPersonalInfo: React.FC = () => {
                 value={formData.phone}
                 onChange={(e) => handleChange('phone', e.target.value)}
                 placeholder="+1 (555) 123-4567"
-                className="mt-1"
+                className="mt-1 bg-slate-950/50 border-slate-800 text-white placeholder:text-slate-600 focus-visible:ring-blue-500/50"
               />
             </div>
           </div>

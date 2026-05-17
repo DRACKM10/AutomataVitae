@@ -1,5 +1,5 @@
 "use client";
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
 export interface PersonalInfo {
   fullName: string;
@@ -47,6 +47,7 @@ interface ResumeContextType {
   updateEducation: (id: string, edu: Partial<Education>) => void;
   deleteEducation: (id: string) => void;
   updateSkills: (skills: string[]) => void;
+  clearResumeData: () => void;
 }
 
 const ResumeContext = createContext<ResumeContextType | undefined>(undefined);
@@ -73,6 +74,48 @@ export const ResumeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     education: [],
     skills: [],
   });
+
+  // Load initial from localStorage if present
+  useEffect(() => {
+    const saved = localStorage.getItem('resumeData');
+    if (saved) {
+      try {
+        setResumeData(JSON.parse(saved));
+      } catch (e) {
+        console.error("Error parsing saved resume data", e);
+      }
+    }
+  }, []);
+
+  // Save to localStorage whenever resumeData changes
+  useEffect(() => {
+    const hasData =
+      resumeData.personalInfo.fullName ||
+      resumeData.experience.length > 0 ||
+      resumeData.education.length > 0 ||
+      resumeData.skills.length > 0;
+    if (hasData) {
+      localStorage.setItem('resumeData', JSON.stringify(resumeData));
+    }
+  }, [resumeData]);
+
+  const clearResumeData = () => {
+    const fresh = {
+      personalInfo: {
+        fullName: '',
+        email: '',
+        phone: '',
+        location: '',
+        title: '',
+        summary: '',
+      },
+      experience: [],
+      education: [],
+      skills: [],
+    };
+    setResumeData(fresh);
+    localStorage.removeItem('resumeData');
+  };
 
   const updatePersonalInfo = (info: Partial<PersonalInfo>) => {
     setResumeData(prev => ({
@@ -142,6 +185,7 @@ export const ResumeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         updateEducation,
         deleteEducation,
         updateSkills,
+        clearResumeData,
       }}
     >
       {children}
