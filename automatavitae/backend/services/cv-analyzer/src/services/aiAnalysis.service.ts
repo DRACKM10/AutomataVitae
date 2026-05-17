@@ -116,6 +116,103 @@ Sé específico, constructivo y honesto.`;
    * @returns Array de sugerencias
    */
   async suggestStep(step: string, contextData: string): Promise<any[]> {
+    const defaultSuggestions: Record<string, any[]> = {
+      personal: [
+        {
+          id: 'p1',
+          text: 'Asegúrate de agregar un enlace a tu LinkedIn o portafolio personal para mayor visibilidad.',
+          type: 'tip'
+        },
+        {
+          id: 'p2',
+          text: 'El título profesional debe ser conciso y alinearse con las vacantes a las que apuntas.',
+          type: 'improvement'
+        },
+        {
+          id: 'p3',
+          text: 'Evita incluir datos demasiado sensibles como estado civil o dirección exacta.',
+          type: 'warning'
+        }
+      ],
+      experience: [
+        {
+          id: 'ex1',
+          text: "Usa verbos de acción fuertes al inicio de cada logro (ej: 'Lideré', 'Diseñé', 'Optimicé').",
+          type: 'tip'
+        },
+        {
+          id: 'ex2',
+          text: 'Intenta cuantificar tus logros con porcentajes o números reales siempre que sea posible.',
+          type: 'improvement'
+        },
+        {
+          id: 'ex3',
+          text: 'No dejes brechas de tiempo inexplicables en tu historial laboral reciente.',
+          type: 'warning'
+        }
+      ],
+      education: [
+        {
+          id: 'ed1',
+          text: 'Destaca cursos extracurriculares o certificaciones relevantes si tu educación formal es limitada.',
+          type: 'tip'
+        },
+        {
+          id: 'ed2',
+          text: 'Incluye promedio de notas o menciones de honor únicamente si son sobresalientes.',
+          type: 'improvement'
+        },
+        {
+          id: 'ed3',
+          text: 'Asegúrate de colocar primero tu título académico más reciente.',
+          type: 'warning'
+        }
+      ],
+      skills: [
+        {
+          id: 's1',
+          text: 'Agrupa tus habilidades en categorías (ej: Técnicas, Blandas, Herramientas) en tu mente al seleccionarlas.',
+          type: 'tip'
+        },
+        {
+          id: 's2',
+          text: 'Prioriza las tecnologías requeridas por el mercado actual en tu sector.',
+          type: 'improvement'
+        },
+        {
+          id: 's3',
+          text: "Evita listar habilidades demasiado básicas como 'Navegación web' o 'Uso de correo'.",
+          type: 'warning'
+        }
+      ],
+      preview: [
+        {
+          id: 'pr1',
+          text: 'Revisa dos veces la ortografía y gramática; una simple errata puede descartar tu CV.',
+          type: 'tip'
+        },
+        {
+          id: 'pr2',
+          text: 'Asegúrate de que la hoja de vida no supere las dos páginas de extensión.',
+          type: 'improvement'
+        },
+        {
+          id: 'pr3',
+          text: 'Verifica que tus enlaces (LinkedIn, Portafolio) funcionen correctamente.',
+          type: 'warning'
+        }
+      ]
+    };
+
+    const isPlaceholderKey = !process.env.ANTHROPIC_API_KEY || 
+                             process.env.ANTHROPIC_API_KEY.includes('TU_CLAVE') ||
+                             process.env.ANTHROPIC_API_KEY.includes('placeholder');
+
+    if (isPlaceholderKey) {
+      console.log(`[AIAnalysisService] Usando sugerencias estáticas de fallback para el paso: ${step}`);
+      return defaultSuggestions[step] || defaultSuggestions.personal;
+    }
+
     try {
       const systemPrompt = `Eres un experto reclutador. El usuario está creando su CV en el paso: "${step}".
 Aquí están los datos que ha rellenado en este paso:
@@ -144,7 +241,7 @@ Si los datos están vacíos, da consejos generales para este paso. Devuelve MÁX
       return JSON.parse(cleanText);
     } catch (error: any) {
       console.error('❌ Error en suggestStep:', error.message);
-      return []; // graceful fallback
+      return defaultSuggestions[step] || defaultSuggestions.personal;
     }
   }
 }

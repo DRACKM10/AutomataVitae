@@ -3,6 +3,7 @@ import dotenv from 'dotenv';
 import cors from 'cors';
 import cvRoutes from './routes/cv.routes.js';
 
+// Cargar variables de entorno
 dotenv.config();
 
 const app = express();

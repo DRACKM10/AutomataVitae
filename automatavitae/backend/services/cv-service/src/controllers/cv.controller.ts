@@ -12,6 +12,7 @@ export class CvController {
             const newCv = await cvService.createNewCv(userId, resumeData);
             res.status(201).json(newCv);
         } catch (error: any) {
+            console.error("Error creating resume in controller:", error);
             res.status(400).json({ error: error.message });
         }
     }

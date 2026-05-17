@@ -1,5 +1,12 @@
 import { query, pool } from '../config/db.js';
 
+function formatDateForDb(dateStr: string | null | undefined): string | null {
+    if (!dateStr) return null;
+    if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) return dateStr;
+    if (/^\d{4}-\d{2}$/.test(dateStr)) return `${dateStr}-01`;
+    return dateStr;
+}
+
 export class CvRepository {
     // Crear el CV completo usando una transacción
     async createFullResume(userId: string, resumeData: any) {
@@ -34,8 +41,8 @@ export class CvRepository {
                         exp.company,
                         exp.position,
                         exp.description,
-                        exp.startDate || null,
-                        exp.endDate || null,
+                        formatDateForDb(exp.startDate),
+                        formatDateForDb(exp.endDate),
                         exp.current || false
                     ]);
                 }
@@ -53,8 +60,8 @@ export class CvRepository {
                         edu.institution,
                         edu.degree,
                         edu.field,
-                        edu.startDate || null,
-                        edu.endDate || null,
+                        formatDateForDb(edu.startDate),
+                        formatDateForDb(edu.endDate),
                         edu.current || false
                     ]);
                 }
@@ -87,6 +94,24 @@ export class CvRepository {
     async findById(resumeId: string) {
         const sql = `SELECT * FROM resumes WHERE id = $1;`;
         const result = await query(sql, [resumeId]);
-        return result.rows[0] || null;
+        const cv = result.rows[0] || null;
+        if (!cv) return null;
+
+        // Fetch associated experiences
+        const expSql = `SELECT * FROM resume_experiences WHERE resume_id = $1 ORDER BY start_date DESC;`;
+        const expRes = await query(expSql, [resumeId]);
+        cv.experience = expRes.rows;
+
+        // Fetch associated educations
+        const eduSql = `SELECT * FROM resume_educations WHERE resume_id = $1 ORDER BY start_date DESC;`;
+        const eduRes = await query(eduSql, [resumeId]);
+        cv.education = eduRes.rows;
+
+        // Fetch associated skills
+        const skillSql = `SELECT skill FROM resume_skills WHERE resume_id = $1;`;
+        const skillRes = await query(skillSql, [resumeId]);
+        cv.skills = skillRes.rows.map(r => r.skill);
+
+        return cv;
     }
 }
