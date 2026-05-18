@@ -55,8 +55,7 @@ export default function LandingPage() {
         
         <div className="hidden md:flex items-center gap-8 text-sm font-medium text-gray-600 dark:text-gray-400">
           <Link href="#features" className="hover:text-blue-500 cursor-pointer transition-colors">Características</Link>
-          <Link href="#pricing" className="hover:text-blue-500 cursor-pointer transition-colors">Planes</Link>
-          <Link href="#faq" className="hover:text-blue-500 cursor-pointer transition-colors">FAQ</Link>
+        <Link href="/planes" className="hover:text-blue-500 cursor-pointer transition-colors">Planes</Link>          <Link href="#faq" className="hover:text-blue-500 cursor-pointer transition-colors">FAQ</Link>
         </div>
 
         <div className="flex items-center gap-3">

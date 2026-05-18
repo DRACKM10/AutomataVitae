@@ -5,6 +5,7 @@ dotenv.config();
 import express, { Application } from 'express';
 import cors from 'cors';
 import analyzerRoutes from './routes/analyzer.routes';
+import { paymentRouter } from './routes/payment.routes';
 import { errorHandler } from './middleware/errorHandler';
 
 const app: Application = express();
@@ -25,6 +26,7 @@ app.get('/health', (req, res) => {
 
 // Rutas
 app.use('/api/analyze', analyzerRoutes);
+app.use('/api/payments', paymentRouter);
 
 // Error handling - DEBE IR AL FINAL
 app.use(errorHandler);

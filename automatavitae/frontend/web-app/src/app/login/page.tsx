@@ -24,7 +24,7 @@ export default function page() {
     if (error) {
       setError('Correo o contraseña incorrectos.');
     } else {
-      router.push('/create');
+      router.push('/planes');
     }
 
     setLoading(false);
