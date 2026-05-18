@@ -10,6 +10,7 @@ import {
   Plus, Moon, Sun, Loader2, Mail, User, Check, ExternalLink, Lock, LogOut
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { InterviewChatModal } from '@/components/InterviewChatModal';
 
 interface UserProfile {
   userId: string;
@@ -34,6 +35,10 @@ export default function DashboardPage() {
   const [theme, setTheme] = useState<'dark' | 'light'>('dark');
   const [activeTab, setActiveTab] = useState<'dashboard' | 'cvs' | 'ai' | 'templates' | 'settings'>('dashboard');
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCvId, setSelectedCvId] = useState<string>('');
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [aiResult, setAiResult] = useState<any | null>(null);
+  const [isInterviewModalOpen, setIsInterviewModalOpen] = useState(false);
 
   useEffect(() => {
     // Stakent style is strictly dark by default! Let's ensure dark mode is active.
@@ -88,6 +93,76 @@ export default function DashboardPage() {
 
     fetchData();
   }, [router]);
+
+  const handleAnalyzeCV = async () => {
+    const cvIdToUse = selectedCvId || (cvs.length > 0 ? cvs[0].id : null);
+    if (!cvIdToUse) {
+      toast.error('Sin Currículum', { description: 'Por favor selecciona o crea un currículum primero.' });
+      return;
+    }
+
+    setIsAnalyzing(true);
+    setAiResult(null);
+
+    try {
+      const token = localStorage.getItem('token');
+      // Obtener detalles completos del CV seleccionado
+      const detailRes = await fetch(`http://localhost:3006/api/v1/cvs/${cvIdToUse}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      
+      if (!detailRes.ok) throw new Error('No se pudo obtener el currículum seleccionado.');
+      
+      const cvData = await detailRes.json();
+      
+      // Armar un bloque de texto en bruto con la información del CV
+      const parts = [];
+      if (cvData.title) parts.push(`Título: ${cvData.title}`);
+      if (cvData.summary) parts.push(`Resumen: ${cvData.summary}`);
+      if (cvData.experience && cvData.experience.length > 0) {
+        parts.push("Experiencia laboral:");
+        cvData.experience.forEach((exp: any) => {
+          parts.push(`- ${exp.position} en ${exp.company}. Desde ${exp.start_date ? new Date(exp.start_date).getFullYear() : ''} hasta ${exp.is_current ? 'Presente' : (exp.end_date ? new Date(exp.end_date).getFullYear() : '')}. ${exp.description || ''}`);
+        });
+      }
+      if (cvData.skills && cvData.skills.length > 0) {
+        parts.push(`Habilidades: ${cvData.skills.join(', ')}`);
+      }
+      
+      const compiledRawText = parts.join('\n\n');
+
+      if (!compiledRawText.trim()) {
+        throw new Error('El currículum seleccionado parece no tener información.');
+      }
+
+      const response = await fetch('http://localhost:3001/api/ia/analyze', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          user_id: profile?.userId,
+          raw_text: compiledRawText
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        const errorMsg = errorData.details || errorData.error || 'Error al procesar el currículum con Inteligencia Artificial.';
+        throw new Error(errorMsg);
+      }
+
+      const data = await response.json();
+      setAiResult(data.data);
+      toast.success('¡Análisis completado!', { description: 'Revisa las métricas y sugerencias de la IA.' });
+    } catch (error: any) {
+      console.error(error);
+      toast.error('Error de Análisis', { description: error.message });
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -611,22 +686,181 @@ export default function DashboardPage() {
                 initial={{ opacity: 0, y: 15 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -15 }}
-                className="bg-[#12131A] border border-[#1E222D] rounded-3xl p-6 shadow-2xl space-y-6 text-center py-16"
+                className="space-y-6"
               >
-                <div className="w-16 h-16 rounded-2xl bg-[#6366F1]/10 border border-[#6366F1]/20 flex items-center justify-center text-[#818CF8] mx-auto shadow-lg shadow-[#6366F1]/5">
-                  <Cpu className="w-8 h-8" />
+                <div className="bg-[#12131A] border border-[#1E222D] rounded-3xl p-6 shadow-2xl relative overflow-hidden">
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-[#A855F7]/10 rounded-full blur-3xl" />
+                  <div className="flex items-center gap-3 border-b border-[#1E222D] pb-5">
+                    <div className="w-10 h-10 rounded-xl bg-[#A855F7]/10 border border-[#A855F7]/20 flex items-center justify-center text-[#A855F7]">
+                      <Cpu className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h3 className="text-base font-black text-white">Auditor Inteligente</h3>
+                      <p className="text-xs text-[#64748B]">Pega el texto de tu CV y obtén un análisis profundo ATS.</p>
+                    </div>
+                  </div>
+
+                  {!aiResult && !isAnalyzing && (
+                    <div className="mt-6 space-y-4 relative z-10 text-left">
+                      <label className="text-xs font-bold text-white uppercase tracking-wider block ml-1">Selecciona un Currículum para analizar:</label>
+                      {cvs.length > 0 ? (
+                        <div className="relative">
+                          <select 
+                            value={selectedCvId}
+                            onChange={(e) => setSelectedCvId(e.target.value)}
+                            className="w-full appearance-none bg-[#16171F] border border-[#272B36] rounded-xl px-4 py-3.5 text-sm text-white focus:border-[#A855F7] focus:ring-1 focus:ring-[#A855F7] outline-none transition-all cursor-pointer shadow-inner"
+                          >
+                            <option value="" disabled>Elige tu hoja de vida...</option>
+                            {cvs.map(cv => (
+                              <option key={cv.id} value={cv.id}>{cv.title} ({new Date(cv.updated_at).toLocaleDateString()})</option>
+                            ))}
+                          </select>
+                          <div className="absolute inset-y-0 right-4 flex items-center pointer-events-none">
+                            <ChevronRight className="w-4 h-4 text-[#64748B] transform rotate-90" />
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="p-4 bg-amber-500/10 border border-amber-500/20 rounded-xl">
+                          <p className="text-xs text-amber-400 font-medium">No tienes ningún currículum guardado. Crea uno primero en la sección "Crear Nuevo CV".</p>
+                        </div>
+                      )}
+                      
+                      <div className="flex justify-end pt-2">
+                        <button
+                          onClick={handleAnalyzeCV}
+                          disabled={cvs.length === 0}
+                          className="flex items-center gap-2 bg-gradient-to-r from-[#A855F7] to-[#C084FC] hover:from-[#9333EA] hover:to-[#A855F7] disabled:opacity-50 disabled:cursor-not-allowed text-white px-6 py-2.5 rounded-xl font-bold text-xs shadow-lg shadow-[#A855F7]/20 transition-all cursor-pointer"
+                        >
+                          <Sparkles className="w-4 h-4" />
+                          Procesar con Inteligencia Artificial
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {isAnalyzing && (
+                    <div className="py-16 flex flex-col items-center justify-center space-y-6">
+                      <div className="relative">
+                        <div className="absolute inset-0 bg-[#A855F7] rounded-full blur-xl animate-pulse opacity-40"></div>
+                        <div className="h-20 w-20 bg-[#16171F] border border-[#272B36] rounded-full flex items-center justify-center relative shadow-2xl">
+                          <Cpu className="animate-pulse text-[#A855F7]" size={36} />
+                        </div>
+                      </div>
+                      <div className="text-center space-y-1">
+                        <h4 className="text-white font-bold text-sm animate-pulse">Procesando Perfil...</h4>
+                        <p className="text-xs text-[#94A3B8]">Aplicando modelos de PNL para analizar fortalezas y ATS keywords.</p>
+                      </div>
+                    </div>
+                  )}
                 </div>
-                <div className="space-y-2 max-w-md mx-auto">
-                  <h3 className="text-lg font-black text-white">Asistente de Escritura Inteligente</h3>
-                  <p className="text-xs text-[#94A3B8]">
-                    Analiza y reformula tus experiencias profesionales usando modelos avanzados de IA adaptados a tu sector.
-                  </p>
-                </div>
-                <div className="pt-4">
-                  <span className="text-[10px] uppercase font-bold tracking-widest px-3 py-1 bg-[#A855F7]/10 text-[#D8B4FE] border border-[#A855F7]/20 rounded-full">
-                    Próximamente disponible
-                  </span>
-                </div>
+
+                {/* RESULTADOS */}
+                {aiResult && !isAnalyzing && (
+                  <motion.div 
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="grid grid-cols-1 md:grid-cols-3 gap-6"
+                  >
+                    {/* Puntaje Card */}
+                    <div className="bg-[#12131A] border border-[#1E222D] rounded-3xl p-6 shadow-2xl flex flex-col items-center justify-center text-center space-y-4 relative overflow-hidden">
+                      <div className="absolute top-0 left-0 w-24 h-24 bg-emerald-500/10 rounded-full blur-2xl" />
+                      <h4 className="text-xs font-bold text-[#64748B] uppercase tracking-wider">Score Global</h4>
+                      <div className="relative flex items-center justify-center w-32 h-32">
+                        <svg className="w-full h-full transform -rotate-90">
+                          <circle cx="64" cy="64" r="56" fill="none" stroke="#1E222D" strokeWidth="12" />
+                          <circle 
+                            cx="64" cy="64" r="56" fill="none" 
+                            stroke={aiResult.overall_score >= 80 ? '#10B981' : aiResult.overall_score >= 50 ? '#F59E0B' : '#EF4444'} 
+                            strokeWidth="12" 
+                            strokeDasharray="351.8" 
+                            strokeDashoffset={351.8 - (351.8 * aiResult.overall_score) / 100}
+                            className="transition-all duration-1000 ease-out"
+                          />
+                        </svg>
+                        <div className="absolute inset-0 flex items-center justify-center flex-col">
+                          <span className="text-3xl font-black text-white">{aiResult.overall_score}</span>
+                          <span className="text-[10px] text-[#64748B]">/ 100</span>
+                        </div>
+                      </div>
+                      <span className={`text-[10px] font-bold px-3 py-1 rounded-full ${
+                        aiResult.overall_score >= 80 ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 
+                        aiResult.overall_score >= 50 ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20' : 
+                        'bg-red-500/10 text-red-400 border border-red-500/20'
+                      }`}>
+                        {aiResult.overall_score >= 80 ? 'Excelente Perfil' : aiResult.overall_score >= 50 ? 'Requiere Mejoras' : 'Perfil Deficiente'}
+                      </span>
+                    </div>
+
+                    {/* Fortalezas y Debilidades */}
+                    <div className="md:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-6">
+                      <div className="bg-[#16171F] border border-[#272B36] rounded-3xl p-5 shadow-lg space-y-3 relative overflow-hidden">
+                        <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/5 rounded-full blur-xl" />
+                        <h4 className="text-xs font-bold text-emerald-400 uppercase tracking-wider flex items-center gap-1.5">
+                          <TrendingUp className="w-3.5 h-3.5" /> Principales Fortalezas
+                        </h4>
+                        <p className="text-xs text-[#94A3B8] leading-relaxed relative z-10 whitespace-pre-wrap">
+                          {aiResult.strengths || 'No se detectaron fortalezas claras.'}
+                        </p>
+                      </div>
+
+                      <div className="bg-[#16171F] border border-[#272B36] rounded-3xl p-5 shadow-lg space-y-3 relative overflow-hidden">
+                        <div className="absolute top-0 right-0 w-24 h-24 bg-amber-500/5 rounded-full blur-xl" />
+                        <h4 className="text-xs font-bold text-amber-400 uppercase tracking-wider flex items-center gap-1.5">
+                          <TrendingUp className="w-3.5 h-3.5 transform rotate-180" /> Áreas de Mejora
+                        </h4>
+                        <p className="text-xs text-[#94A3B8] leading-relaxed relative z-10 whitespace-pre-wrap">
+                          {aiResult.weaknesses || 'No se detectaron debilidades obvias.'}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Keywords Extraídas */}
+                    <div className="md:col-span-3 bg-[#12131A] border border-[#1E222D] rounded-3xl p-6 shadow-2xl">
+                      <div className="border-b border-[#1E222D] pb-4 mb-4 flex justify-between items-center">
+                        <h4 className="text-sm font-bold text-white flex items-center gap-2">
+                          <Check className="w-4 h-4 text-[#818CF8]" />
+                          Keywords y Habilidades Detectadas (ATS)
+                        </h4>
+                        <button 
+                          onClick={() => {
+                            setSelectedCvId('');
+                            setAiResult(null);
+                          }}
+                          className="text-[10px] text-[#64748B] hover:text-white transition-colors cursor-pointer flex items-center gap-1 border border-[#272B36] px-3 py-1.5 rounded-lg hover:bg-[#16171F]"
+                        >
+                          <Edit2 className="w-3 h-3" /> Nuevo Análisis
+                        </button>
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        {aiResult.skills_extracted && aiResult.skills_extracted.length > 0 ? (
+                          aiResult.skills_extracted.map((skill: string, idx: number) => (
+                            <span key={idx} className="text-[11px] font-bold px-3 py-1.5 bg-[#16171F] border border-[#272B36] text-[#D8B4FE] rounded-lg shadow-sm">
+                              {skill}
+                            </span>
+                          ))
+                        ) : (
+                          <span className="text-xs text-[#64748B]">No se detectaron habilidades técnicas claras.</span>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Botón Simular Entrevista */}
+                    <div className="md:col-span-3">
+                      <button
+                        onClick={() => setIsInterviewModalOpen(true)}
+                        className="w-full bg-gradient-to-r from-[#6366F1] via-[#A855F7] to-[#EC4899] hover:from-[#4F46E5] hover:via-[#9333EA] hover:to-[#DB2777] text-white font-bold py-5 shadow-[0_0_15px_rgba(168,85,247,0.3)] hover:shadow-[0_0_30px_rgba(168,85,247,0.5)] transition-all duration-300 transform hover:-translate-y-1 rounded-2xl flex flex-col items-center justify-center gap-1 group relative overflow-hidden cursor-pointer"
+                      >
+                        <div className="absolute inset-0 bg-white/20 blur-[20px] rounded-full scale-0 group-hover:scale-150 transition-transform duration-700 ease-out"></div>
+                        <div className="flex items-center gap-2 relative z-10">
+                          <Sparkles className="w-5 h-5 animate-pulse" />
+                          <span className="text-lg tracking-wide">Simular Entrevista Técnica</span>
+                        </div>
+                        <span className="text-xs text-white/80 font-normal relative z-10 hidden sm:block">Pon a prueba tus habilidades con nuestro reclutador IA</span>
+                      </button>
+                    </div>
+
+                  </motion.div>
+                )}
               </motion.div>
             )}
 
@@ -989,6 +1223,12 @@ export default function DashboardPage() {
         </main>
       </div>
 
+      <InterviewChatModal 
+        open={isInterviewModalOpen} 
+        onOpenChange={setIsInterviewModalOpen}
+        cvAnalysisId={aiResult?.id || null}
+        userId={profile?.userId || null}
+      />
     </div>
   );
 }

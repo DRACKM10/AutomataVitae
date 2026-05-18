@@ -39,8 +39,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased bg-white dark:bg-[#09090b] text-slate-900 dark:text-slate-100 min-h-screen relative`}>
+    <html lang="en" suppressHydrationWarning>
+      <body suppressHydrationWarning className={`${geistSans.variable} ${geistMono.variable} antialiased bg-white dark:bg-[#09090b] text-slate-900 dark:text-slate-100 min-h-screen relative`}>
         <GoogleOAuthProviderClient>
           <div className="fixed inset-0 z-[-1]">
             <ParticleBackground baseOpacity="opacity-40 dark:opacity-50" />

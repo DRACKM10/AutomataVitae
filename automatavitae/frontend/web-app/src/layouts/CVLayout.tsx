@@ -2,11 +2,12 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { Progress } from '@/components/ui/progress';
-import { ArrowLeft, Eye, EyeOff, FileText, LogOut, User } from 'lucide-react';
+import { ArrowLeft, Eye, EyeOff, FileText, LogOut, User, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { ResumePreview } from '@/components/steps/ResumePreview';
 import { motion } from 'motion/react';
+import { AICopilotModal } from '@/components/AICopilotModal';
 
 const steps = [
   { path: '/create', label: 'Personal', step: 1 },
@@ -22,6 +23,7 @@ export default function CVLayout({ children }: { children: React.ReactNode }) {
   const [previewOpen, setPreviewOpen] = useState(false);
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [userName, setUserName] = useState<string | null>(null);
+  const [isCopilotOpen, setIsCopilotOpen] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -210,10 +212,27 @@ export default function CVLayout({ children }: { children: React.ReactNode }) {
                   <ResumePreview />
                 </div>
               </div>
+
+              {/* Botón Flotante Copiloto IA */}
+              <div className="mt-6">
+                <Button 
+                  onClick={() => setIsCopilotOpen(true)}
+                  className="w-full bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 hover:from-blue-700 hover:via-indigo-700 hover:to-violet-700 text-white font-bold py-6 shadow-[0_0_15px_rgba(79,70,229,0.3)] hover:shadow-[0_0_25px_rgba(79,70,229,0.5)] transition-all duration-300 transform hover:-translate-y-1 rounded-xl flex flex-col items-center justify-center gap-1 group relative overflow-hidden"
+                >
+                  <div className="absolute inset-0 bg-white/20 blur-[20px] rounded-full scale-0 group-hover:scale-150 transition-transform duration-700 ease-out"></div>
+                  <div className="flex items-center gap-2 relative z-10">
+                    <Sparkles className="w-5 h-5 animate-pulse" />
+                    <span className="text-base tracking-wide">Corregir con IA</span>
+                  </div>
+                  <span className="text-xs text-blue-100 font-normal relative z-10 hidden xl:block">Optimiza y mejora la redacción al instante</span>
+                </Button>
+              </div>
             </div>
           </div>
         </div>
       </div>
+
+      <AICopilotModal open={isCopilotOpen} onOpenChange={setIsCopilotOpen} />
     </div>
   );
 };

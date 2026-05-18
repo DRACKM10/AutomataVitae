@@ -16,10 +16,11 @@ export class AuthController {
             const result = await authService.register(full_name, email, password);
             res.status(201).json(result);
         } catch (error: any) {
+            console.error('Error in register:', error);
             if (error.message === 'EL_EMAIL_YA_EXISTE') {
                 res.status(400).json({ error: 'El correo electrónico ya está registrado.' });
             } else {
-                res.status(500).json({ error: 'Error interno del servidor' });
+                res.status(500).json({ error: 'Error interno del servidor', details: error.message });
             }
         }
     }
@@ -36,12 +37,13 @@ export class AuthController {
             const result = await authService.login(email, password);
             res.status(200).json(result);
         } catch (error: any) {
+            console.error('Error in login:', error);
             if (error.message === 'CREDENCIALES_INVALIDAS') {
                 res.status(401).json({ error: 'Credenciales incorrectas.' });
             } else if (error.message === 'CUENTA_REGISTRADA_CON_OAUTH') {
                 res.status(400).json({ error: 'Esta cuenta utiliza inicio de sesión con Google o GitHub.' });
             } else {
-                res.status(500).json({ error: 'Error interno del servidor' });
+                res.status(500).json({ error: 'Error interno del servidor', details: error.message });
             }
         }
     }
