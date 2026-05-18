@@ -2,7 +2,7 @@ import Anthropic from '@anthropic-ai/sdk';
 
 // Verificar que existe la API key
 if (!process.env.ANTHROPIC_API_KEY) {
-  throw new Error('❌ ANTHROPIC_API_KEY no está configurada en el archivo .env');
+  throw new Error(' ANTHROPIC_API_KEY no está configurada en el archivo .env');
 }
 
 // Inicializar cliente de Anthropic

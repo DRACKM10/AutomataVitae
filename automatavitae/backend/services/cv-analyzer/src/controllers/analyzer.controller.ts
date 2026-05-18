@@ -25,22 +25,22 @@ export const uploadAndAnalyze = async (
       });
     }
 
-    console.log('📄 Archivo recibido:', req.file.originalname);
-    console.log('📊 Tamaño:', (req.file.size / 1024).toFixed(2), 'KB');
+    console.log(' Archivo recibido:', req.file.originalname);
+    console.log(' Tamaño:', (req.file.size / 1024).toFixed(2), 'KB');
 
     // 2. Extraer texto del PDF
-    console.log('🔍 Extrayendo texto del PDF...');
+    console.log(' Extrayendo texto del PDF...');
     const parsedCV = await cvParser.extractText(req.file.buffer);
-    console.log('✅ Texto extraído:', parsedCV.text.length, 'caracteres');
-    console.log('📑 Páginas:', parsedCV.pageCount);
+    console.log(' Texto extraído:', parsedCV.text.length, 'caracteres');
+    console.log(' Páginas:', parsedCV.pageCount);
 
     // 3. Analizar con IA
-    console.log('🤖 Analizando con IA...');
+    console.log(' Analizando con IA...');
     const analysis = await aiAnalysis.analyzeCV(parsedCV.text);
-    console.log('✅ Análisis completado');
+    console.log(' Análisis completado');
 
     // 4. Guardar en Supabase
-    console.log('💾 Guardando en base de datos...');
+    console.log(' Guardando en base de datos...');
     const { data: savedAnalysis, error: dbError } = await supabase
       .from('cv_analyses')
       .insert({
@@ -60,10 +60,10 @@ export const uploadAndAnalyze = async (
       .single();
 
     if (dbError) {
-      console.error('❌ Error al guardar en BD:', dbError);
+      console.error(' Error al guardar en BD:', dbError);
       // No detenemos el proceso, solo loggeamos el error
     } else {
-      console.log('✅ Análisis guardado con ID:', savedAnalysis.id);
+      console.log(' Análisis guardado con ID:', savedAnalysis.id);
     }
 
     // 5. Retornar resultado
@@ -106,9 +106,9 @@ export const suggestForStep = async (
       return res.status(400).json({ error: 'Falta el paso (step)' });
     }
     
-    console.log(`🤖 Generando sugerencias para paso: ${step}...`);
+    console.log(` Generando sugerencias para paso: ${step}...`);
     const suggestions = await aiAnalysis.suggestStep(step, context || '{}');
-    console.log(`✅ ${suggestions.length} sugerencias generadas.`);
+    console.log(` ${suggestions.length} sugerencias generadas.`);
     
     res.json({ success: true, suggestions });
   } catch (error) {

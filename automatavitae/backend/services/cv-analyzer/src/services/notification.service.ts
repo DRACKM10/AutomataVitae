@@ -5,10 +5,6 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 
 const FROM_EMAIL = 'AutomataVitae <notificaciones@automatavitae.com>';
 
-// ============================================================
-// Templates HTML
-// ============================================================
-
 const baseTemplate = (content: string) => `
 <!DOCTYPE html>
 <html lang="es">
@@ -148,10 +144,6 @@ const paymentRenewalTemplate = (data: {
   <a href="${process.env.FRONTEND_URL}/planes" class="btn">Gestionar suscripción →</a>
 `);
 
-// ============================================================
-// Servicio de notificaciones
-// ============================================================
-
 export class NotificationService {
 
   private async saveNotification(data: {
@@ -224,9 +216,9 @@ export class NotificationService {
         status: 'sent',
       });
 
-      console.log(`✅ Email de confirmación enviado a ${params.userEmail}`);
+      console.log(` Email de confirmación enviado a ${params.userEmail}`);
     } catch (err: any) {
-      console.error('❌ Error enviando email de confirmación:', err.message);
+      console.error(' Error enviando email de confirmación:', err.message);
       await this.saveNotification({
         userId: params.userId,
         eventType: 'payment_confirmed',
@@ -273,9 +265,9 @@ export class NotificationService {
         status: 'sent',
       });
 
-      console.log(`✅ Email de fallo enviado a ${params.userEmail}`);
+      console.log(` Email de fallo enviado a ${params.userEmail}`);
     } catch (err: any) {
-      console.error('❌ Error enviando email de fallo:', err.message);
+      console.error(' Error enviando email de fallo:', err.message);
       await this.saveNotification({
         userId: params.userId,
         eventType: 'payment_failed',
@@ -329,9 +321,9 @@ export class NotificationService {
         status: 'sent',
       });
 
-      console.log(`✅ Email de renovación enviado a ${params.userEmail}`);
+      console.log(` Email de renovación enviado a ${params.userEmail}`);
     } catch (err: any) {
-      console.error('❌ Error enviando email de renovación:', err.message);
+      console.error(' Error enviando email de renovación:', err.message);
       await this.saveNotification({
         userId: params.userId,
         eventType: 'payment_renewal',
