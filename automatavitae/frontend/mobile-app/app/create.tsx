@@ -4,6 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { ParticleBackground } from '../components/ParticleBackground';
 import { useAppTheme } from '../context/ThemeContext';
 import { useRouter } from 'expo-router';
+import { AIAssistant } from '../components/AIAssistant';
 
 export default function CreateScreen() {
   const { isDark } = useAppTheme();
@@ -34,6 +35,26 @@ export default function CreateScreen() {
 
   const handlePrev = () => {
     if (step > 0) setStep(step - 1);
+  };
+
+  const getStepKey = () => {
+    switch (step) {
+      case 0: return 'personal';
+      case 1: return 'experience';
+      case 2: return 'education';
+      case 3: return 'skills';
+      default: return 'personal';
+    }
+  };
+
+  const getContextForStep = () => {
+    switch (step) {
+      case 0: return JSON.stringify(personal);
+      case 1: return JSON.stringify(experience);
+      case 2: return JSON.stringify(education);
+      case 3: return JSON.stringify({ skills });
+      default: return '{}';
+    }
   };
 
   const renderInput = (label: string, value: string, onChange: (t: string) => void, multiline = false) => (
@@ -118,12 +139,10 @@ export default function CreateScreen() {
               {step === 3 && (
                 <>
                   {renderInput('Habilidades (separadas por coma)', skills, setSkills, true)}
-                  <View style={[styles.aiHint, { backgroundColor: isDark ? 'rgba(59, 130, 246, 0.1)' : '#eff6ff' }]}>
-                    <Ionicons name="sparkles" size={20} color="#3b82f6" />
-                    <Text style={[styles.aiHintText, { color: isDark ? '#93c5fd' : '#1e3a8a' }]}>Nuestra IA organizará tus habilidades y sugerirá mejoras en la redacción final.</Text>
-                  </View>
                 </>
               )}
+
+              <AIAssistant step={getStepKey()} context={getContextForStep()} />
             </View>
 
             <View style={styles.buttonRow}>

@@ -7,9 +7,11 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { AIAssistant } from '@/components/AIAssistant';
-import { ArrowRight, Plus, Trash2, Briefcase } from 'lucide-react';
+import { ArrowRight, Plus, Trash2, Briefcase, Calendar as CalendarIcon } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { motion } from 'motion/react';
+import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
+import { Calendar } from '@/components/ui/calendar';
 
 export const StepExperience: React.FC = () => {
   const router = useRouter();
@@ -24,6 +26,17 @@ export const StepExperience: React.FC = () => {
     current: false,
     description: '',
   });
+
+  const [startDateOpen, setStartDateOpen] = useState(false);
+  const [endDateOpen, setEndDateOpen] = useState(false);
+
+  const formatDateLabel = (dateStr: string) => {
+    if (!dateStr) return 'Seleccionar fecha';
+    const [year, month] = dateStr.split('-');
+    const date = new Date(Number(year), Number(month) - 1, 2);
+    const label = new Intl.DateTimeFormat('es', { month: 'long', year: 'numeric' }).format(date);
+    return label.charAt(0).toUpperCase() + label.slice(1);
+  };
 
   const handleAddExperience = () => {
     if (currentExp.company && currentExp.position && currentExp.startDate) {
@@ -62,93 +75,156 @@ export const StepExperience: React.FC = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
-        className="bg-white rounded-lg shadow-md p-6 border border-gray-200"
+        className="bg-slate-900/60 backdrop-blur-xl rounded-lg shadow-xl p-6 border border-slate-800"
       >
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Experiencia Laboral</h2>
-        <p className="text-gray-600 mb-6">
+        <h2 className="text-2xl font-bold text-white mb-2">Experiencia Laboral</h2>
+        <p className="text-slate-400 mb-6">
           Agrega tu experiencia laboral relevante. Enfócate en logros y resultados medibles.
         </p>
 
         {/* Lista de experiencias agregadas */}
         {resumeData.experience.length > 0 && (
           <div className="space-y-3 mb-6">
-            {resumeData.experience.map((exp) => (
-              <div
-                key={exp.id}
-                className="p-4 bg-blue-50 border border-blue-200 rounded-md flex items-start justify-between"
-              >
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-1">
-                    <Briefcase className="w-4 h-4 text-blue-700" />
-                    <h4 className="font-semibold text-gray-900">{exp.position}</h4>
-                  </div>
-                  <p className="text-sm text-blue-700 font-medium">{exp.company}</p>
-                  <p className="text-xs text-gray-600 mt-1">
-                    {exp.startDate} - {exp.current ? 'Presente' : exp.endDate}
-                  </p>
-                </div>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => deleteExperience(exp.id)}
-                  className="text-red-600 hover:text-red-700 hover:bg-red-50"
+            {resumeData.experience.map((exp) => {
+              const formatDate = (dateStr: string) => {
+                if (!dateStr) return '';
+                const parts = dateStr.split('-');
+                if (parts.length !== 2) return dateStr;
+                const [year, month] = parts;
+                const months = [
+                  'Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun',
+                  'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'
+                ];
+                const monthIdx = parseInt(month, 10) - 1;
+                const monthName = months[monthIdx] || month;
+                return `${monthName} ${year}`;
+              };
+              return (
+                <div
+                  key={exp.id}
+                  className="p-4 bg-blue-950/40 border border-blue-900/50 rounded-md flex items-start justify-between"
                 >
-                  <Trash2 className="w-4 h-4" />
-                </Button>
-              </div>
-            ))}
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <Briefcase className="w-4 h-4 text-blue-400" />
+                      <h4 className="font-semibold text-white">{exp.position}</h4>
+                    </div>
+                    <p className="text-sm text-blue-400 font-medium">{exp.company}</p>
+                    <p className="text-xs text-slate-400 mt-1">
+                      {formatDate(exp.startDate)} - {exp.current ? 'Presente' : formatDate(exp.endDate)}
+                    </p>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => deleteExperience(exp.id)}
+                    className="text-red-400 hover:text-red-300 hover:bg-red-950/50"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </div>
+              );
+            })}
           </div>
         )}
 
         {/* Formulario de nueva experiencia */}
         {isAdding ? (
-          <div className="space-y-4 p-4 bg-gray-50 rounded-md border border-gray-200">
+          <div className="space-y-4 p-4 bg-slate-950/40 rounded-md border border-slate-800">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="position">Cargo *</Label>
+                <Label className="text-slate-200" htmlFor="position">Cargo *</Label>
                 <Input
                   id="position"
                   value={currentExp.position}
                   onChange={(e) => setCurrentExp({ ...currentExp, position: e.target.value })}
                   placeholder="Ej: Desarrollador Frontend"
-                  className="mt-1"
+                  className="mt-1 bg-slate-950/50 border-slate-800 text-white placeholder:text-slate-600"
                 />
               </div>
 
               <div>
-                <Label htmlFor="company">Empresa *</Label>
+                <Label className="text-slate-200" htmlFor="company">Empresa *</Label>
                 <Input
                   id="company"
                   value={currentExp.company}
                   onChange={(e) => setCurrentExp({ ...currentExp, company: e.target.value })}
                   placeholder="Ej: Tech Solutions Inc."
-                  className="mt-1"
+                  className="mt-1 bg-slate-950/50 border-slate-800 text-white placeholder:text-slate-600"
                 />
               </div>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="startDate">Fecha de Inicio *</Label>
-                <Input
-                  id="startDate"
-                  type="month"
-                  value={currentExp.startDate}
-                  onChange={(e) => setCurrentExp({ ...currentExp, startDate: e.target.value })}
-                  className="mt-1"
-                />
+                <Label className="text-slate-200" htmlFor="startDate">Fecha de Inicio *</Label>
+                <Popover open={startDateOpen} onOpenChange={setStartDateOpen}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      id="startDate"
+                      variant="outline"
+                      className="w-full mt-1 justify-start text-left font-normal bg-slate-950/50 border-slate-800 text-white hover:bg-slate-900/60 hover:text-white"
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4 text-slate-400" />
+                      {currentExp.startDate ? (
+                        formatDateLabel(currentExp.startDate)
+                      ) : (
+                        <span className="text-slate-500">Seleccionar fecha</span>
+                      )}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0 bg-slate-950 border border-slate-800 text-white" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={currentExp.startDate ? new Date(currentExp.startDate + "-02") : undefined}
+                      onSelect={(date) => {
+                        if (date) {
+                          const year = date.getFullYear();
+                          const month = String(date.getMonth() + 1).padStart(2, '0');
+                          setCurrentExp({ ...currentExp, startDate: `${year}-${month}` });
+                        }
+                        setStartDateOpen(false);
+                      }}
+                      className="bg-slate-950 text-white"
+                    />
+                  </PopoverContent>
+                </Popover>
               </div>
 
               <div>
-                <Label htmlFor="endDate">Fecha de Fin</Label>
-                <Input
-                  id="endDate"
-                  type="month"
-                  value={currentExp.endDate}
-                  onChange={(e) => setCurrentExp({ ...currentExp, endDate: e.target.value })}
-                  disabled={currentExp.current}
-                  className="mt-1"
-                />
+                <Label className="text-slate-200" htmlFor="endDate">Fecha de Fin</Label>
+                <Popover open={endDateOpen} onOpenChange={setEndDateOpen}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      id="endDate"
+                      variant="outline"
+                      disabled={currentExp.current}
+                      className="w-full mt-1 justify-start text-left font-normal bg-slate-950/50 border-slate-800 text-white hover:bg-slate-900/60 hover:text-white disabled:opacity-50"
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4 text-slate-400" />
+                      {currentExp.endDate ? (
+                        formatDateLabel(currentExp.endDate)
+                      ) : (
+                        <span className="text-slate-500">Seleccionar fecha</span>
+                      )}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0 bg-slate-950 border border-slate-800 text-white" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={currentExp.endDate ? new Date(currentExp.endDate + "-02") : undefined}
+                      onSelect={(date) => {
+                        if (date) {
+                          const year = date.getFullYear();
+                          const month = String(date.getMonth() + 1).padStart(2, '0');
+                          setCurrentExp({ ...currentExp, endDate: `${year}-${month}` });
+                        }
+                        setEndDateOpen(false);
+                      }}
+                      className="bg-slate-950 text-white"
+                    />
+                  </PopoverContent>
+                </Popover>
               </div>
             </div>
 
@@ -173,10 +249,10 @@ export const StepExperience: React.FC = () => {
                 onChange={(e) => setCurrentExp({ ...currentExp, description: e.target.value })}
                 placeholder="• Desarrollé una aplicación que aumentó la eficiencia en 30%&#10;• Lideré un equipo de 5 personas&#10;• Implementé metodologías ágiles"
                 rows={5}
-                className="mt-1"
+                className="mt-1 dark:bg-slate-900 dark:border-slate-700"
               />
-              <p className="text-xs text-gray-500 mt-1">
-                Usa viñetas (•) para listar tus logros y responsabilidades
+              <p className="text-xs text-gray-500 dark:text-slate-500 mt-1">
+                {currentExp.description.length} / 300 caracteres recomendados
               </p>
             </div>
 

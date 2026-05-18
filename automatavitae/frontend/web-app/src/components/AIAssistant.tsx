@@ -15,27 +15,29 @@ interface AIAssistantProps {
   context?: string;
 }
 
-// Puerto
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333';
-
 export const AIAssistant: React.FC<AIAssistantProps> = ({ step, context }) => {
   const [loading, setLoading] = useState(true);
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [isExpanded, setIsExpanded] = useState(true);
+  const [unavailable, setUnavailable] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10_000); // 10s timeout
 
     const fetchSuggestions = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`${API_URL}/api/analyze/suggest`, {
+        setUnavailable(false);
+        const response = await fetch('http://localhost:3001/api/cv/suggest', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ step, context }),
+          signal: controller.signal,
         });
 
-        if (!response.ok) throw new Error('Error de red');
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
         const data = await response.json();
 
         if (isMounted) {
@@ -45,24 +47,40 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ step, context }) => {
             setSuggestions([]);
           }
         }
-      } catch (error) {
-        console.error('Error fetching suggestions:', error);
-        if (isMounted) setSuggestions([]);
+      } catch (error: unknown) {
+        if (isMounted) {
+          setSuggestions([]);
+          // Only log non-abort errors and mark as unavailable
+          if (error instanceof Error && error.name !== 'AbortError') {
+            console.warn('[AIAssistant] Servicio no disponible:', error.message);
+          }
+          setUnavailable(true);
+        }
       } finally {
+        clearTimeout(timeoutId);
         if (isMounted) setLoading(false);
       }
     };
 
     fetchSuggestions();
-    return () => { isMounted = false; };
+
+    return () => {
+      isMounted = false;
+      controller.abort();
+      clearTimeout(timeoutId);
+    };
   }, [step, context]);
 
   const getIconColor = (type: string) => {
     switch (type) {
-      case 'improvement': return 'text-blue-600';
-      case 'tip': return 'text-green-600';
-      case 'warning': return 'text-amber-600';
-      default: return 'text-gray-600';
+      case 'improvement':
+        return 'text-blue-600';
+      case 'tip':
+        return 'text-green-600';
+      case 'warning':
+        return 'text-amber-600';
+      default:
+        return 'text-gray-600';
     }
   };
 
@@ -104,9 +122,9 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ step, context }) => {
                     <Skeleton className="h-4 w-3/6" />
                   </div>
                 </>
-              ) : suggestions.length === 0 ? (
-                <p className="text-sm text-gray-500 text-center py-2">
-                  No hay sugerencias disponibles en este momento.
+              ) : unavailable ? (
+                <p className="text-sm text-gray-400 italic text-center py-2">
+                  Asistente IA no disponible — inicia el backend para activarlo.
                 </p>
               ) : (
                 suggestions.map((suggestion) => (

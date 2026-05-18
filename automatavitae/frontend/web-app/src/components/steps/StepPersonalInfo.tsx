@@ -53,87 +53,87 @@ export const StepPersonalInfo: React.FC = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
-        className="bg-white rounded-lg shadow-md p-6 border border-gray-200"
+        className="bg-slate-900/60 backdrop-blur-xl rounded-lg shadow-xl p-6 border border-slate-800"
       >
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Información Personal</h2>
-        <p className="text-gray-600 mb-6">
+        <h2 className="text-2xl font-bold text-white mb-2">Información Personal</h2>
+        <p className="text-slate-400 mb-6">
           Comencemos con tu información básica. Esta será la primera impresión para los reclutadores.
         </p>
 
         <div className="space-y-4">
           <div>
-            <Label htmlFor="fullName">Nombre Completo *</Label>
+            <Label className="text-slate-200" htmlFor="fullName">Nombre Completo *</Label>
             <Input
               id="fullName"
               type="text"
               value={formData.fullName}
               onChange={(e) => handleChange('fullName', e.target.value)}
               placeholder="Ej: María García López"
-              className="mt-1"
+              className="mt-1 bg-slate-950/50 border-slate-800 text-white placeholder:text-slate-600"
             />
           </div>
 
           <div>
-            <Label htmlFor="title">Título Profesional *</Label>
+            <Label className="text-slate-200" htmlFor="title">Título Profesional *</Label>
             <Input
               id="title"
               type="text"
               value={formData.title}
               onChange={(e) => handleChange('title', e.target.value)}
               placeholder="Ej: Desarrolladora Full Stack"
-              className="mt-1"
+              className="mt-1 bg-slate-950/50 border-slate-800 text-white placeholder:text-slate-600"
             />
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="email">Correo Electrónico *</Label>
+              <Label className="text-slate-200" htmlFor="email">Correo Electrónico *</Label>
               <Input
                 id="email"
                 type="email"
                 value={formData.email}
                 onChange={(e) => handleChange('email', e.target.value)}
                 placeholder="correo@ejemplo.com"
-                className="mt-1"
+                className="mt-1 bg-slate-950/50 border-slate-800 text-white placeholder:text-slate-600 focus-visible:ring-blue-500/50"
               />
             </div>
 
             <div>
-              <Label htmlFor="phone">Teléfono</Label>
+              <Label className="text-slate-200" htmlFor="phone">Teléfono</Label>
               <Input
                 id="phone"
                 type="tel"
                 value={formData.phone}
                 onChange={(e) => handleChange('phone', e.target.value)}
                 placeholder="+1 (555) 123-4567"
-                className="mt-1"
+                className="mt-1 bg-slate-950/50 border-slate-800 text-white placeholder:text-slate-600 focus-visible:ring-blue-500/50"
               />
             </div>
           </div>
 
           <div>
-            <Label htmlFor="location">Ubicación</Label>
+            <Label className="text-slate-200" htmlFor="location">Ubicación</Label>
             <Input
               id="location"
               type="text"
               value={formData.location}
               onChange={(e) => handleChange('location', e.target.value)}
               placeholder="Ej: Ciudad de México, México"
-              className="mt-1"
+              className="mt-1 bg-slate-950/50 border-slate-800 text-white placeholder:text-slate-600"
             />
           </div>
 
           <div>
-            <Label htmlFor="summary">Resumen Profesional</Label>
+            <Label htmlFor="summary" className="text-slate-200">Resumen Profesional</Label>
             <Textarea
               id="summary"
               value={formData.summary}
               onChange={(e) => handleChange('summary', e.target.value)}
               placeholder="Escribe un breve resumen de tu perfil profesional (2-3 líneas)..."
               rows={4}
-              className="mt-1"
+              className="mt-1 bg-slate-950/50 border-slate-800 text-white placeholder:text-slate-600"
             />
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-xs text-gray-500 dark:text-slate-500 mt-1">
               {formData.summary.length} / 300 caracteres recomendados
             </p>
           </div>

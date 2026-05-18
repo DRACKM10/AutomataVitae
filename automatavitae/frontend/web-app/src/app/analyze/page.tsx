@@ -110,7 +110,8 @@ export default function AnalyzePage() {
     <div className="relative min-h-screen overflow-x-hidden bg-transparent text-gray-900 dark:text-gray-100 transition-colors duration-500 font-sans flex flex-col pt-20">
       
       {/* Global Navbar */}
-      <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-4 border-b border-gray-200/50 dark:border-gray-800/50 backdrop-blur-md bg-white/50 dark:bg-[#09090b]/50">
+      <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-800/80 backdrop-blur-lg bg-white/90 dark:bg-[#09090b]/90 shadow-sm dark:shadow-md dark:shadow-black/40">
+        <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-blue-500/35 via-purple-500/35 to-transparent" />
         <div 
           onClick={() => router.push('/')}
           className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity"

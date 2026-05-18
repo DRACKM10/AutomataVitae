@@ -78,16 +78,16 @@ export const StepSkills: React.FC = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
-        className="bg-white rounded-lg shadow-md p-6 border border-gray-200"
+        className="bg-slate-900/60 backdrop-blur-xl rounded-lg shadow-xl p-6 border border-slate-800"
       >
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Habilidades</h2>
-        <p className="text-gray-600 mb-6">
+        <h2 className="text-2xl font-bold text-white mb-2">Habilidades y Aptitudes</h2>
+        <p className="text-slate-400 mb-6">
           Agrega tus habilidades técnicas y blandas más relevantes.
         </p>
 
         {/* Input para agregar habilidades */}
         <div className="mb-6">
-          <Label htmlFor="newSkill">Agregar Habilidad</Label>
+          <Label className="text-slate-200" htmlFor="newSkill">Agregar Habilidad</Label>
           <div className="flex gap-2 mt-1">
             <Input
               id="newSkill"
@@ -95,12 +95,12 @@ export const StepSkills: React.FC = () => {
               onChange={(e) => setNewSkill(e.target.value)}
               onKeyPress={handleKeyPress}
               placeholder="Ej: React, Liderazgo, Excel..."
-              className="flex-1"
+              className="flex-1 bg-slate-950/50 border-slate-800 text-white placeholder:text-slate-600 focus-visible:ring-blue-500/50"
             />
             <Button
               onClick={handleAddSkill}
               disabled={!newSkill.trim()}
-              className="bg-blue-600 hover:bg-blue-700"
+              className="bg-blue-600 hover:bg-blue-700 text-white"
             >
               <Plus className="w-4 h-4 mr-2" />
               Agregar
@@ -111,7 +111,7 @@ export const StepSkills: React.FC = () => {
         {/* Habilidades agregadas */}
         {skills.length > 0 && (
           <div className="mb-6">
-            <Label>Tus Habilidades ({skills.length})</Label>
+            <Label className="text-slate-200">Tus Habilidades ({skills.length})</Label>
             <div className="flex flex-wrap gap-2 mt-2">
               {skills.map((skill) => (
                 <motion.div
@@ -123,12 +123,12 @@ export const StepSkills: React.FC = () => {
                 >
                   <Badge
                     variant="secondary"
-                    className="text-sm py-1.5 px-3 bg-blue-100 text-blue-800 hover:bg-blue-200 flex items-center gap-1"
+                    className="text-sm py-1.5 px-3 bg-blue-950/60 border border-blue-800/80 text-blue-300 hover:bg-blue-900/60 flex items-center gap-1"
                   >
                     {skill}
                     <button
                       onClick={() => handleRemoveSkill(skill)}
-                      className="ml-1 hover:text-blue-900"
+                      className="ml-1 text-blue-400 hover:text-blue-200"
                     >
                       <X className="w-3 h-3" />
                     </button>
@@ -141,8 +141,8 @@ export const StepSkills: React.FC = () => {
 
         {/* Sugerencias */}
         <div>
-          <Label>Sugerencias</Label>
-          <p className="text-sm text-gray-500 mb-3">
+          <Label className="text-slate-200">Sugerencias</Label>
+          <p className="text-sm text-slate-400 mb-3">
             Haz clic en una habilidad para agregarla rápidamente
           </p>
           <div className="flex flex-wrap gap-2">
@@ -154,9 +154,9 @@ export const StepSkills: React.FC = () => {
                   variant="outline"
                   size="sm"
                   onClick={() => handleAddSuggested(skill)}
-                  className="text-sm border-dashed"
+                  className="text-sm border-dashed border-slate-800 hover:bg-slate-800 text-slate-300"
                 >
-                  <Plus className="w-3 h-3 mr-1" />
+                  <Plus className="w-3 h-3 mr-1 text-slate-400" />
                   {skill}
                 </Button>
               ))}
@@ -164,7 +164,7 @@ export const StepSkills: React.FC = () => {
         </div>
 
         <div className="mt-6 flex justify-between">
-          <Button variant="ghost" onClick={handleSkip} className="hover:bg-gray-100">
+          <Button variant="ghost" onClick={handleSkip} className="text-slate-400 hover:text-white hover:bg-slate-800/50">
             Omitir este paso
           </Button>
           <Button
