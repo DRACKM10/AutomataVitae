@@ -3,7 +3,7 @@ dotenv.config();
 
 import express, { Application, Request, Response } from 'express';
 import cors from 'cors';
-import { createProxyMiddleware } from 'http-proxy-middleware';
+import { createProxyMiddleware, fixRequestBody } from 'http-proxy-middleware';
 import rateLimit from 'express-rate-limit';
 
 const app: Application = express();
@@ -42,6 +42,17 @@ app.use('/api/cv', createProxyMiddleware({
   pathRewrite: { 
     '^/api/cv': '/api/analyze' // /api/cv/upload -> /api/analyze/upload
   },
+  onProxyReq: fixRequestBody,
+}));
+
+// PROXY - Redirigir peticiones a MicroServicioIA
+app.use('/api/ia', createProxyMiddleware({
+  target: process.env.MICROSERVICIO_IA_URL || 'http://localhost:5002',
+  changeOrigin: true,
+  pathRewrite: { 
+    '^/api/ia': '/api' // /api/ia/analyze -> /api/analyze
+  },
+  onProxyReq: fixRequestBody,
 }));
 
 // 404 handler - Ruta no encontrada
@@ -61,5 +72,6 @@ app.listen(PORT, () => {
   console.log(`📊 Health check: http://localhost:${PORT}/health`);
   console.log('\n📡 Routing configurado:');
   console.log(`  /api/cv/* → ${process.env.CV_ANALYZER_URL}`);
+  console.log(`  /api/ia/* → ${process.env.MICROSERVICIO_IA_URL || 'http://localhost:5002'}`);
   console.log('\n⏳ Esperando peticiones...\n');
 });
