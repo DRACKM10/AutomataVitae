@@ -59,17 +59,26 @@ const planConfig: Record<string, {
   },
 };
 
+// Decodifica el JWT del user-service para obtener datos del usuario
+const decodeJWT = (token: string) => {
+  try {
+    return JSON.parse(atob(token.split('.')[1]));
+  } catch {
+    return null;
+  }
+};
+
 export default function PlanesPage() {
-  const { user } = useAuth();
+  const { user } = useAuth(); // Usuario de Supabase
   const [plans, setPlans] = useState<Plan[]>([]);
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
   const [currentPlan, setCurrentPlan] = useState<string>('free');
   const [loading, setLoading] = useState(true);
   const [paying, setPaying] = useState<string | null>(null);
   const [theme, setTheme] = useState<'light' | 'dark'>('dark');
+  const [jwtEmail, setJwtEmail] = useState<string | null>(null);
 
   useEffect(() => {
-    // Detectar tema
     const isDark = document.documentElement.classList.contains('dark') ||
       window.matchMedia('(prefers-color-scheme: dark)').matches;
     if (isDark) {
@@ -79,11 +88,16 @@ export default function PlanesPage() {
       setTheme('light');
     }
 
-    // Cargar planes
+    // Leer token JWT del user-service si existe
+    const token = localStorage.getItem('token');
+    if (token) {
+      const decoded = decodeJWT(token);
+      if (decoded?.email) setJwtEmail(decoded.email);
+    }
+
     loadPlans();
   }, []);
 
-  // Cuando el usuario esté disponible, cargar su suscripción
   useEffect(() => {
     if (user) loadSubscription(user.id);
   }, [user]);
@@ -125,7 +139,30 @@ export default function PlanesPage() {
   const handleSelectPlan = async (plan: Plan) => {
     if (plan.slug === 'free' || plan.slug === currentPlan) return;
 
-    if (!user) {
+    // Obtener datos del usuario — soporta Supabase y JWT del user-service
+    let userId: string | null = null;
+    let userEmail: string | null = null;
+    let userName: string | null = null;
+
+    if (user) {
+      // Usuario autenticado con Supabase
+      userId = user.id;
+      userEmail = user.email ?? null;
+      userName = user.user_metadata?.full_name || userEmail;
+    } else {
+      // Intentar con JWT del user-service
+      const token = localStorage.getItem('token');
+      if (token) {
+        const decoded = decodeJWT(token);
+        if (decoded) {
+          userId = decoded.userId;
+          userEmail = decoded.email;
+          userName = decoded.fullName || userEmail;
+        }
+      }
+    }
+
+    if (!userId || !userEmail) {
       window.location.href = '/login';
       return;
     }
@@ -136,11 +173,11 @@ export default function PlanesPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          userId: user.id,
+          userId,
           planSlug: plan.slug,
           billingCycle,
-          userEmail: user.email,
-          userName: user.user_metadata?.full_name || user.email,
+          userEmail,
+          userName: userName || userEmail,
         }),
       });
 
@@ -150,7 +187,7 @@ export default function PlanesPage() {
       } else if (!data.success) {
         const msg = typeof data.error === 'string' ? data.error : JSON.stringify(data.error);
         alert('Error al procesar el pago: ' + (msg || 'Intenta de nuevo'));
-      }   
+      }
     } catch {
       alert('Error de conexión. Verifica que el servidor esté corriendo.');
     } finally {
@@ -171,6 +208,9 @@ export default function PlanesPage() {
     { text: 'Exportar a PDF', included: plan.pdf_export },
     { text: 'Soporte prioritario', included: plan.priority_support },
   ];
+
+  const displayEmail = user?.email || jwtEmail;
+  const isLoggedIn = !!user || !!jwtEmail;
 
   return (
     <div className="relative w-screen min-h-screen overflow-x-hidden bg-white dark:bg-[#09090b] text-gray-900 dark:text-gray-100 transition-colors duration-500 font-sans">
@@ -195,9 +235,13 @@ export default function PlanesPage() {
               ? <span className="text-gray-600 text-lg">🌙</span>
               : <span className="text-gray-300 text-lg">☀️</span>}
           </button>
-          {user ? (
+          {isLoggedIn ? (
             <button
-              onClick={() => supabase.auth.signOut()}
+              onClick={() => {
+                supabase.auth.signOut();
+                localStorage.removeItem('token');
+                window.location.href = '/';
+              }}
               className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-red-500 transition-colors"
             >
               Cerrar sesión
@@ -243,9 +287,9 @@ export default function PlanesPage() {
             Empieza gratis y escala cuando lo necesites. Cancela cuando quieras.
           </p>
 
-          {user && (
+          {displayEmail && (
             <p className="mt-3 text-sm text-blue-500 dark:text-blue-400">
-              Conectado como {user.email}
+              Conectado como {displayEmail}
             </p>
           )}
 

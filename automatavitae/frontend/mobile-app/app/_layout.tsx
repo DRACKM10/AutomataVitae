@@ -1,53 +1,57 @@
-import { ThemeProvider as NavigationThemeProvider, DarkTheme, DefaultTheme } from '@react-navigation/native';
-import { Stack, useRouter } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import { TouchableOpacity } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import 'react-native-reanimated';
+import type { Metadata, Viewport } from "next";
+import { Geist, Geist_Mono } from "next/font/google";
+import "./globals.css";
+import { ParticleBackground } from '@/components/ParticleBackground';
+import { GoogleOAuthProviderClient } from '@/components/GoogleOAuthProviderClient';
+import { AuthProvider } from '@/components/AuthProvider';
+import { Toaster } from 'sonner';
 
-import { ThemeProvider, useAppTheme } from '../context/ThemeContext';
+const geistSans = Geist({
+  variable: "--font-geist-sans",
+  subsets: ["latin"],
+});
 
-export const unstable_settings = {
-  anchor: '(tabs)',
+const geistMono = Geist_Mono({
+  variable: "--font-geist-mono",
+  subsets: ["latin"],
+});
+
+export const metadata: Metadata = {
+  title: "AutomataVitae",
+  description: "Your life automation assistant",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "AutomataVitae",
+  },
 };
 
-function RootNavigation() {
-  const { isDark } = useAppTheme();
-  const router = useRouter();
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  viewportFit: "cover",
+};
 
-  const HeaderLeft = () => (
-    <TouchableOpacity onPress={() => router.replace('/')} style={{ marginLeft: 8, padding: 8 }}>
-      <Ionicons name="arrow-back" size={24} color={isDark ? '#fff' : '#000'} />
-    </TouchableOpacity>
-  );
-
-  const headerOptions = {
-    headerStyle: { backgroundColor: isDark ? '#000000' : '#ffffff' },
-    headerTintColor: isDark ? '#ffffff' : '#000000',
-    headerLeft: () => <HeaderLeft />,
-    animation: 'slide_from_right' as const, // Added slide animation for fluid navigation
-  };
-
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
   return (
-    <NavigationThemeProvider value={isDark ? DarkTheme : DefaultTheme}>
-      <Stack screenOptions={{ animation: 'slide_from_right' }}>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        
-        <Stack.Screen name="create" options={{ title: 'Crear CV', ...headerOptions }} />
-        <Stack.Screen name="analyze" options={{ title: 'Analizar CV', ...headerOptions }} />
-        <Stack.Screen name="settings" options={{ title: 'Ajustes', ...headerOptions }} />
-
-        <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal', ...headerOptions }} />
-      </Stack>
-      <StatusBar style={isDark ? 'light' : 'dark'} />
-    </NavigationThemeProvider>
-  );
-}
-
-export default function RootLayout() {
-  return (
-    <ThemeProvider>
-      <RootNavigation />
-    </ThemeProvider>
+    <html lang="en">
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased bg-white dark:bg-[#09090b] text-slate-900 dark:text-slate-100 min-h-screen relative`}>
+        <GoogleOAuthProviderClient>
+          <AuthProvider>
+            <div className="fixed inset-0 z-[-1]">
+              <ParticleBackground baseOpacity="opacity-40 dark:opacity-50" />
+            </div>
+            {children}
+            <Toaster position="top-right" richColors />
+          </AuthProvider>
+        </GoogleOAuthProviderClient>
+      </body>
+    </html>
   );
 }
