@@ -9,53 +9,54 @@ import rateLimit from 'express-rate-limit';
 const app: Application = express();
 const PORT = process.env.PORT || 3001;
 
-// Rate limiting - Limitar peticiones por IP
+// ✅ Valores con fallback para desarrollo
+const CV_ANALYZER_URL = process.env.CV_ANALYZER_URL || 'http://localhost:5001';
+const MICROSERVICIO_IA_URL = process.env.MICROSERVICIO_IA_URL || 'http://localhost:5002';
+
+// ✅ Validación temprana: aborta con mensaje claro si falta algo crítico
+if (!CV_ANALYZER_URL) {
+  throw new Error('❌ CV_ANALYZER_URL no está definida en .env');
+}
+
+// Rate limiting
 const limiter = rateLimit({
-  windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS || '900000'), // 15 minutos
-  max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS || '100'), // 100 requests
+  windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS || '900000'),
+  max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS || '100'),
   message: 'Demasiadas peticiones desde esta IP, intenta de nuevo más tarde',
   standardHeaders: true,
   legacyHeaders: false,
 });
 
-// Middleware globales
-app.use(cors()); // Permitir peticiones del frontend
-app.use(express.json()); // Parsear JSON
-app.use(limiter); // Aplicar rate limiting
+app.use(cors());
+app.use(express.json());
+app.use(limiter);
 
-// Health check - Verificar que el gateway está funcionando
 app.get('/health', (req: Request, res: Response) => {
   res.json({ 
     status: 'ok',
     service: 'api-gateway',
     timestamp: new Date().toISOString(),
     services: {
-      cvAnalyzer: process.env.CV_ANALYZER_URL,
+      cvAnalyzer: CV_ANALYZER_URL,
+      microservicioIA: MICROSERVICIO_IA_URL,
     }
   });
 });
 
-// PROXY - Redirigir peticiones a CV Analyzer
 app.use('/api/cv', createProxyMiddleware({
-  target: process.env.CV_ANALYZER_URL,
+  target: CV_ANALYZER_URL, // ✅ nunca undefined
   changeOrigin: true,
-  pathRewrite: { 
-    '^/api/cv': '/api/analyze' // /api/cv/upload -> /api/analyze/upload
-  },
+  pathRewrite: { '^/api/cv': '/api/analyze' },
   onProxyReq: fixRequestBody,
 }));
 
-// PROXY - Redirigir peticiones a MicroServicioIA
 app.use('/api/ia', createProxyMiddleware({
-  target: process.env.MICROSERVICIO_IA_URL || 'http://localhost:5002',
+  target: MICROSERVICIO_IA_URL, // ✅ nunca undefined
   changeOrigin: true,
-  pathRewrite: { 
-    '^/api/ia': '/api' // /api/ia/analyze -> /api/analyze
-  },
+  pathRewrite: { '^/api/ia': '/api' },
   onProxyReq: fixRequestBody,
 }));
 
-// 404 handler - Ruta no encontrada
 app.use((req: Request, res: Response) => {
   res.status(404).json({ 
     error: 'Ruta no encontrada',
@@ -63,7 +64,6 @@ app.use((req: Request, res: Response) => {
   });
 });
 
-// Iniciar servidor
 app.listen(PORT, () => {
   console.log('╔════════════════════════════════════════╗');
   console.log('║   🌐 API GATEWAY - AUTOMATAVITAE      ║');
@@ -71,7 +71,7 @@ app.listen(PORT, () => {
   console.log(`\n✅ Servidor corriendo en: http://localhost:${PORT}`);
   console.log(`📊 Health check: http://localhost:${PORT}/health`);
   console.log('\n📡 Routing configurado:');
-  console.log(`  /api/cv/* → ${process.env.CV_ANALYZER_URL}`);
-  console.log(`  /api/ia/* → ${process.env.MICROSERVICIO_IA_URL || 'http://localhost:5002'}`);
+  console.log(`  /api/cv/* → ${CV_ANALYZER_URL}`);
+  console.log(`  /api/ia/* → ${MICROSERVICIO_IA_URL}`);
   console.log('\n⏳ Esperando peticiones...\n');
 });
