@@ -10,7 +10,7 @@ const app: Application = express();
 const PORT = process.env.PORT || 3001;
 
 // ✅ Valores con fallback para desarrollo
-const CV_ANALYZER_URL = process.env.CV_ANALYZER_URL || 'http://localhost:5001';
+const CV_ANALYZER_URL = process.env.CV_ANALYZER_URL || 'http://localhost:3333';
 const MICROSERVICIO_IA_URL = process.env.MICROSERVICIO_IA_URL || 'http://localhost:5002';
 
 // ✅ Validación temprana: aborta con mensaje claro si falta algo crítico
