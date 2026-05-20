@@ -284,9 +284,7 @@ export default function DashboardPage() {
             <Sparkles className="w-6 h-6 text-[#A855F7] mx-auto mb-2" />
             <h4 className="text-xs font-black text-white uppercase tracking-wider">Automata Pro</h4>
             <p className="text-[10px] text-[#94A3B8] mt-1 mb-3">Diseños ilimitados con IA de última generación</p>
-            <button 
-              onClick={() => router.push('/planes')}
-              className="w-full bg-gradient-to-r from-[#6366F1] to-[#818CF8] hover:from-[#4F46E5] hover:to-[#6366F1] text-white font-bold text-xs py-2 rounded-xl transition-all shadow-md cursor-pointer">
+            <button className="w-full bg-gradient-to-r from-[#6366F1] to-[#818CF8] hover:from-[#4F46E5] hover:to-[#6366F1] text-white font-bold text-xs py-2 rounded-xl transition-all shadow-md">
               Mejorar Plan
             </button>
           </div>

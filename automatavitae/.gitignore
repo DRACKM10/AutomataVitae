@@ -86,3 +86,6 @@ uploads/
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+# Database schemas and dumps
+*.sql
