@@ -9,10 +9,15 @@ const storage = multer.memoryStorage();
 
 // Filtro de archivos - Solo PDFs
 const fileFilter = (req: Request, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
-  // Verificar tipo MIME
-  if (file.mimetype === 'application/pdf') {
+  console.log('[Multer] Recibido archivo:', file.originalname, 'mimetype:', file.mimetype, 'fieldname:', file.fieldname);
+  // Verificar tipo MIME o extensión
+  const isPdfMime = file.mimetype.includes('pdf');
+  const isPdfExt = file.originalname.toLowerCase().endsWith('.pdf');
+  
+  if (isPdfMime || isPdfExt) {
     cb(null, true); // Aceptar archivo
   } else {
+    console.log('[Multer] Archivo rechazado por tipo inválido:', file.mimetype);
     cb(new Error('Solo se permiten archivos PDF'));
   }
 };

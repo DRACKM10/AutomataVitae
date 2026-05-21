@@ -43,6 +43,37 @@ export class AIAnalysisService {
   }
 
   /**
+   * Extrae los datos estructurados del CV usando MicroServicioIA
+   * @param cvText - Texto extraído del CV
+   * @returns Datos estructurados del CV
+   */
+  async extractCVData(cvText: string): Promise<any> {
+    try {
+      console.log(`[AIAnalysisService] Conectando a MicroServicioIA en ${MICROSERVICIO_IA_URL}/api/cv-analyzer/extract ...`);
+      
+      const response = await fetch(`${MICROSERVICIO_IA_URL}/api/cv-analyzer/extract`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ raw_text: cvText })
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Error del MicroServicioIA al extraer: ${response.status} - ${errorText}`);
+      }
+
+      const structuredData = await response.json();
+      return structuredData;
+
+    } catch (error: any) {
+      console.error('❌ Error al extraer datos con IA:', error.message);
+      throw new Error('Error al extraer datos del CV con IA: ' + error.message);
+    }
+  }
+
+  /**
    * Genera sugerencias específicas para un paso en la creación de CV
    * @param step - El paso actual (personal, experience, education, skills, preview)
    * @param contextData - String JSON con los datos actuales del formulario

@@ -31,6 +31,11 @@ app.use(cors());
 app.use(express.json());
 app.use(limiter);
 
+app.use((req, res, next) => {
+  console.log(`[Gateway] ${req.method} ${req.originalUrl}`);
+  next();
+});
+
 app.get('/health', (req: Request, res: Response) => {
   res.json({ 
     status: 'ok',
@@ -47,7 +52,13 @@ app.use('/api/cv', createProxyMiddleware({
   target: CV_ANALYZER_URL, // ✅ nunca undefined
   changeOrigin: true,
   pathRewrite: { '^/api/cv': '/api/analyze' },
-  onProxyReq: fixRequestBody,
+  onProxyReq: (proxyReq, req, res) => {
+    console.log('[Gateway Proxy] Proxying /api/cv ...');
+    fixRequestBody(proxyReq, req);
+  },
+  onError: (err, req, res) => {
+    console.error('[Gateway Proxy Error]', err);
+  }
 }));
 
 app.use('/api/ia', createProxyMiddleware({

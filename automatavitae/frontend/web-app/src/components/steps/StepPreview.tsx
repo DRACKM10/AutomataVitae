@@ -42,21 +42,33 @@ export const StepPreview: React.FC = () => {
     }
   };
 
-  const handleDownload = () => {
-    // Simulación de descarga - en producción usarías una librería como html2pdf o jsPDF
-    toast.success('¡CV descargado exitosamente!', {
-      description: 'Tu hoja de vida ha sido generada en formato PDF.',
-      duration: 3000,
-    });
+  const handleDownload = async () => {
+    if (!previewRef.current) return;
     
-    // Simular descarga
-    const element = document.createElement('a');
-    const fileName = `${resumeData.personalInfo.fullName.replace(/\s+/g, '_') || 'Mi_CV'}.pdf`;
-    element.setAttribute('download', fileName);
-    element.style.display = 'none';
-    document.body.appendChild(element);
-    // element.click(); // Comentado para no forzar descarga en demo
-    document.body.removeChild(element);
+    toast.info('Generando PDF...', { description: 'Esto tomará unos segundos.' });
+    
+    try {
+      const html2pdf = (await import('html2pdf.js')).default;
+      const fileName = `${resumeData.personalInfo.fullName.replace(/\s+/g, '_') || 'Mi_CV'}.pdf`;
+      
+      const opt = {
+        margin:       10,
+        filename:     fileName,
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2, useCORS: true },
+        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      };
+
+      await html2pdf().set(opt).from(previewRef.current).save();
+      
+      toast.success('¡CV descargado exitosamente!', {
+        description: 'Tu hoja de vida ha sido generada en formato PDF.',
+        duration: 3000,
+      });
+    } catch (error) {
+      console.error('Error al generar PDF:', error);
+      toast.error('Error en descarga', { description: 'Hubo un problema al crear el archivo PDF.' });
+    }
   };
 
   const handleStartOver = () => {
@@ -94,10 +106,11 @@ export const StepPreview: React.FC = () => {
 
         {/* Vista previa completa */}
         <div
-          ref={previewRef}
           className="my-6 bg-slate-950/40 rounded-lg p-6 border border-slate-800 max-h-[600px] overflow-y-auto"
         >
-          <ResumePreview />
+          <div ref={previewRef} className="bg-white text-black min-h-[1056px] w-[794px] mx-auto shadow-sm">
+            <ResumePreview />
+          </div>
         </div>
 
         {/* Acciones */}

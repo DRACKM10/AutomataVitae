@@ -1,13 +1,14 @@
 "use client";
 
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { motion } from 'motion/react';
 import { useRouter } from 'next/navigation';
 import { useDropzone } from "react-dropzone";
 import { 
   UploadCloud, FileText, Bot, CheckCircle2, 
-  AlertTriangle, Lightbulb, ArrowRight, Loader2, Moon, Sun
+  AlertTriangle, Lightbulb, ArrowRight, Loader2, Moon, Sun, Download
 } from "lucide-react";
+import { toast } from 'sonner';
 
 interface AnalysisResult {
   score: number;
@@ -29,7 +30,28 @@ export default function AnalyzePage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<AnalysisResult | null>(null);
+  const reportRef = useRef<HTMLDivElement>(null);
 
+  const handleDownloadPDF = async () => {
+    if (!reportRef.current) return;
+    toast.info('Generando PDF...', { description: 'Esto tomará unos segundos.' });
+    try {
+      const html2pdf = (await import('html2pdf.js')).default;
+      const fileName = `Analisis_CV_${file?.name || 'AutomataVitae'}.pdf`;
+      const opt = {
+        margin: 10,
+        filename: fileName,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      };
+      await html2pdf().set(opt).from(reportRef.current).save();
+      toast.success('¡Reporte descargado exitosamente!');
+    } catch (err) {
+      console.error(err);
+      toast.error('Error al generar PDF');
+    }
+  };
   // Theme Init
   useEffect(() => {
     setDimensions({ width: window.innerWidth, height: window.innerHeight });
@@ -78,20 +100,48 @@ export default function AnalyzePage() {
     setLoading(true);
     setError(null);
     const uploadData = new FormData();
-    uploadData.append("file", file);
+    uploadData.append("cv", file); // Se usa "cv" en lugar de "file" para coincidir con multer del backend
 
     try {
+      const token = localStorage.getItem('token');
+      const headers: any = {};
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
       const response = await fetch("http://localhost:3001/api/cv/upload", {
         method: "POST",
+        headers,
         body: uploadData,
       });
 
       if (!response.ok) {
-        throw new Error(`Error en el servidor: ${response.statusText}`);
+        let errMsg = `Error en el servidor: ${response.statusText}`;
+        try {
+          const errData = await response.json();
+          if (errData?.error?.message) {
+            errMsg = errData.error.message;
+          }
+        } catch(e) {}
+        throw new Error(errMsg);
       }
 
-      const data = await response.json();
-      setResult(data);
+      const rawData = await response.json();
+      
+      // Mapear respuesta anidada de cv-analyzer
+      if (rawData.success && rawData.data && rawData.data.analysis) {
+        const analysis = rawData.data.analysis;
+        setResult({
+          score: analysis.score,
+          fortalezas: analysis.strengths || [],
+          debilidades: analysis.weaknesses || [],
+          sugerencias: analysis.suggestions || [],
+          keywords_faltantes: analysis.missingKeywords || []
+        });
+        toast.success("Análisis procesado exitosamente");
+      } else {
+        setResult(rawData);
+      }
     } catch (err: any) {
       console.error(err);
       setError("No se pudo conectar con el servidor para analizar el CV. Verifica que el backend esté ejecutándose.");
@@ -230,97 +280,110 @@ export default function AnalyzePage() {
           {result && !loading && (
             <motion.div 
               initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}
-              className="space-y-8"
+              className="space-y-8 bg-white dark:bg-[#09090b] p-4 rounded-3xl"
             >
-              {/* Score Hero */}
-              <div className="backdrop-blur-xl bg-white/70 dark:bg-gray-900/70 border border-gray-200/50 dark:border-gray-800/50 rounded-[2rem] p-8 sm:p-10 flex flex-col sm:flex-row items-center justify-between gap-8 shadow-2xl">
-                <div className="space-y-3 text-center sm:text-left flex-1">
-                  <h2 className="text-3xl font-extrabold tracking-tight text-gray-900 dark:text-white">Diagnóstico Quántico</h2>
-                  <p className="text-gray-500 dark:text-gray-400 text-base max-w-lg leading-relaxed">
-                    Evaluación profunda de compatibilidad con motores ATS modernos y densidad de impacto profesional.
-                  </p>
-                </div>
-                <div className="flex flex-col items-center justify-center shrink-0 bg-gray-50/50 dark:bg-gray-950/50 rounded-3xl p-6 border border-gray-100 dark:border-gray-800">
-                  <div className={`text-7xl font-black tracking-tighter ${getScoreColor(result.score || 0)}`}>
-                    {result.score || 0}<span className="text-3xl opacity-30">/10</span>
+              <div ref={reportRef} className="space-y-8 p-4 bg-white dark:bg-[#09090b] rounded-2xl">
+                {/* Score Hero */}
+                <div className="backdrop-blur-xl bg-white/70 dark:bg-gray-900/70 border border-gray-200/50 dark:border-gray-800/50 rounded-[2rem] p-8 sm:p-10 flex flex-col sm:flex-row items-center justify-between gap-8 shadow-2xl">
+                  <div className="flex-1 space-y-4 text-center sm:text-left">
+                    <h2 className="text-4xl sm:text-5xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-br from-gray-900 to-gray-600 dark:from-white dark:to-gray-400">
+                      Diagnóstico Quántico
+                    </h2>
+                    <p className="text-lg text-gray-600 dark:text-gray-400 font-medium">
+                      Análisis detallado impulsado por IA de tu perfil profesional.
+                    </p>
                   </div>
-                  <div className="text-xs font-bold uppercase tracking-[0.2em] mt-3 text-gray-400">Puntaje Global</div>
-                </div>
-              </div>
-
-              {/* Keywords Faltantes */}
-              {result.keywords_faltantes && result.keywords_faltantes.length > 0 && (
-                <div className="backdrop-blur-md bg-white/50 dark:bg-gray-900/50 border border-gray-200/50 dark:border-gray-800/50 rounded-3xl p-6 space-y-4">
-                  <h3 className="text-sm font-bold uppercase tracking-widest text-amber-600 dark:text-amber-400 flex items-center gap-2">
-                    <AlertTriangle size={18} /> Keywords Ausentes Detectadas
-                  </h3>
-                  <div className="flex flex-wrap gap-2">
-                    {result.keywords_faltantes.map((kw, idx) => (
-                      <span key={idx} className="bg-amber-100 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-500/20 px-4 py-2 rounded-xl text-sm font-semibold shadow-sm">
-                        {kw}
+                  <div className="relative group cursor-pointer">
+                    <div className="absolute inset-0 bg-blue-500/20 dark:bg-blue-400/10 blur-3xl rounded-full transition-all duration-500 group-hover:bg-blue-500/30"></div>
+                    <div className="relative h-40 w-40 sm:h-48 sm:w-48 rounded-full border-8 border-gray-50 dark:border-gray-900 bg-white dark:bg-gray-950 shadow-2xl flex flex-col items-center justify-center transform transition-transform duration-500 group-hover:scale-105">
+                      <span className="text-6xl sm:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-t from-blue-600 to-cyan-400">
+                        {result.score}
                       </span>
-                    ))}
+                      <span className="text-gray-400 dark:text-gray-500 font-bold tracking-widest text-sm mt-1">/ 100</span>
+                    </div>
                   </div>
                 </div>
-              )}
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Fortalezas Flex */}
-                <div className="backdrop-blur-md bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-100 dark:border-emerald-900/30 rounded-3xl p-6 sm:p-8 space-y-5">
-                  <h3 className="text-emerald-700 dark:text-emerald-400 font-extrabold text-xl flex items-center gap-3">
-                    <CheckCircle2 size={26} /> Puntos Fuertes
-                  </h3>
-                  <ul className="space-y-4">
-                    {result.fortalezas?.map((str, idx) => (
-                      <li key={idx} className="flex gap-4 text-sm sm:text-base text-gray-700 dark:text-gray-300 leading-relaxed font-medium">
-                        <span className="text-emerald-500 mt-0.5 whitespace-nowrap">✦</span>
-                        <span>{str}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
-                {/* Debilidades Flex */}
-                <div className="backdrop-blur-md bg-rose-50/50 dark:bg-rose-950/20 border border-rose-100 dark:border-rose-900/30 rounded-3xl p-6 sm:p-8 space-y-5">
-                  <h3 className="text-rose-700 dark:text-rose-400 font-extrabold text-xl flex items-center gap-3">
-                    <AlertTriangle size={26} /> Vectores de Riesgo
-                  </h3>
-                  <ul className="space-y-4">
-                    {result.debilidades?.map((weak, idx) => (
-                      <li key={idx} className="flex gap-4 text-sm sm:text-base text-gray-700 dark:text-gray-300 leading-relaxed font-medium">
-                        <span className="text-rose-500 mt-0.5 whitespace-nowrap">✦</span>
-                        <span>{weak}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-
-              {/* Sugerencias Action Plan */}
-              <div className="backdrop-blur-xl bg-white/70 dark:bg-gray-900/70 border border-gray-200/50 dark:border-gray-800/50 rounded-3xl p-6 sm:p-10 space-y-8 shadow-xl">
-                <h3 className="font-extrabold text-2xl flex items-center gap-4 text-gray-900 dark:text-white">
-                  <div className="bg-gradient-to-tr from-yellow-400 to-orange-500 text-white p-3 rounded-2xl shadow-lg shadow-orange-500/30">
-                    <Lightbulb size={24} />
+                {/* Keywords Faltantes */}
+                {result.keywords_faltantes && result.keywords_faltantes.length > 0 && (
+                  <div className="backdrop-blur-md bg-white/50 dark:bg-gray-900/50 border border-gray-200/50 dark:border-gray-800/50 rounded-3xl p-6 space-y-4">
+                    <h3 className="text-sm font-bold uppercase tracking-widest text-amber-600 dark:text-amber-400 flex items-center gap-2">
+                      <AlertTriangle size={18} /> Keywords Ausentes Detectadas
+                    </h3>
+                    <div className="flex flex-wrap gap-2">
+                      {result.keywords_faltantes.map((kw, idx) => (
+                        <span key={idx} className="bg-amber-100 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-500/20 px-4 py-2 rounded-xl text-sm font-semibold shadow-sm">
+                          {kw}
+                        </span>
+                      ))}
+                    </div>
                   </div>
-                  Plan de Acción
-                </h3>
-                <div className="space-y-4">
-                  {result.sugerencias?.map((sug, idx) => (
-                    <motion.div 
-                      key={idx} 
-                      whileHover={{ scale: 1.01 }}
-                      className="p-5 bg-white dark:bg-gray-950 rounded-2xl border border-gray-100 dark:border-gray-800 text-base leading-relaxed text-gray-700 dark:text-gray-300 flex gap-5 shadow-sm"
-                    >
-                      <div className="font-black text-transparent bg-clip-text bg-gradient-to-b from-blue-400 to-indigo-600 text-2xl pt-1">0{idx + 1}</div>
-                      <p className="pt-1.5">{sug}</p>
-                    </motion.div>
-                  ))}
+                )}
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Fortalezas Flex */}
+                  <div className="backdrop-blur-md bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-100 dark:border-emerald-900/30 rounded-3xl p-6 sm:p-8 space-y-5">
+                    <h3 className="text-emerald-700 dark:text-emerald-400 font-extrabold text-xl flex items-center gap-3">
+                      <CheckCircle2 size={26} /> Puntos Fuertes
+                    </h3>
+                    <ul className="space-y-4">
+                      {result.fortalezas?.map((str, idx) => (
+                        <li key={idx} className="flex gap-4 text-sm sm:text-base text-gray-700 dark:text-gray-300 leading-relaxed font-medium">
+                          <span className="text-emerald-500 mt-0.5 whitespace-nowrap">✦</span>
+                          <span>{str}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  {/* Debilidades Flex */}
+                  <div className="backdrop-blur-md bg-rose-50/50 dark:bg-rose-950/20 border border-rose-100 dark:border-rose-900/30 rounded-3xl p-6 sm:p-8 space-y-5">
+                    <h3 className="text-rose-700 dark:text-rose-400 font-extrabold text-xl flex items-center gap-3">
+                      <AlertTriangle size={26} /> Vectores de Riesgo
+                    </h3>
+                    <ul className="space-y-4">
+                      {result.debilidades?.map((weak, idx) => (
+                        <li key={idx} className="flex gap-4 text-sm sm:text-base text-gray-700 dark:text-gray-300 leading-relaxed font-medium">
+                          <span className="text-rose-500 mt-0.5 whitespace-nowrap">✦</span>
+                          <span>{weak}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+
+                {/* Sugerencias Action Plan */}
+                <div className="backdrop-blur-xl bg-white/70 dark:bg-gray-900/70 border border-gray-200/50 dark:border-gray-800/50 rounded-3xl p-6 sm:p-10 space-y-8 shadow-xl">
+                  <h3 className="font-extrabold text-2xl flex items-center gap-4 text-gray-900 dark:text-white">
+                    <div className="bg-gradient-to-tr from-yellow-400 to-orange-500 text-white p-3 rounded-2xl shadow-lg shadow-orange-500/30">
+                      <Lightbulb size={24} />
+                    </div>
+                    Plan de Acción
+                  </h3>
+                  <div className="space-y-4">
+                    {result.sugerencias?.map((sug, idx) => (
+                      <motion.div 
+                        key={idx} 
+                        whileHover={{ scale: 1.01 }}
+                        className="p-5 bg-white dark:bg-gray-950 rounded-2xl border border-gray-100 dark:border-gray-800 text-base leading-relaxed text-gray-700 dark:text-gray-300 flex gap-5 shadow-sm"
+                      >
+                        <div className="font-black text-transparent bg-clip-text bg-gradient-to-b from-blue-400 to-indigo-600 text-2xl pt-1">0{idx + 1}</div>
+                        <p className="pt-1.5">{sug}</p>
+                      </motion.div>
+                    ))}
+                  </div>
                 </div>
               </div>
               
-              <div className="pt-6 pb-20 flex justify-center">
-                 <button className="bg-gray-900 dark:bg-white text-white dark:text-gray-900 px-8 py-3 rounded-full font-bold shadow-lg opacity-50 cursor-not-allowed">
-                   Entrenamiento de Entrevista QA (Secreto)
+              <div className="pt-6 pb-20 flex flex-col sm:flex-row justify-center gap-4">
+                 <button 
+                   onClick={handleDownloadPDF}
+                   className="flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-8 py-3 rounded-full font-bold shadow-lg hover:opacity-90 transition-opacity"
+                 >
+                   <Download size={20} /> Descargar Reporte en PDF
+                 </button>
+                 <button className="flex items-center justify-center bg-gray-900 dark:bg-white text-white dark:text-gray-900 px-8 py-3 rounded-full font-bold shadow-lg opacity-50 cursor-not-allowed">
+                   Entrenamiento de Entrevista QA
                  </button>
               </div>
             </motion.div>

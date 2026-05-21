@@ -212,3 +212,69 @@ Si los datos están vacíos o incompletos, da consejos generales para este paso.
   return parsed.suggestions || parsed;
 };
 
+export const extractStructuredCV = async (rawText: string) => {
+  const prompt = `
+Eres un experto reclutador y analista de datos. Tu tarea es leer el texto extraído de un currículum vitae en formato PDF y convertirlo EXACTAMENTE a la siguiente estructura JSON. Debes intentar rellenar la mayor cantidad de información posible basándote en el texto.
+
+Estructura JSON requerida:
+{
+  "personalInfo": {
+    "fullName": "Nombre completo",
+    "email": "correo@ejemplo.com",
+    "phone": "Teléfono",
+    "location": "Ciudad, País",
+    "title": "Título profesional principal (ej: Software Engineer)",
+    "summary": "Un resumen profesional extraído o generado a partir de la experiencia"
+  },
+  "experience": [
+    {
+      "id": "exp_1",
+      "company": "Nombre empresa",
+      "position": "Cargo",
+      "startDate": "YYYY-MM",
+      "endDate": "YYYY-MM o 'Presente'",
+      "current": false,
+      "description": "Descripción de logros y responsabilidades"
+    }
+  ],
+  "education": [
+    {
+      "id": "edu_1",
+      "institution": "Universidad o Instituto",
+      "degree": "Título obtenido",
+      "field": "Campo de estudio",
+      "startDate": "YYYY-MM",
+      "endDate": "YYYY-MM o 'Presente'",
+      "current": false
+    }
+  ],
+  "skills": ["Habilidad 1", "Habilidad 2", "Habilidad 3"]
+}
+
+Reglas:
+1. Si un dato no existe en el texto, déjalo como string vacío "" (o false para booleanos, o un array vacío [] para listas).
+2. Genera IDs únicos cortos (ej: exp_1, edu_1) para los items de experiencia y educación.
+3. El resultado debe ser un JSON válido, sin explicaciones ni markdown adicional.
+
+Texto del currículum:
+"""
+${rawText}
+"""
+`;
+
+  const response = await openai.chat.completions.create({
+    model: 'gpt-4o-mini',
+    messages: [
+      { role: 'system', content: 'You are an expert data extractor that strictly outputs valid JSON matching the requested schema.' },
+      { role: 'user', content: prompt }
+    ],
+    response_format: { type: 'json_object' },
+    temperature: 0.1,
+  });
+
+  const content = response.choices[0].message.content;
+  if (!content) throw new Error("No response from OpenAI");
+  
+  return JSON.parse(content);
+};
+
