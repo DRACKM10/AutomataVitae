@@ -1,4 +1,4 @@
-import { pool } from '../config/db';
+import { supabase } from '../config/supabase';
 
 export const saveCVAnalysis = async (
   userId: string,
@@ -8,18 +8,25 @@ export const saveCVAnalysis = async (
   weaknesses: string,
   overallScore: number
 ) => {
-  const sql = `
-    INSERT INTO cv_analysis (user_id, raw_text, skills_extracted, strengths, weaknesses, overall_score)
-    VALUES ($1, $2, $3::jsonb, $4, $5, $6)
-    RETURNING *;
-  `;
-  const result = await pool.query(sql, [
-    userId,
-    rawText,
-    JSON.stringify(skillsExtracted),
-    strengths,
-    weaknesses,
-    overallScore,
-  ]);
-  return result.rows[0];
+  const { data, error } = await supabase
+    .from('cv_analysis')
+    .insert([
+      {
+        user_id: userId,
+        raw_text: rawText,
+        skills_extracted: skillsExtracted,
+        strengths,
+        weaknesses,
+        overall_score: overallScore,
+      }
+    ])
+    .select()
+    .single();
+
+  if (error) {
+    console.error('Error guardando análisis en Supabase:', error);
+    throw new Error('Error guardando análisis en base de datos.');
+  }
+
+  return data;
 };

@@ -132,3 +132,149 @@ Reglas de la entrevista:
 
   return response.choices[0].message.content || 'Interesante. ¿Podrías elaborar un poco más sobre eso?';
 };
+
+export const analyzeCVForAnalyzer = async (rawText: string) => {
+  const prompt = `
+Eres un experto reclutador con 15 años de experiencia. 
+Tu trabajo es analizar hojas de vida y proporcionar feedback constructivo y específico.
+
+Analiza la siguiente hoja de vida y responde ÚNICAMENTE con un objeto JSON (sin markdown, sin comentarios) con esta estructura exacta:
+
+{
+  "score": número del 1 al 10,
+  "summary": "resumen breve de 2-3 líneas sobre el candidato",
+  "strengths": ["fortaleza 1", "fortaleza 2", "fortaleza 3"],
+  "weaknesses": ["debilidad 1", "debilidad 2", "debilidad 3"],
+  "suggestions": ["sugerencia concreta 1", "sugerencia concreta 2", "sugerencia concreta 3"],
+  "missingKeywords": ["keyword 1", "keyword 2", "keyword 3"]
+}
+
+Criterios de evaluación:
+- score: Calidad general del CV (formato, contenido, claridad)
+- strengths: Aspectos positivos concretos
+- weaknesses: Áreas de mejora específicas
+- suggestions: Acciones concretas para mejorar
+- missingKeywords: Palabras clave importantes que faltan según la industria detectada
+
+Sé específico, constructivo y honesto.
+
+Texto de la hoja de vida a analizar:
+"""
+${rawText}
+"""
+`;
+
+  const response = await openai.chat.completions.create({
+    model: 'gpt-4o-mini',
+    messages: [
+      { role: 'system', content: 'You are an expert resume analyzer that strictly outputs valid JSON matching the requested schema.' },
+      { role: 'user', content: prompt }
+    ],
+    response_format: { type: 'json_object' },
+    temperature: 0.3,
+  });
+
+  const content = response.choices[0].message.content;
+  if (!content) throw new Error("No response from OpenAI");
+  
+  return JSON.parse(content);
+};
+
+export const suggestStepForAnalyzer = async (step: string, contextData: string) => {
+  const prompt = `
+Eres un experto reclutador. El usuario está creando su CV en el paso: "${step}".
+Aquí están los datos que ha rellenado en este paso:
+${contextData}
+
+Analiza los datos y devuelve un objeto JSON con una propiedad "suggestions" que contenga un array de sugerencias para mejorar. Cada sugerencia debe ser un objeto con esta estructura:
+{
+  "id": "un_id_unico_corto",
+  "text": "Tu sugerencia aquí",
+  "type": "tip" | "improvement" | "warning"
+}
+Si los datos están vacíos o incompletos, da consejos generales para este paso. Devuelve MÁXIMO 3 sugerencias.
+`;
+
+  const response = await openai.chat.completions.create({
+    model: 'gpt-4o-mini',
+    messages: [
+      { role: 'system', content: 'You are an expert resume writer. Output ONLY a valid JSON object with a "suggestions" key.' },
+      { role: 'user', content: prompt }
+    ],
+    response_format: { type: 'json_object' },
+    temperature: 0.3,
+  });
+
+  const content = response.choices[0].message.content;
+  if (!content) throw new Error("No response from OpenAI");
+  
+  const parsed = JSON.parse(content);
+  return parsed.suggestions || parsed;
+};
+
+export const extractStructuredCV = async (rawText: string) => {
+  const prompt = `
+Eres un experto reclutador y analista de datos. Tu tarea es leer el texto extraído de un currículum vitae en formato PDF y convertirlo EXACTAMENTE a la siguiente estructura JSON. Debes intentar rellenar la mayor cantidad de información posible basándote en el texto.
+
+Estructura JSON requerida:
+{
+  "personalInfo": {
+    "fullName": "Nombre completo",
+    "email": "correo@ejemplo.com",
+    "phone": "Teléfono",
+    "location": "Ciudad, País",
+    "title": "Título profesional principal (ej: Software Engineer)",
+    "summary": "Un resumen profesional extraído o generado a partir de la experiencia"
+  },
+  "experience": [
+    {
+      "id": "exp_1",
+      "company": "Nombre empresa",
+      "position": "Cargo",
+      "startDate": "YYYY-MM",
+      "endDate": "YYYY-MM o 'Presente'",
+      "current": false,
+      "description": "Descripción de logros y responsabilidades"
+    }
+  ],
+  "education": [
+    {
+      "id": "edu_1",
+      "institution": "Universidad o Instituto",
+      "degree": "Título obtenido",
+      "field": "Campo de estudio",
+      "startDate": "YYYY-MM",
+      "endDate": "YYYY-MM o 'Presente'",
+      "current": false
+    }
+  ],
+  "skills": ["Habilidad 1", "Habilidad 2", "Habilidad 3"]
+}
+
+Reglas:
+1. Si un dato no existe en el texto, déjalo como string vacío "" (o false para booleanos, o un array vacío [] para listas).
+2. Genera IDs únicos cortos (ej: exp_1, edu_1) para los items de experiencia y educación.
+3. El resultado debe ser un JSON válido, sin explicaciones ni markdown adicional.
+
+Texto del currículum:
+"""
+${rawText}
+"""
+`;
+
+  const response = await openai.chat.completions.create({
+    model: 'gpt-4o-mini',
+    messages: [
+      { role: 'system', content: 'You are an expert data extractor that strictly outputs valid JSON matching the requested schema.' },
+      { role: 'user', content: prompt }
+    ],
+    response_format: { type: 'json_object' },
+    temperature: 0.1,
+  });
+
+  const content = response.choices[0].message.content;
+  if (!content) throw new Error("No response from OpenAI");
+  
+  return JSON.parse(content);
+};
+

@@ -1,7 +1,6 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import { pool } from './config/db';
 import analysisRoutes from './routes/analysis.routes';
 import interviewRoutes from './routes/interview.routes';
 
@@ -20,15 +19,14 @@ app.use('/api/interview', interviewRoutes);
 // Endpoint de prueba y estado
 app.get('/health', async (req, res) => {
   try {
-    const result = await pool.query('SELECT NOW()');
     res.json({
       status: 'ok',
       service: 'MicroServicioIA',
-      timestamp: result.rows[0].now,
+      timestamp: new Date().toISOString(),
     });
   } catch (error) {
-    console.error('Database connection error:', error);
-    res.status(500).json({ status: 'error', message: 'Database connection failed' });
+    console.error('Health check error:', error);
+    res.status(500).json({ status: 'error', message: 'Health check failed' });
   }
 });
 

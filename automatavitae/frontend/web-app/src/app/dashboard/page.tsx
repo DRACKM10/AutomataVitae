@@ -283,13 +283,13 @@ export default function DashboardPage() {
         <div className="flex flex-col">
           {/* Logo Section */}
           <div className="px-6 py-[26px] flex items-center gap-2 border-b border-[#1E222D]">
-            <span className="text-xl font-bold tracking-tighter flex items-center gap-2 select-none">
+            <Link href="/" className="text-xl font-bold tracking-tighter flex items-center gap-2 select-none hover:opacity-80 transition-opacity">
               <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 font-extrabold text-2xl">
                 A
               </span>
               <span className="font-black text-white text-[19px] tracking-tight">Automata</span>
               <span className="font-light text-[#94A3B8] text-[19px]">Vitae</span>
-            </span>
+            </Link>
           </div>
 
           {/* Staking Navigation Menu */}

@@ -26,8 +26,9 @@ export const getUserSubscription = async (req: Request, res: Response, next: Nex
     const userId = req.headers['x-user-id'] as string;
     if (!userId) return res.status(401).json({ error: 'No autenticado' });
 
-    const { data, error } = await supabaseAdmin
-      .rpc('get_user_plan', { p_user_id: userId });
+    const { data, error } = await supabaseAdmin.rpc('get_user_plan', {
+      p_user_id: userId,
+    });
 
     if (error) throw error;
     res.json({ success: true, data: data?.[0] || { plan_slug: 'free' } });
@@ -57,17 +58,19 @@ export const createPayment = async (req: Request, res: Response, next: NextFunct
       .single();
 
     if (!existingProfile) {
-      await supabaseAdmin
-        .from('profiles')
-        .insert({
-          id: userId,
-          email: userEmail,
-          full_name: userName || userEmail,
-        });
+      await supabaseAdmin.from('profiles').insert({
+        id: userId,
+        email: userEmail,
+        full_name: userName || userEmail,
+      });
     }
 
     const result = await paymentService.createPayment({
-      userId, planSlug, billingCycle, userEmail, userName: userName || userEmail,
+      userId,
+      planSlug,
+      billingCycle,
+      userEmail,
+      userName: userName || userEmail,
     });
 
     res.json({ success: result.success, data: result });
@@ -79,11 +82,12 @@ export const createPayment = async (req: Request, res: Response, next: NextFunct
   }
 };
 
-// POST /api/payments/webhook
+// POST /api/payments/webhook  (¡CORREGIDO!)
 export const payuWebhook = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    console.log('📩 Webhook PayU recibido:', req.body);
+    console.log('📩 Webhook MercadoPago recibido:', req.body);
     await paymentService.processWebhook(req.body);
+    // Siempre responder 200 para que MercadoPago no reintente
     res.status(200).send('OK');
   } catch (error) {
     console.error('❌ Error procesando webhook:', error);

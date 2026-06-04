@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { analyzeCVText, improveCVText } from '../services/openai.service';
+import { analyzeCVText, improveCVText, analyzeCVForAnalyzer, suggestStepForAnalyzer, extractStructuredCV } from '../services/openai.service';
 import { saveCVAnalysis } from '../repositories/analysis.repository';
 
 export const analyzeCV = async (req: Request, res: Response): Promise<void> => {
@@ -57,5 +57,59 @@ export const improveCV = async (req: Request, res: Response): Promise<void> => {
   } catch (error: any) {
     console.error('Error improving CV text:', error);
     res.status(500).json({ error: 'Error interno del servidor al intentar mejorar el texto', details: error.message });
+  }
+};
+
+export const analyzeCVForAnalyzerController = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { raw_text } = req.body;
+
+    if (!raw_text) {
+      res.status(400).json({ error: 'raw_text is a required field.' });
+      return;
+    }
+
+    const aiResult = await analyzeCVForAnalyzer(raw_text);
+
+    res.status(200).json(aiResult);
+  } catch (error: any) {
+    console.error('Error in analyzeCVForAnalyzerController:', error);
+    res.status(500).json({ error: 'Error analyzing CV text', details: error.message });
+  }
+};
+
+export const suggestStepForAnalyzerController = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { step, context } = req.body;
+
+    if (!step) {
+      res.status(400).json({ error: 'step is a required field.' });
+      return;
+    }
+
+    const suggestions = await suggestStepForAnalyzer(step, JSON.stringify(context || {}));
+
+    res.status(200).json(suggestions);
+  } catch (error: any) {
+    console.error('Error in suggestStepForAnalyzerController:', error);
+    res.status(500).json({ error: 'Error generating step suggestions', details: error.message });
+  }
+};
+
+export const extractStructuredCVController = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { raw_text } = req.body;
+
+    if (!raw_text) {
+      res.status(400).json({ error: 'raw_text is a required field.' });
+      return;
+    }
+
+    const structuredData = await extractStructuredCV(raw_text);
+
+    res.status(200).json(structuredData);
+  } catch (error: any) {
+    console.error('Error in extractStructuredCVController:', error);
+    res.status(500).json({ error: 'Error extracting structured CV', details: error.message });
   }
 };

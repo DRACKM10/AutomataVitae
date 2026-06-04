@@ -1,4 +1,4 @@
-import { anthropic, MODEL, MAX_TOKENS } from '../config/anthropic';
+const MICROSERVICIO_IA_URL = process.env.MICROSERVICIO_IA_URL || 'http://localhost:5002';
 
 // Interfaz para el análisis del CV
 interface CVAnalysis {
@@ -12,59 +12,28 @@ interface CVAnalysis {
 
 export class AIAnalysisService {
   /**
-   * Analiza un CV usando Claude AI
+   * Analiza un CV a través del MicroServicioIA
    * @param cvText - Texto extraído del CV
    * @returns Análisis estructurado del CV
    */
   async analyzeCV(cvText: string): Promise<CVAnalysis> {
     try {
-      // System prompt - Instrucciones para Claude
-      const systemPrompt = `Eres un experto reclutador con 15 años de experiencia. 
-Tu trabajo es analizar hojas de vida y proporcionar feedback constructivo y específico.
-
-Analiza la siguiente hoja de vida y responde ÚNICAMENTE con un objeto JSON (sin markdown, sin comentarios) con esta estructura exacta:
-
-{
-  "score": número del 1 al 10,
-  "summary": "resumen breve de 2-3 líneas sobre el candidato",
-  "strengths": ["fortaleza 1", "fortaleza 2", "fortaleza 3"],
-  "weaknesses": ["debilidad 1", "debilidad 2", "debilidad 3"],
-  "suggestions": ["sugerencia concreta 1", "sugerencia concreta 2", "sugerencia concreta 3"],
-  "missingKeywords": ["keyword 1", "keyword 2", "keyword 3"]
-}
-
-Criterios de evaluación:
-- Score: Calidad general del CV (formato, contenido, claridad)
-- Strengths: Aspectos positivos concretos
-- Weaknesses: Áreas de mejora específicas
-- Suggestions: Acciones concretas para mejorar
-- MissingKeywords: Palabras clave importantes que faltan según la industria detectada
-
-Sé específico, constructivo y honesto.`;
-
-      // Llamar a Claude API
-      const response = await anthropic.messages.create({
-        model: MODEL,
-        max_tokens: MAX_TOKENS,
-        system: systemPrompt,
-        messages: [
-          {
-            role: 'user',
-            content: `Analiza esta hoja de vida:\n\n${cvText}`
-          }
-        ],
+      console.log(`[AIAnalysisService] Conectando a MicroServicioIA en ${MICROSERVICIO_IA_URL}/api/cv-analyzer/analyze ...`);
+      
+      const response = await fetch(`${MICROSERVICIO_IA_URL}/api/cv-analyzer/analyze`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ raw_text: cvText })
       });
 
-      // Extraer el contenido de la respuesta
-      const content = response.content[0];
-      
-      if (content.type !== 'text') {
-        throw new Error('Respuesta inesperada de la API');
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Error del MicroServicioIA: ${response.status} - ${errorText}`);
       }
 
-      // Parsear el JSON de la respuesta
-      const analysis = this.parseAnalysis(content.text);
-
+      const analysis = await response.json() as CVAnalysis;
       return analysis;
 
     } catch (error: any) {
@@ -74,38 +43,33 @@ Sé específico, constructivo y honesto.`;
   }
 
   /**
-   * Parsea la respuesta JSON de Claude
-   * @param text - Texto de respuesta de Claude
-   * @returns Análisis parseado
+   * Extrae los datos estructurados del CV usando MicroServicioIA
+   * @param cvText - Texto extraído del CV
+   * @returns Datos estructurados del CV
    */
-  private parseAnalysis(text: string): CVAnalysis {
+  async extractCVData(cvText: string): Promise<any> {
     try {
-      // Limpiar posibles markdown code blocks
-      let cleanText = text.trim();
-      cleanText = cleanText.replace(/```json\n?/g, '');
-      cleanText = cleanText.replace(/```\n?/g, '');
-      cleanText = cleanText.trim();
+      console.log(`[AIAnalysisService] Conectando a MicroServicioIA en ${MICROSERVICIO_IA_URL}/api/cv-analyzer/extract ...`);
+      
+      const response = await fetch(`${MICROSERVICIO_IA_URL}/api/cv-analyzer/extract`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ raw_text: cvText })
+      });
 
-      // Parsear JSON
-      const parsed = JSON.parse(cleanText);
-
-      // Validar estructura
-      if (
-        typeof parsed.score !== 'number' ||
-        !Array.isArray(parsed.strengths) ||
-        !Array.isArray(parsed.weaknesses) ||
-        !Array.isArray(parsed.suggestions) ||
-        !Array.isArray(parsed.missingKeywords)
-      ) {
-        throw new Error('Estructura de respuesta inválida');
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Error del MicroServicioIA al extraer: ${response.status} - ${errorText}`);
       }
 
-      return parsed as CVAnalysis;
+      const structuredData = await response.json();
+      return structuredData;
 
     } catch (error: any) {
-      console.error('❌ Error al parsear análisis:', error.message);
-      console.error('Texto recibido:', text);
-      throw new Error('Error al procesar la respuesta de la IA');
+      console.error('❌ Error al extraer datos con IA:', error.message);
+      throw new Error('Error al extraer datos del CV con IA: ' + error.message);
     }
   }
 
@@ -204,43 +168,34 @@ Sé específico, constructivo y honesto.`;
       ]
     };
 
-    const isPlaceholderKey = !process.env.ANTHROPIC_API_KEY || 
-                             process.env.ANTHROPIC_API_KEY.includes('TU_CLAVE') ||
-                             process.env.ANTHROPIC_API_KEY.includes('placeholder');
-
-    if (isPlaceholderKey) {
-      console.log(`[AIAnalysisService] Usando sugerencias estáticas de fallback para el paso: ${step}`);
-      return defaultSuggestions[step] || defaultSuggestions.personal;
-    }
-
     try {
-      const systemPrompt = `Eres un experto reclutador. El usuario está creando su CV en el paso: "${step}".
-Aquí están los datos que ha rellenado en este paso:
-${contextData}
+      console.log(`[AIAnalysisService] Conectando a MicroServicioIA en ${MICROSERVICIO_IA_URL}/api/cv-analyzer/suggest para paso ${step} ...`);
 
-Analiza los datos y devuelve un array JSON con sugerencias para mejorar. Cada sugerencia debe ser un objeto:
-{
-  "id": "1",
-  "text": "Tu sugerencia aquí",
-  "type": "tip" | "improvement" | "warning"
-}
-Si los datos están vacíos, da consejos generales para este paso. Devuelve MÁXIMO 3 sugerencias. ÚNICAMENTE devuelve JSON válido (Array), sin explicaciones.`;
+      let parsedContext = {};
+      try {
+        parsedContext = JSON.parse(contextData || '{}');
+      } catch (e) {
+        console.warn('Advertencia al parsear contextData:', e);
+      }
 
-      const response = await anthropic.messages.create({
-        model: MODEL,
-        max_tokens: MAX_TOKENS,
-        system: systemPrompt,
-        messages: [{ role: 'user', content: 'Dame el array JSON de sugerencias ahora.' }],
+      const response = await fetch(`${MICROSERVICIO_IA_URL}/api/cv-analyzer/suggest`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ step, context: parsedContext })
       });
 
-      const content = response.content[0];
-      if (content.type !== 'text') throw new Error('Respuesta inesperada');
-      
-      let cleanText = content.text.trim();
-      cleanText = cleanText.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
-      return JSON.parse(cleanText);
+      if (!response.ok) {
+        throw new Error(`Error del MicroServicioIA: ${response.status}`);
+      }
+
+      const suggestions = await response.json() as any[];
+      return suggestions;
+
     } catch (error: any) {
-      console.error('❌ Error en suggestStep:', error.message);
+      console.error('❌ Error en suggestStep usando MicroServicioIA:', error.message);
+      // Retornar sugerencias por defecto como fallback en caso de error
       return defaultSuggestions[step] || defaultSuggestions.personal;
     }
   }

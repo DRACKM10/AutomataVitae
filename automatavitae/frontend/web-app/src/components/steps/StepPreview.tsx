@@ -152,10 +152,11 @@ export const StepPreview: React.FC = () => {
 
         {/* Vista previa completa */}
         <div
-          ref={previewRef}
           className="my-6 bg-slate-950/40 rounded-lg p-6 border border-slate-800 max-h-[600px] overflow-y-auto"
         >
-          <ResumePreview />
+          <div ref={previewRef} className="bg-white text-black min-h-[1056px] w-[794px] mx-auto shadow-sm">
+            <ResumePreview />
+          </div>
         </div>
 
         {/* Acciones */}

@@ -15,8 +15,14 @@ export const uploadAndAnalyze = async (
   next: NextFunction
 ) => {
   try {
+    console.log('--- NUEVA SOLICITUD /upload ---');
+    console.log('Headers:', req.headers);
+    console.log('Body:', req.body);
+    console.log('File:', req.file);
+
     // 1. Verificar que se subió un archivo
     if (!req.file) {
+      console.log('❌ Error: No se recibió ningún archivo.');
       return res.status(400).json({
         error: {
           code: 'NO_FILE',
@@ -35,9 +41,12 @@ export const uploadAndAnalyze = async (
     console.log(' Páginas:', parsedCV.pageCount);
 
     // 3. Analizar con IA
-    console.log(' Analizando con IA...');
-    const analysis = await aiAnalysis.analyzeCV(parsedCV.text);
-    console.log(' Análisis completado');
+    console.log(' Analizando con IA y extrayendo estructura...');
+    const [analysis, structuredData] = await Promise.all([
+      aiAnalysis.analyzeCV(parsedCV.text),
+      aiAnalysis.extractCVData(parsedCV.text)
+    ]);
+    console.log(' Análisis y extracción completados');
 
     // 4. Guardar en Supabase
     console.log(' Guardando en base de datos...');
@@ -66,7 +75,38 @@ export const uploadAndAnalyze = async (
       console.log(' Análisis guardado con ID:', savedAnalysis.id);
     }
 
-    // 5. Retornar resultado
+    // 5. Guardar el CV estructurado en cv-service si hay token de usuario
+    const authHeader = req.headers.authorization;
+    if (authHeader && structuredData) {
+      console.log(' Usuario autenticado, guardando CV estructurado en cv-service...');
+      try {
+        const cvToSave = {
+          ...structuredData,
+          title: req.file.originalname.replace('.pdf', '') || 'CV Extraído',
+          is_public: false
+        };
+
+        const cvSaveResponse = await fetch('http://localhost:3006/api/v1/cvs', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': authHeader
+          },
+          body: JSON.stringify(cvToSave)
+        });
+
+        if (!cvSaveResponse.ok) {
+          const errText = await cvSaveResponse.text();
+          console.error(' Error al guardar en cv-service:', errText);
+        } else {
+          console.log(' CV estructurado guardado exitosamente en cv-service');
+        }
+      } catch (cvSaveErr) {
+        console.error(' Error al contactar cv-service:', cvSaveErr);
+      }
+    }
+
+    // 6. Retornar resultado
     res.json({
       success: true,
       data: {
