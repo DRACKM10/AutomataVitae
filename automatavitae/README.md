@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 
   # Meditation app design
 
@@ -9,3 +10,6 @@
 
   Run `npm run dev` to start the development server.
   
+=======
+# AutomataVitaeMovil
+>>>>>>> 348ecb4cfd987a1794da88b7e7afcdb7d2a5539a
