@@ -50,9 +50,14 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ step, context }) => {
       } catch (error: unknown) {
         if (isMounted) {
           setSuggestions([]);
-          // Only log non-abort errors and mark as unavailable
-          if (error instanceof Error && error.name !== 'AbortError') {
-            console.warn('[AIAssistant] Servicio no disponible:', error.message);
+          // Solo loguear si es un error inesperado (no conexión rechazada ni abort)
+          if (
+            error instanceof Error &&
+            error.name !== 'AbortError' &&
+            !error.message.includes('Failed to fetch') &&
+            !error.message.includes('ERR_CONNECTION_REFUSED')
+          ) {
+            console.warn('[AIAssistant] Error inesperado:', error.message);
           }
           setUnavailable(true);
         }

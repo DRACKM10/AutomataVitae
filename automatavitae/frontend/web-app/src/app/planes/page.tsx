@@ -402,10 +402,10 @@ export default function PlanesPage() {
                       ${isCurrentPlan
                         ? 'bg-gray-100 dark:bg-gray-800 text-gray-400 cursor-default'
                         : plan.slug === 'free'
-                        ? 'bg-gray-100 dark:bg-gray-800/60 text-gray-500 dark:text-gray-400 cursor-default border border-gray-200 dark:border-gray-700'
-                        : isPro
-                        ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:shadow-lg hover:shadow-blue-500/25'
-                        : 'bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:opacity-90'
+                          ? 'bg-gray-100 dark:bg-gray-800/60 text-gray-500 dark:text-gray-400 cursor-default border border-gray-200 dark:border-gray-700'
+                          : isPro
+                            ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:shadow-lg hover:shadow-blue-500/25'
+                            : 'bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:opacity-90'
                       } disabled:opacity-60 disabled:cursor-not-allowed`}
                   >
                     {paying === plan.slug && <Loader2 className="w-4 h-4 animate-spin" />}

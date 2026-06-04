@@ -4,16 +4,31 @@ import { useRouter } from 'next/navigation';
 import { useResume } from '@/context/store';
 import { Button } from '@/components/ui/button';
 import { AIAssistant } from '@/components/AIAssistant';
-import { Download, RefreshCw, CheckCircle, Lock, LogIn, UserPlus, X } from 'lucide-react';
+import { Download, CheckCircle, Lock, LogIn, UserPlus, X, Loader2 } from 'lucide-react';
 import { ResumePreview } from './ResumePreview';
 import { motion, AnimatePresence } from 'motion/react';
 import { toast } from 'sonner';
+
+const PDF_SERVICE_URL = process.env.NEXT_PUBLIC_PDF_SERVICE_URL || 'http://localhost:3007';
+const CV_SERVICE_URL  = process.env.NEXT_PUBLIC_CV_SERVICE_URL  || 'http://localhost:3006';
+
+/** Extrae el payload del JWT sin librerías externas */
+function decodeJwtPayload(token: string): { id?: string; sub?: string; userId?: string } | null {
+  try {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    return JSON.parse(atob(base64));
+  } catch {
+    return null;
+  }
+}
 
 export const StepPreview: React.FC = () => {
   const router = useRouter();
   const { resumeData, clearResumeData } = useResume();
   const previewRef = useRef<HTMLDivElement>(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
 
   const handleSaveToDatabase = async () => {
     const token = localStorage.getItem('token');
@@ -23,7 +38,7 @@ export const StepPreview: React.FC = () => {
     }
 
     try {
-      const response = await fetch('http://localhost:3006/api/v1/cvs', {
+      const response = await fetch(`${CV_SERVICE_URL}/api/v1/cvs`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -42,21 +57,64 @@ export const StepPreview: React.FC = () => {
     }
   };
 
-  const handleDownload = () => {
-    // Simulación de descarga - en producción usarías una librería como html2pdf o jsPDF
-    toast.success('¡CV descargado exitosamente!', {
-      description: 'Tu hoja de vida ha sido generada en formato PDF.',
-      duration: 3000,
-    });
-    
-    // Simular descarga
-    const element = document.createElement('a');
-    const fileName = `${resumeData.personalInfo.fullName.replace(/\s+/g, '_') || 'Mi_CV'}.pdf`;
-    element.setAttribute('download', fileName);
-    element.style.display = 'none';
-    document.body.appendChild(element);
-    // element.click(); // Comentado para no forzar descarga en demo
-    document.body.removeChild(element);
+  const handleDownload = async () => {
+    const token = localStorage.getItem('token');
+    if (!token || token === 'null' || token === 'undefined') {
+      setShowAuthModal(true);
+      return;
+    }
+
+    const payload = decodeJwtPayload(token);
+    const userId = payload?.userId || payload?.id || payload?.sub;
+
+    if (!userId) {
+      toast.error('Sesión inválida', { description: 'No se pudo identificar tu cuenta. Vuelve a iniciar sesión.' });
+      return;
+    }
+
+    setIsDownloading(true);
+    const toastId = toast.loading('Generando tu PDF...', { description: 'Esto puede tomar unos segundos.' });
+
+    try {
+      const response = await fetch(`${PDF_SERVICE_URL}/api/v1/pdf/generate/cv`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({ userId, resumeData }),
+      });
+
+      if (!response.ok) {
+        const err = await response.json().catch(() => ({}));
+        throw new Error(err.message || 'Error desconocido en el servidor');
+      }
+
+      // Convertir la respuesta a Blob y forzar la descarga
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const anchor = document.createElement('a');
+      const fileName = `${resumeData.personalInfo.fullName.replace(/\s+/g, '_') || 'Mi_CV'}.pdf`;
+      anchor.href = url;
+      anchor.download = fileName;
+      document.body.appendChild(anchor);
+      anchor.click();
+      document.body.removeChild(anchor);
+      URL.revokeObjectURL(url);
+
+      toast.success('¡CV descargado exitosamente!', {
+        id: toastId,
+        description: 'Tu hoja de vida fue generada en formato PDF.',
+        duration: 4000,
+      });
+    } catch (error) {
+      toast.error('Error al generar el PDF', {
+        id: toastId,
+        description: (error as Error).message || 'No se pudo conectar con el servidor.',
+      });
+    } finally {
+      setIsDownloading(false);
+    }
   };
 
   const handleStartOver = () => {
@@ -113,13 +171,22 @@ export const StepPreview: React.FC = () => {
           </Button>
           <Button
             onClick={handleDownload}
-            disabled={!hasContent}
+            disabled={!hasContent || isDownloading}
             variant="outline"
             size="lg"
-            className="flex-1 border-slate-800 hover:bg-slate-800/50 text-slate-200"
+            className="flex-1 border-slate-800 hover:bg-slate-800/50 text-slate-200 disabled:opacity-60"
           >
-            <Download className="w-5 h-5 mr-2" />
-            Descargar PDF
+            {isDownloading ? (
+              <>
+                <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                Generando PDF...
+              </>
+            ) : (
+              <>
+                <Download className="w-5 h-5 mr-2" />
+                Descargar PDF
+              </>
+            )}
           </Button>
         </div>
 
@@ -221,7 +288,7 @@ export const StepPreview: React.FC = () => {
                   <LogIn className="w-4 h-4" />
                   Iniciar Sesión
                 </Button>
-                
+
                 <Button
                   onClick={() => {
                     setShowAuthModal(false);

@@ -26,6 +26,9 @@ interface CVItem {
   updated_at: string;
 }
 
+const PDF_SERVICE_URL = process.env.NEXT_PUBLIC_PDF_SERVICE_URL || 'http://localhost:3007';
+const CV_SERVICE_URL  = process.env.NEXT_PUBLIC_CV_SERVICE_URL  || 'http://localhost:3006';
+
 export default function DashboardPage() {
   const router = useRouter();
   const [profile, setProfile] = useState<UserProfile | null>(null);
@@ -161,6 +164,88 @@ export default function DashboardPage() {
       toast.error('Error de Análisis', { description: error.message });
     } finally {
       setIsAnalyzing(false);
+    }
+  };
+
+  const handleDownloadPDF = async (cvId: string, title: string) => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      toast.error('Acceso denegado', { description: 'Inicia sesión primero.' });
+      return;
+    }
+
+    const toastId = toast.loading('Generando tu PDF...', { description: 'Esto puede tomar unos segundos.' });
+
+    try {
+      const cvRes = await fetch(`${CV_SERVICE_URL}/api/v1/cvs/${cvId}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (!cvRes.ok) throw new Error('Error al obtener datos del CV');
+      const cvData = await cvRes.json();
+      
+      const mappedResumeData = {
+        personalInfo: {
+          fullName: profile?.fullName || profile?.email?.split('@')[0] || 'Sin Nombre',
+          email: profile?.email || '',
+          phone: cvData.phone || '',
+          location: cvData.location || '',
+          linkedin: '',
+          github: '',
+          website: '',
+          title: cvData.title || '',
+          summary: cvData.summary || ''
+        },
+        experience: (cvData.experience || []).map((exp: any) => ({
+          company: exp.company || '',
+          position: exp.position || '',
+          startDate: exp.start_date ? new Date(exp.start_date).toISOString().split('T')[0].substring(0,7) : '',
+          endDate: exp.end_date ? new Date(exp.end_date).toISOString().split('T')[0].substring(0,7) : '',
+          current: exp.is_current || false,
+          description: exp.description || ''
+        })),
+        education: (cvData.education || []).map((edu: any) => ({
+          institution: edu.institution || '',
+          degree: edu.degree || '',
+          field: edu.field || '',
+          startDate: edu.start_date ? new Date(edu.start_date).toISOString().split('T')[0].substring(0,7) : '',
+          endDate: edu.end_date ? new Date(edu.end_date).toISOString().split('T')[0].substring(0,7) : '',
+          current: edu.is_current || false
+        })),
+        skills: cvData.skills || []
+      };
+
+      const pdfRes = await fetch(`${PDF_SERVICE_URL}/api/v1/pdf/generate/cv`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({ userId: profile?.userId, resumeData: mappedResumeData }),
+      });
+
+      if (!pdfRes.ok) {
+        throw new Error('Error al generar el PDF en el servidor');
+      }
+
+      const blob = await pdfRes.blob();
+      const url = URL.createObjectURL(blob);
+      const anchor = document.createElement('a');
+      anchor.href = url;
+      anchor.download = `${title.replace(/\s+/g, '_')}.pdf`;
+      document.body.appendChild(anchor);
+      anchor.click();
+      document.body.removeChild(anchor);
+      URL.revokeObjectURL(url);
+
+      toast.success('¡Generación exitosa!', {
+        id: toastId,
+        description: `Se ha descargado el archivo PDF de ${title}.`
+      });
+    } catch (error) {
+      toast.error('Error al descargar', { 
+        id: toastId, 
+        description: 'No se pudo generar el PDF. Verifica la conexión.' 
+      });
     }
   };
 
@@ -598,11 +683,7 @@ export default function DashboardPage() {
                                     <Edit2 className="w-3.5 h-3.5" />
                                   </button>
                                   <button
-                                    onClick={() => {
-                                      toast.success('¡Generación exitosa!', {
-                                        description: `Se ha descargado el archivo PDF de ${cv.title}.`
-                                      });
-                                    }}
+                                    onClick={() => handleDownloadPDF(cv.id, cv.title)}
                                     className="p-2 hover:bg-[#20222D] text-emerald-500 hover:text-white rounded-lg border border-transparent hover:border-[#272B36] transition-all cursor-pointer"
                                     title="Descargar PDF"
                                   >
@@ -670,7 +751,7 @@ export default function DashboardPage() {
                           <button className="p-1.5 hover:bg-[#20222D] text-[#94A3B8] hover:text-white rounded-md transition-all cursor-pointer">
                             <Eye className="w-3.5 h-3.5" />
                           </button>
-                          <button className="p-1.5 hover:bg-[#20222D] text-emerald-500 hover:text-white rounded-md transition-all cursor-pointer">
+                          <button onClick={() => handleDownloadPDF(cv.id, cv.title)} className="p-1.5 hover:bg-[#20222D] text-emerald-500 hover:text-white rounded-md transition-all cursor-pointer">
                             <Download className="w-3.5 h-3.5" />
                           </button>
                         </div>
