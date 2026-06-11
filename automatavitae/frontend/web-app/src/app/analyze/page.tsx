@@ -4,8 +4,8 @@ import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { motion } from 'motion/react';
 import { useRouter } from 'next/navigation';
 import { useDropzone } from "react-dropzone";
-import { 
-  UploadCloud, FileText, Bot, CheckCircle2, 
+import {
+  UploadCloud, FileText, Bot, CheckCircle2,
   AlertTriangle, Lightbulb, ArrowRight, Loader2, Moon, Sun, Download
 } from "lucide-react";
 import { toast } from 'sonner';
@@ -20,7 +20,7 @@ interface AnalysisResult {
 
 export default function AnalyzePage() {
   const router = useRouter();
-  
+
   // Theme & Particles State
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
@@ -41,9 +41,19 @@ export default function AnalyzePage() {
       const opt = {
         margin: 10,
         filename: fileName,
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        image: {
+          type: 'jpeg' as const,
+          quality: 0.98
+        },
+        html2canvas: {
+          scale: 2,
+          useCORS: true
+        },
+        jsPDF: {
+          unit: 'mm' as const,
+          format: 'a4' as const,
+          orientation: 'portrait' as const
+        }
       };
       await html2pdf().set(opt).from(reportRef.current).save();
       toast.success('¡Reporte descargado exitosamente!');
@@ -122,12 +132,12 @@ export default function AnalyzePage() {
           if (errData?.error?.message) {
             errMsg = errData.error.message;
           }
-        } catch(e) {}
+        } catch (e) { }
         throw new Error(errMsg);
       }
 
       const rawData = await response.json();
-      
+
       // Mapear respuesta anidada de cv-analyzer
       if (rawData.success && rawData.data && rawData.data.analysis) {
         const analysis = rawData.data.analysis;
@@ -158,11 +168,11 @@ export default function AnalyzePage() {
 
   return (
     <div className="relative min-h-screen overflow-x-hidden bg-transparent text-gray-900 dark:text-gray-100 transition-colors duration-500 font-sans flex flex-col pt-20">
-      
+
       {/* Global Navbar */}
       <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-800/80 backdrop-blur-lg bg-white/90 dark:bg-[#09090b]/90 shadow-sm dark:shadow-md dark:shadow-black/40">
         <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-blue-500/35 via-purple-500/35 to-transparent" />
-        <div 
+        <div
           onClick={() => router.push('/')}
           className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity"
         >
@@ -174,10 +184,10 @@ export default function AnalyzePage() {
             <span className="font-light text-gray-500 dark:text-gray-400">Vitae</span>
           </div>
         </div>
-        
+
         <div className="flex items-center gap-4">
           {result && (
-            <button 
+            <button
               onClick={() => { setFile(null); setResult(null); setError(null); }}
               className="text-sm font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700 transition-colors hidden sm:block"
             >
@@ -193,10 +203,10 @@ export default function AnalyzePage() {
 
       <main className="relative z-10 flex-1 flex flex-col items-center px-4 py-8 sm:py-16 md:px-6 w-full max-w-4xl mx-auto">
         <div className="w-full space-y-8">
-          
+
           {/* UPLOAD STATE */}
           {!result && !loading && (
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}
               className="space-y-8"
             >
@@ -210,8 +220,8 @@ export default function AnalyzePage() {
               </div>
 
               {/* Glassmorphism Dropzone */}
-              <div 
-                {...getRootProps()} 
+              <div
+                {...getRootProps()}
                 className={`backdrop-blur-xl bg-white/60 dark:bg-gray-900/60 border-2 border-dashed rounded-3xl p-10 sm:p-16 transition-all cursor-pointer flex flex-col items-center justify-center text-center group shadow-xl
                   ${isDragActive ? 'border-blue-500 bg-blue-50/50 dark:bg-blue-900/20' : 'border-gray-300 dark:border-gray-700 hover:border-blue-400 dark:hover:border-indigo-500'}`}
               >
@@ -243,7 +253,7 @@ export default function AnalyzePage() {
               )}
 
               <div className="flex justify-center pt-4">
-                <motion.button 
+                <motion.button
                   onClick={analyzeCV}
                   disabled={!file}
                   whileHover={file ? { scale: 1.05 } : {}}
@@ -259,7 +269,7 @@ export default function AnalyzePage() {
 
           {/* LOADING STATE */}
           {loading && (
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}
               className="flex flex-col items-center justify-center py-24"
             >
@@ -278,7 +288,7 @@ export default function AnalyzePage() {
 
           {/* RESULTS DASHBOARD */}
           {result && !loading && (
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}
               className="space-y-8 bg-white dark:bg-[#09090b] p-4 rounded-3xl"
             >
@@ -362,8 +372,8 @@ export default function AnalyzePage() {
                   </h3>
                   <div className="space-y-4">
                     {result.sugerencias?.map((sug, idx) => (
-                      <motion.div 
-                        key={idx} 
+                      <motion.div
+                        key={idx}
                         whileHover={{ scale: 1.01 }}
                         className="p-5 bg-white dark:bg-gray-950 rounded-2xl border border-gray-100 dark:border-gray-800 text-base leading-relaxed text-gray-700 dark:text-gray-300 flex gap-5 shadow-sm"
                       >
@@ -374,17 +384,17 @@ export default function AnalyzePage() {
                   </div>
                 </div>
               </div>
-              
+
               <div className="pt-6 pb-20 flex flex-col sm:flex-row justify-center gap-4">
-                 <button 
-                   onClick={handleDownloadPDF}
-                   className="flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-8 py-3 rounded-full font-bold shadow-lg hover:opacity-90 transition-opacity"
-                 >
-                   <Download size={20} /> Descargar Reporte en PDF
-                 </button>
-                 <button className="flex items-center justify-center bg-gray-900 dark:bg-white text-white dark:text-gray-900 px-8 py-3 rounded-full font-bold shadow-lg opacity-50 cursor-not-allowed">
-                   Entrenamiento de Entrevista QA
-                 </button>
+                <button
+                  onClick={handleDownloadPDF}
+                  className="flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-8 py-3 rounded-full font-bold shadow-lg hover:opacity-90 transition-opacity"
+                >
+                  <Download size={20} /> Descargar Reporte en PDF
+                </button>
+                <button className="flex items-center justify-center bg-gray-900 dark:bg-white text-white dark:text-gray-900 px-8 py-3 rounded-full font-bold shadow-lg opacity-50 cursor-not-allowed">
+                  Entrenamiento de Entrevista QA
+                </button>
               </div>
             </motion.div>
           )}

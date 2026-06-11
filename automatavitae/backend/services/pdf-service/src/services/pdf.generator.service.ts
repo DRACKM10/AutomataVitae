@@ -24,12 +24,15 @@ export class PdfGeneratorService {
     private async htmlToBuffer(html: string): Promise<Buffer> {
         const browser = await puppeteer.launch({
             headless: true,
-            args: ['--no-sandbox', '--disable-setuid-sandbox']
+            executablePath: process.env.PUPPETEER_EXECUTABLE_PATH,
+            args: [
+                '--no-sandbox',
+                '--disable-setuid-sandbox'
+            ]
         });
-
         try {
             const page = await browser.newPage();
-        await page.setContent(html, { waitUntil: 'load' });
+            await page.setContent(html, { waitUntil: 'load' });
             const pdfBuffer = await page.pdf({
                 format: 'A4',
                 printBackground: true,
@@ -50,7 +53,7 @@ export class PdfGeneratorService {
         const formatDate = (dateStr: string) => {
             if (!dateStr) return '';
             const [year, month] = dateStr.split('-');
-            const months = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+            const months = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
             return `${months[parseInt(month, 10) - 1]} ${year}`;
         };
 

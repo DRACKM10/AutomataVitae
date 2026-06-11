@@ -1,0 +1,84 @@
+version: "3.9"
+
+services:
+
+  web-app:
+    image: automatavitae-web-app
+    container_name: web-app
+    ports:
+      - "3000:3000"
+    env_file:
+      - ./frontend/web-app/.env.local
+    networks:
+      - automatavitae-network
+    depends_on:
+      - api-gateway
+
+  api-gateway:
+    image: automatavitae-gateway
+    container_name: api-gateway
+    ports:
+      - "3001:3001"
+    environment:
+      PORT: 3001
+      CV_ANALYZER_URL: http://cv-analyzer:3333
+      MICROSERVICIO_IA_URL: http://microservicio-ia:5002
+    networks:
+      - automatavitae-network
+    depends_on:
+      - cv-analyzer
+      - microservicio-ia
+
+  cv-analyzer:
+    image: automatavitae-cv-analyzer
+    container_name: cv-analyzer
+    ports:
+      - "3333:3333"
+    env_file:
+      - ./backend/services/cv-analyzer/.env
+    networks:
+      - automatavitae-network
+
+  microservicio-ia:
+    image: automatavitae-microservicio-ia
+    container_name: microservicio-ia
+    ports:
+      - "5002:5002"
+    env_file:
+      - ./backend/services/MicroServicioIA/.env
+    networks:
+      - automatavitae-network
+
+  user-service:
+    image: automatavitae-user-service
+    container_name: user-service
+    ports:
+      - "3005:3005"
+    env_file:
+      - ./backend/services/user-service/.env
+    networks:
+      - automatavitae-network
+
+  cv-service:
+    image: automatavitae-cv-service
+    container_name: cv-service
+    ports:
+      - "3006:3006"
+    env_file:
+      - ./backend/services/cv-service/.env
+    networks:
+      - automatavitae-network
+
+  pdf-service:
+    image: automatavitae-pdf-service
+    container_name: pdf-service
+    ports:
+      - "3007:3007"
+    env_file:
+      - ./backend/services/pdf-service/.env
+    networks:
+      - automatavitae-network
+
+networks:
+  automatavitae-network:
+    driver: bridge
