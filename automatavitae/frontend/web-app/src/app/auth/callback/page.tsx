@@ -18,7 +18,8 @@ function CallbackHandler() {
 
     const processGithubLogin = async () => {
       try {
-        const res = await fetch('http://localhost:3005/api/v1/auth/github', {
+        const apiUrl = process.env.NEXT_PUBLIC_USER_SERVICE_URL || 'http://localhost:3005';
+        const res = await fetch(`${apiUrl}/api/v1/auth/github`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ code }),

@@ -3,7 +3,8 @@ version: "3.9"
 services:
 
   web-app:
-    image: automatavitae-web-app
+    image: german2301/automatavitae-web-app
+    build: ./frontend/web-app
     container_name: web-app
     ports:
       - "3000:3000"
@@ -15,7 +16,8 @@ services:
       - api-gateway
 
   api-gateway:
-    image: automatavitae-gateway
+    image: german2301/automatavitae-gateway
+    build: ./backend/api-gateway
     container_name: api-gateway
     ports:
       - "3001:3001"
@@ -30,7 +32,8 @@ services:
       - microservicio-ia
 
   cv-analyzer:
-    image: automatavitae-cv-analyzer
+    image: german2301/automatavitae-cv-analyzer
+    build: ./backend/services/cv-analyzer
     container_name: cv-analyzer
     ports:
       - "3333:3333"
@@ -40,7 +43,8 @@ services:
       - automatavitae-network
 
   microservicio-ia:
-    image: automatavitae-microservicio-ia
+    image: german2301/automatavitae-microservicio-ia
+    build: ./backend/services/MicroServicioIA
     container_name: microservicio-ia
     ports:
       - "5002:5002"
@@ -50,7 +54,8 @@ services:
       - automatavitae-network
 
   user-service:
-    image: automatavitae-user-service
+    image: german2301/automatavitae-user-service
+    build: ./backend/services/user-service
     container_name: user-service
     ports:
       - "3005:3005"
@@ -60,7 +65,8 @@ services:
       - automatavitae-network
 
   cv-service:
-    image: automatavitae-cv-service
+    image: german2301/automatavitae-cv-service
+    build: ./backend/services/cv-service
     container_name: cv-service
     ports:
       - "3006:3006"
@@ -70,7 +76,8 @@ services:
       - automatavitae-network
 
   pdf-service:
-    image: automatavitae-pdf-service
+    image: german2301/automatavitae-pdf-service
+    build: ./backend/services/pdf-service
     container_name: pdf-service
     ports:
       - "3007:3007"

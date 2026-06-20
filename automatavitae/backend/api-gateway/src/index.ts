@@ -7,11 +7,18 @@ import { createProxyMiddleware, fixRequestBody } from 'http-proxy-middleware';
 import rateLimit from 'express-rate-limit';
 
 const app: Application = express();
+
+// ✅ Confiar en el Load Balancer de Railway/Render/Vercel
+app.set('trust proxy', 1);
+
 const PORT = process.env.PORT || 3001;
 
 // ✅ Valores con fallback para desarrollo
 const CV_ANALYZER_URL = process.env.CV_ANALYZER_URL || 'http://localhost:3333';
 const MICROSERVICIO_IA_URL = process.env.MICROSERVICIO_IA_URL || 'http://localhost:5002';
+const USER_SERVICE_URL = process.env.USER_SERVICE_URL || 'http://localhost:3002';
+const CV_SERVICE_URL = process.env.CV_SERVICE_URL || 'http://localhost:3003';
+const PDF_SERVICE_URL = process.env.PDF_SERVICE_URL || 'http://localhost:3004';
 
 // ✅ Validación temprana: aborta con mensaje claro si falta algo crítico
 if (!CV_ANALYZER_URL) {
@@ -44,6 +51,9 @@ app.get('/health', (req: Request, res: Response) => {
     services: {
       cvAnalyzer: CV_ANALYZER_URL,
       microservicioIA: MICROSERVICIO_IA_URL,
+      userService: USER_SERVICE_URL,
+      cvService: CV_SERVICE_URL,
+      pdfService: PDF_SERVICE_URL
     }
   });
 });
@@ -68,6 +78,27 @@ app.use('/api/ia', createProxyMiddleware({
   onProxyReq: fixRequestBody,
 }));
 
+app.use('/api/users', createProxyMiddleware({
+  target: USER_SERVICE_URL,
+  changeOrigin: true,
+  pathRewrite: { '^/api/users': '/api/v1/auth' },
+  onProxyReq: fixRequestBody,
+}));
+
+app.use('/api/cvs', createProxyMiddleware({
+  target: CV_SERVICE_URL,
+  changeOrigin: true,
+  pathRewrite: { '^/api/cvs': '/api/v1/cvs' },
+  onProxyReq: fixRequestBody,
+}));
+
+app.use('/api/pdf', createProxyMiddleware({
+  target: PDF_SERVICE_URL,
+  changeOrigin: true,
+  pathRewrite: { '^/api/pdf': '/api/v1/pdf' },
+  onProxyReq: fixRequestBody,
+}));
+
 app.use((req: Request, res: Response) => {
   res.status(404).json({ 
     error: 'Ruta no encontrada',
@@ -84,5 +115,8 @@ app.listen(PORT, () => {
   console.log('\n📡 Routing configurado:');
   console.log(`  /api/cv/* → ${CV_ANALYZER_URL}`);
   console.log(`  /api/ia/* → ${MICROSERVICIO_IA_URL}`);
+  console.log(`  /api/users/* → ${USER_SERVICE_URL}`);
+  console.log(`  /api/cvs/* → ${CV_SERVICE_URL}`);
+  console.log(`  /api/pdf/* → ${PDF_SERVICE_URL}`);
   console.log('\n⏳ Esperando peticiones...\n');
 });
