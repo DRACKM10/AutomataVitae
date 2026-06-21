@@ -6,6 +6,11 @@ export class UserRepository {
         return result.rows[0] || null;
     }
 
+    async findById(userId: string) {
+        const result = await query('SELECT id, full_name, email, avatar_url, created_at FROM users WHERE id = $1', [userId]);
+        return result.rows[0] || null;
+    }
+
     async findByGoogleId(googleId: string) {
         const result = await query('SELECT * FROM users WHERE google_id = $1', [googleId]);
         return result.rows[0] || null;

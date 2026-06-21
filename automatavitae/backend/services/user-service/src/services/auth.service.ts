@@ -89,6 +89,11 @@ export class AuthService {
         return { user: userProfile, token: appToken };
     }
 
+    // Obtener detalles completos de usuario
+    async getUserById(userId: string) {
+        return await userRepository.findById(userId);
+    }
+
     // Helper para firmar el token JWT
     private generateToken(userId: string, email: string): string {
         console.log("user-service signing with secret:", process.env.JWT_SECRET || 'fallback_secret');

@@ -438,8 +438,13 @@ export default function DashboardPage() {
                   Free Account
                 </span>
               </div>
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-[#6366F1] to-[#A855F7] flex items-center justify-center text-white font-extrabold text-sm shadow-md">
-                {initial}
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-[#6366F1] to-[#A855F7] flex items-center justify-center text-white font-extrabold text-sm shadow-md overflow-hidden">
+                {profile?.picture ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={profile.picture} alt="Avatar" className="w-full h-full object-cover" />
+                ) : (
+                  initial
+                )}
               </div>
 
               <button
@@ -1162,8 +1167,13 @@ export default function DashboardPage() {
 
                       {/* Avatar Overlap */}
                       <div className="px-6 -mt-12 relative z-10 flex items-end justify-between">
-                        <div className="w-24 h-24 rounded-2xl bg-gradient-to-tr from-[#6366F1] to-[#A855F7] border-[4px] border-[#12131A] flex items-center justify-center text-white font-black text-3xl shadow-xl">
-                          {initial}
+                        <div className="w-24 h-24 rounded-2xl bg-gradient-to-tr from-[#6366F1] to-[#A855F7] border-[4px] border-[#12131A] flex items-center justify-center text-white font-black text-3xl shadow-xl overflow-hidden">
+                          {profile?.picture ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img src={profile.picture} alt="Avatar" className="w-full h-full object-cover" />
+                          ) : (
+                            initial
+                          )}
                         </div>
                         <span className="text-[10px] uppercase font-extrabold px-3 py-1 bg-[#6366F1]/10 text-[#818CF8] rounded-full border border-[#6366F1]/20 shadow-sm select-none">
                           {latestRole}

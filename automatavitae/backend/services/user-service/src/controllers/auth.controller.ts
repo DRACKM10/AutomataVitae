@@ -75,8 +75,20 @@ export class AuthController {
     // Endpoint protegido para obtener la info del usuario autenticado
     async getMe(req: Request, res: Response): Promise<void> {
         try {
-            // req.user viene cargado desde el middleware
-            res.status(200).json({ user: req.user });
+            // req.user viene cargado desde el middleware, pero solo tiene userId y email
+            const fullUser = await authService.getUserById(req.user!.userId);
+            if (!fullUser) {
+                res.status(404).json({ error: 'Usuario no encontrado' });
+                return;
+            }
+            res.status(200).json({ 
+                user: {
+                    userId: fullUser.id,
+                    email: fullUser.email,
+                    fullName: fullUser.full_name,
+                    picture: fullUser.avatar_url
+                } 
+            });
         } catch (error) {
             res.status(500).json({ error: 'Error al recuperar perfil' });
         }
