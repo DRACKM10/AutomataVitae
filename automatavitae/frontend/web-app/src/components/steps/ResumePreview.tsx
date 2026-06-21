@@ -15,7 +15,7 @@ const formatDate = (dateStr: string) => {
 };
 
 // 1. Plantilla Estándar (Automata Standard)
-const StandardTemplate = ({ data }: { data: ResumeData }) => (
+export const StandardTemplate = ({ data }: { data: ResumeData }) => (
   <div className="bg-white text-gray-900 rounded-lg shadow-xl p-8 max-w-3xl mx-auto border-2 border-gray-100 min-h-full">
     <div className="border-b-4 border-blue-700 pb-4 mb-6">
       <h1 className="text-3xl font-bold mb-2">{data.personalInfo.fullName || 'Tu Nombre'}</h1>
@@ -82,7 +82,7 @@ const StandardTemplate = ({ data }: { data: ResumeData }) => (
 );
 
 // 2. Plantilla Modern Glass
-const ModernGlassTemplate = ({ data }: { data: ResumeData }) => (
+export const ModernGlassTemplate = ({ data }: { data: ResumeData }) => (
   <div className="bg-[#0b0f19] text-gray-200 rounded-lg shadow-xl p-8 max-w-3xl mx-auto border border-blue-900/30 min-h-full font-sans relative overflow-hidden">
     <div className="absolute top-0 right-0 w-64 h-64 bg-blue-600/20 rounded-full blur-3xl -z-10 translate-x-1/2 -translate-y-1/2"></div>
     <div className="border-b border-blue-500/30 pb-6 mb-6 z-10 relative">
@@ -147,7 +147,7 @@ const ModernGlassTemplate = ({ data }: { data: ResumeData }) => (
 );
 
 // 3. Plantilla Executive Split
-const ExecutiveSplitTemplate = ({ data }: { data: ResumeData }) => (
+export const ExecutiveSplitTemplate = ({ data }: { data: ResumeData }) => (
   <div className="bg-white text-gray-900 rounded-lg shadow-xl max-w-3xl mx-auto border-2 border-gray-100 min-h-[1056px] flex overflow-hidden">
     {/* Columna Izquierda */}
     <div className="w-1/3 bg-[#1e293b] text-white p-6 flex flex-col">
@@ -215,7 +215,7 @@ const ExecutiveSplitTemplate = ({ data }: { data: ResumeData }) => (
 );
 
 // 4. Plantilla Creative Studio
-const CreativeStudioTemplate = ({ data }: { data: ResumeData }) => (
+export const CreativeStudioTemplate = ({ data }: { data: ResumeData }) => (
   <div className="bg-[#fafafa] text-gray-800 rounded-lg shadow-xl p-10 max-w-3xl mx-auto border-2 border-gray-100 min-h-full font-serif">
     <div className="text-center mb-10">
       <h1 className="text-4xl font-black tracking-tighter text-black mb-3">{data.personalInfo.fullName || 'Tu Nombre'}</h1>
