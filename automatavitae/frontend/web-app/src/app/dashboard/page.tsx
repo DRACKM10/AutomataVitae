@@ -56,7 +56,6 @@ export default function DashboardPage() {
     const fetchData = async () => {
       try {
         // Fetch user profile
-        const apiUrl = process.env.NEXT_PUBLIC_USER_SERVICE_URL || 'http://localhost:3005';
         const profileRes = await fetch(`${apiUrl}/api/users/me`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
