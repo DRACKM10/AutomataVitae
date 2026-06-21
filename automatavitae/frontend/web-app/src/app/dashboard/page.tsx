@@ -248,6 +248,41 @@ export default function DashboardPage() {
     }
   };
 
+  const handleDeleteCV = async (cvId: string, title: string) => {
+    if (!confirm(`¿Estás seguro de que deseas eliminar el CV "${title}"? Esta acción no se puede deshacer.`)) {
+      return;
+    }
+
+    const token = localStorage.getItem('token');
+    if (!token) return;
+
+    try {
+      const response = await fetch(`${apiUrl}/api/cvs/${cvId}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+
+      if (!response.ok) {
+        throw new Error('Error al eliminar el currículum');
+      }
+
+      toast.success('CV eliminado', { description: `El currículum "${title}" fue eliminado exitosamente.` });
+      
+      // Actualizar la lista local
+      const updatedCvs = cvs.filter(cv => cv.id !== cvId);
+      setCvs(updatedCvs);
+      if (latestCv && latestCv.id === cvId) {
+        setLatestCv(updatedCvs.length > 0 ? updatedCvs[0] : null);
+      }
+      if (selectedCvId === cvId) {
+        setSelectedCvId('');
+      }
+    } catch (error: any) {
+      console.error(error);
+      toast.error('Error', { description: error.message || 'No se pudo eliminar el CV' });
+    }
+  };
+
   const handleLogout = () => {
     localStorage.removeItem('token');
     toast.success('Sesión cerrada', { description: 'Has cerrado sesión correctamente.' });
@@ -723,6 +758,13 @@ export default function DashboardPage() {
                                   >
                                     <Download className="w-3.5 h-3.5" />
                                   </button>
+                                  <button
+                                    onClick={() => handleDeleteCV(cv.id, cv.title)}
+                                    className="p-2 hover:bg-[#20222D] text-red-500 hover:text-white rounded-lg border border-transparent hover:border-[#272B36] transition-all cursor-pointer"
+                                    title="Eliminar CV"
+                                  >
+                                    <Trash2 className="w-3.5 h-3.5" />
+                                  </button>
                                 </div>
                               </td>
                             </tr>
@@ -784,8 +826,11 @@ export default function DashboardPage() {
                           <button className="p-1.5 hover:bg-[#20222D] text-[#94A3B8] hover:text-white rounded-md transition-all cursor-pointer">
                             <Eye className="w-3.5 h-3.5" />
                           </button>
-                          <button onClick={() => handleDownloadPDF(cv.id, cv.title)} className="p-1.5 hover:bg-[#20222D] text-emerald-500 hover:text-white rounded-md transition-all cursor-pointer">
+                          <button onClick={() => handleDownloadPDF(cv.id, cv.title)} className="p-1.5 hover:bg-[#20222D] text-emerald-500 hover:text-white rounded-md transition-all cursor-pointer" title="Descargar PDF">
                             <Download className="w-3.5 h-3.5" />
+                          </button>
+                          <button onClick={() => handleDeleteCV(cv.id, cv.title)} className="p-1.5 hover:bg-[#20222D] text-red-500 hover:text-white rounded-md transition-all cursor-pointer" title="Eliminar CV">
+                            <Trash2 className="w-3.5 h-3.5" />
                           </button>
                         </div>
                       </div>

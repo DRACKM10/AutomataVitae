@@ -114,4 +114,29 @@ export class CvRepository {
 
         return cv;
     }
+
+    async deleteResume(resumeId: string, userId: string) {
+        // DELETE cascade should be handled by the DB if foreign keys have ON DELETE CASCADE
+        // If not, we should delete from child tables first. Let's assume standard cascade or manual deletion.
+        const client = await pool.connect();
+        try {
+            await client.query('BEGIN');
+            
+            // Delete dependencies first just in case there's no CASCADE
+            await client.query(`DELETE FROM resume_skills WHERE resume_id = $1`, [resumeId]);
+            await client.query(`DELETE FROM resume_educations WHERE resume_id = $1`, [resumeId]);
+            await client.query(`DELETE FROM resume_experiences WHERE resume_id = $1`, [resumeId]);
+            
+            // Delete the main resume only if it belongs to the user
+            const result = await client.query(`DELETE FROM resumes WHERE id = $1 AND user_id = $2 RETURNING id`, [resumeId, userId]);
+            
+            await client.query('COMMIT');
+            return result.rowCount ? result.rowCount > 0 : false;
+        } catch (error) {
+            await client.query('ROLLBACK');
+            throw error;
+        } finally {
+            client.release();
+        }
+    }
 }

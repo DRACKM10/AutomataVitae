@@ -44,4 +44,22 @@ export class CvController {
             }
         }
     }
+
+    async delete(req: Request, res: Response): Promise<void> {
+        try {
+            const userId = req.user!.userId;
+            const { id } = req.params;
+
+            await cvService.deleteCv(id as string, userId);
+            res.status(200).json({ message: 'CV eliminado correctamente' });
+        } catch (error: any) {
+            if (error.message === 'CV_NO_ENCONTRADO') {
+                res.status(404).json({ error: 'El CV solicitado no existe.' });
+            } else if (error.message === 'ACCESO_DENEGADO') {
+                res.status(403).json({ error: 'No tienes permisos para eliminar este CV.' });
+            } else {
+                res.status(500).json({ error: 'Error interno al eliminar el CV' });
+            }
+        }
+    }
 }
