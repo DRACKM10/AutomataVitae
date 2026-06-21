@@ -3,6 +3,8 @@
 import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
+const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+
 function CallbackHandler() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -18,7 +20,6 @@ function CallbackHandler() {
 
     const processGithubLogin = async () => {
       try {
-        const apiUrl = process.env.NEXT_PUBLIC_USER_SERVICE_URL || 'http://localhost:3005';
         const res = await fetch(`${apiUrl}/api/users/github`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },

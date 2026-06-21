@@ -9,8 +9,7 @@ import { ResumePreview } from './ResumePreview';
 import { motion, AnimatePresence } from 'motion/react';
 import { toast } from 'sonner';
 
-const apiUrl = process.env.NEXT_PUBLIC_apiUrl || 'http://localhost:3007';
-const apiUrl  = process.env.NEXT_PUBLIC_apiUrl  || 'http://localhost:3006';
+const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
 /** Extrae el payload del JWT sin librerías externas */
 function decodeJwtPayload(token: string): { id?: string; sub?: string; userId?: string } | null {

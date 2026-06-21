@@ -26,9 +26,7 @@ interface CVItem {
   updated_at: string;
 }
 
-const apiUrl = process.env.NEXT_PUBLIC_apiUrl || 'http://localhost:3007';
-const apiUrl  = process.env.NEXT_PUBLIC_apiUrl  || 'http://localhost:3006';
-const apiUrl  = process.env.NEXT_PUBLIC_apiUrl  || 'http://localhost:3001';
+const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -58,7 +56,6 @@ export default function DashboardPage() {
     const fetchData = async () => {
       try {
         // Fetch user profile
-        const apiUrl = process.env.NEXT_PUBLIC_USER_SERVICE_URL || 'http://localhost:3005';
         const profileRes = await fetch(`${apiUrl}/api/users/me`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });

@@ -7,6 +7,8 @@ import { Mail, Lock, Eye, EyeOff, Moon, Sun, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import { useGoogleLogin } from '@react-oauth/google';
 
+const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+
 export default function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState('');
@@ -43,7 +45,6 @@ export default function LoginPage() {
     e.preventDefault();
     setErrorMsg('');
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_USER_SERVICE_URL || 'http://localhost:3005';
       const res = await fetch(`${apiUrl}/api/users/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -67,7 +68,6 @@ export default function LoginPage() {
   const loginWithGoogle = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
       try {
-        const apiUrl = process.env.NEXT_PUBLIC_USER_SERVICE_URL || 'http://localhost:3005';
         const res = await fetch(`${apiUrl}/api/users/google`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },

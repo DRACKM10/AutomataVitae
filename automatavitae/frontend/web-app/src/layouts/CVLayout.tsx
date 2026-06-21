@@ -9,6 +9,8 @@ import { ResumePreview } from '@/components/steps/ResumePreview';
 import { motion } from 'motion/react';
 import { AICopilotModal } from '@/components/AICopilotModal';
 
+const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+
 const steps = [
   { path: '/create', label: 'Personal', step: 1 },
   { path: '/create/experience', label: 'Experiencia', step: 2 },
@@ -28,7 +30,6 @@ export default function CVLayout({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token && token !== 'null' && token !== 'undefined') {
-      const apiUrl = process.env.NEXT_PUBLIC_USER_SERVICE_URL || 'http://localhost:3005';
       fetch(`${apiUrl}/api/users/me`, {
         headers: { 'Authorization': `Bearer ${token}` }
       })

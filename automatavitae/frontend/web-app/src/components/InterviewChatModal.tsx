@@ -7,6 +7,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Send, User, Bot, Loader2, PlayCircle } from 'lucide-react';
 import { toast } from 'sonner';
 
+const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+
 interface Message {
   id: string;
   sender_role: 'user' | 'ai' | 'system';

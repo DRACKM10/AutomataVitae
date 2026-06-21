@@ -9,6 +9,8 @@ import { Sparkles, ArrowRight, Check, X, Loader2 } from 'lucide-react';
 import { useResume } from '@/context/store';
 import { toast } from 'sonner';
 
+const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+
 interface AICopilotModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;

@@ -7,6 +7,8 @@ import { Mail, Lock, Eye, EyeOff, User, Moon, Sun, ArrowRight, LogIn } from 'luc
 import Link from 'next/link';
 import { useGoogleLogin } from '@react-oauth/google';
 
+const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+
 export default function RegisterPage() {
   const router = useRouter();
   const [name, setName] = useState('');
@@ -49,7 +51,6 @@ export default function RegisterPage() {
     }
     setErrorMsg('');
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_USER_SERVICE_URL || 'http://localhost:3005';
       const res = await fetch(`${apiUrl}/api/users/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -73,7 +74,6 @@ export default function RegisterPage() {
   const loginWithGoogle = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
       try {
-        const apiUrl = process.env.NEXT_PUBLIC_USER_SERVICE_URL || 'http://localhost:3005';
         const res = await fetch(`${apiUrl}/api/users/google`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
