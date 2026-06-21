@@ -12,6 +12,9 @@ const PORT = process.env.PORT || 3006;
 app.use(cors()); // Habilitar CORS para el frontend
 app.use(express.json());
 
+// Ruta raíz para healthchecks de Railway
+app.get('/', (req, res) => res.status(200).send('OK'));
+
 // Montar rutas del microservicio de CVs
 app.use('/api/v1/cvs', cvRoutes);
 

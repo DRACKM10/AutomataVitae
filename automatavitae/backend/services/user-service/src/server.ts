@@ -24,6 +24,9 @@ const PORT = process.env.PORT || 3005;
 app.use(cors({ origin: '*' }));
 app.use(express.json());
 
+// Ruta raíz para healthchecks de Railway
+app.get('/', (req, res) => res.status(200).send('OK'));
+
 // Inyección de rutas del microservicio
 app.use('/api/v1/auth', authRoutes);
 

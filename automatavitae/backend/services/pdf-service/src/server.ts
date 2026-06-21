@@ -13,6 +13,9 @@ const PORT = process.env.PORT || 3007;
 app.use(cors({ origin: process.env.CORS_ORIGIN || 'http://localhost:3000' }));
 app.use(express.json({ limit: '10mb' })); // El resumeData puede ser grande
 
+// Ruta raíz para healthchecks de Railway
+app.get('/', (req, res) => res.status(200).send('OK'));
+
 // Health check con verificación de BD
 app.get('/health', async (_req, res) => {
     try {

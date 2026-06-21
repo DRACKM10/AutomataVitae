@@ -15,6 +15,9 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
+// Ruta raíz para healthchecks de Railway
+app.get('/', (req, res) => res.status(200).send('OK'));
+
 // Health check
 app.get('/health', (req, res) => {
   res.json({ 

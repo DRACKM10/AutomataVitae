@@ -12,6 +12,9 @@ const PORT = process.env.PORT || 5002; // Asignamos el puerto 5002 como indicati
 app.use(cors());
 app.use(express.json());
 
+// Ruta raíz para healthchecks de Railway
+app.get('/', (req, res) => res.status(200).send('OK'));
+
 // Registramos las rutas de análisis e IA
 app.use('/api', analysisRoutes);
 app.use('/api/interview', interviewRoutes);

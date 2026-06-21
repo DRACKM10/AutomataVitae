@@ -38,6 +38,9 @@ app.use(cors());
 app.use(express.json());
 app.use(limiter);
 
+// Ruta raíz para healthchecks de Railway
+app.get('/', (req, res) => res.status(200).send('OK'));
+
 app.use((req, res, next) => {
   console.log(`[Gateway] ${req.method} ${req.originalUrl}`);
   next();
