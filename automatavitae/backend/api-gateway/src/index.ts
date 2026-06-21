@@ -112,11 +112,11 @@ app.use((req: Request, res: Response) => {
   });
 });
 
-app.listen(PORT, () => {
+app.listen(Number(PORT), '0.0.0.0', () => {
   console.log('╔════════════════════════════════════════╗');
   console.log('║   🌐 API GATEWAY - AUTOMATAVITAE      ║');
   console.log('╚════════════════════════════════════════╝');
-  console.log(`\n✅ Servidor corriendo en: http://localhost:${PORT}`);
+  console.log(`\n✅ Servidor corriendo en: http://0.0.0.0:${PORT}`);
   console.log(`📊 Health check: http://localhost:${PORT}/health`);
   console.log('\n📡 Routing configurado:');
   console.log(`  /api/cv/* → ${CV_ANALYZER_URL}`);

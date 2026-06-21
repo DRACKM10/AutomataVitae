@@ -32,11 +32,11 @@ app.use('/api/payments', paymentRouter);
 app.use(errorHandler);
 
 // Iniciar servidor
-app.listen(PORT, () => {
+app.listen(Number(PORT), '0.0.0.0', () => {
   console.log('╔════════════════════════════════════════╗');
   console.log('║   📊 CV ANALYZER - AUTOMATAVITAE      ║');
   console.log('╚════════════════════════════════════════╝');
-  console.log(`\n✅ Servidor corriendo en: http://localhost:${PORT}`);
+  console.log(`\n✅ Servidor corriendo en: http://0.0.0.0:${PORT}`);
   console.log(`📊 Health check: http://localhost:${PORT}/health`);
   console.log(`📤 Upload endpoint: POST http://localhost:${PORT}/api/analyze/upload`);
   console.log('\n⏳ Esperando peticiones...\n');
