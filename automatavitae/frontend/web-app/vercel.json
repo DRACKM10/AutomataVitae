@@ -5,27 +5,27 @@
   "rewrites": [
     {
       "source": "/api/users/:match*",
-      "destination": "https://TU_DOMINIO_PUBLICO_USER_SERVICE/api/v1/auth/:match*"
+      "destination": "https://user-servicee.up.railway.app/api/v1/auth/:match*"
     },
     {
       "source": "/api/cvs/:match*",
-      "destination": "https://TU_DOMINIO_PUBLICO_CV_SERVICE/api/v1/cvs/:match*"
+      "destination": "https://cv-service.up.railway.app/api/v1/cvs/:match*"
     },
     {
       "source": "/api/pdf/:match*",
-      "destination": "https://TU_DOMINIO_PUBLICO_PDF_SERVICE/api/v1/pdf/:match*"
+      "destination": "https://pdf-services.up.railway.app/api/v1/pdf/:match*"
     },
     {
       "source": "/api/cv/:match*",
-      "destination": "https://TU_DOMINIO_PUBLICO_CV_ANALYZER/api/analyze/:match*"
+      "destination": "https://cv-analyzer.up.railway.app/api/analyze/:match*"
     },
     {
       "source": "/api/payments/:match*",
-      "destination": "https://TU_DOMINIO_PUBLICO_CV_ANALYZER/api/payments/:match*"
+      "destination": "https://cv-analyzer.up.railway.app/api/payments/:match*"
     },
     {
       "source": "/api/ia/:match*",
-      "destination": "https://TU_DOMINIO_PUBLICO_MICROSERVICIO_IA/api/:match*"
+      "destination": "https://microservicioia.up.railway.app/api/:match*"
     }
   ]
 }
