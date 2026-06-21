@@ -268,7 +268,7 @@ export default function DashboardPage() {
       }
 
       toast.success('CV eliminado', { description: `El currículum "${title}" fue eliminado exitosamente.` });
-      
+
       // Actualizar la lista local
       const updatedCvs = cvs.filter(cv => cv.id !== cvId);
       setCvs(updatedCvs);
@@ -339,7 +339,7 @@ export default function DashboardPage() {
 
       localStorage.setItem('resumeData', JSON.stringify(resumeData));
       toast.dismiss(toastId);
-      router.push('/create/preview');
+      router.push('/create');
     } catch (error) {
       toast.error('Error', { id: toastId, description: 'No se pudo cargar el currículum.' });
     }
@@ -387,8 +387,8 @@ export default function DashboardPage() {
             <button
               onClick={() => setActiveTab('dashboard')}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all ${activeTab === 'dashboard'
-                  ? 'bg-[#181A22] text-[#818CF8] border-l-2 border-[#6366F1]'
-                  : 'text-[#94A3B8] hover:text-white hover:bg-[#12131A]'
+                ? 'bg-[#181A22] text-[#818CF8] border-l-2 border-[#6366F1]'
+                : 'text-[#94A3B8] hover:text-white hover:bg-[#12131A]'
                 }`}
             >
               <LayoutDashboard className="w-4 h-4" />
@@ -398,8 +398,8 @@ export default function DashboardPage() {
             <button
               onClick={() => setActiveTab('cvs')}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all ${activeTab === 'cvs'
-                  ? 'bg-[#181A22] text-[#818CF8] border-l-2 border-[#6366F1]'
-                  : 'text-[#94A3B8] hover:text-white hover:bg-[#12131A]'
+                ? 'bg-[#181A22] text-[#818CF8] border-l-2 border-[#6366F1]'
+                : 'text-[#94A3B8] hover:text-white hover:bg-[#12131A]'
                 }`}
             >
               <Files className="w-4 h-4" />
@@ -412,8 +412,8 @@ export default function DashboardPage() {
             <button
               onClick={() => setActiveTab('ai')}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all ${activeTab === 'ai'
-                  ? 'bg-[#181A22] text-[#818CF8] border-l-2 border-[#6366F1]'
-                  : 'text-[#94A3B8] hover:text-white hover:bg-[#12131A]'
+                ? 'bg-[#181A22] text-[#818CF8] border-l-2 border-[#6366F1]'
+                : 'text-[#94A3B8] hover:text-white hover:bg-[#12131A]'
                 }`}
             >
               <Cpu className="w-4 h-4" />
@@ -426,8 +426,8 @@ export default function DashboardPage() {
             <button
               onClick={() => setActiveTab('templates')}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all ${activeTab === 'templates'
-                  ? 'bg-[#181A22] text-[#818CF8] border-l-2 border-[#6366F1]'
-                  : 'text-[#94A3B8] hover:text-white hover:bg-[#12131A]'
+                ? 'bg-[#181A22] text-[#818CF8] border-l-2 border-[#6366F1]'
+                : 'text-[#94A3B8] hover:text-white hover:bg-[#12131A]'
                 }`}
             >
               <BookOpen className="w-4 h-4" />
@@ -437,8 +437,8 @@ export default function DashboardPage() {
             <button
               onClick={() => setActiveTab('settings')}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all ${activeTab === 'settings'
-                  ? 'bg-[#181A22] text-[#818CF8] border-l-2 border-[#6366F1]'
-                  : 'text-[#94A3B8] hover:text-white hover:bg-[#12131A]'
+                ? 'bg-[#181A22] text-[#818CF8] border-l-2 border-[#6366F1]'
+                : 'text-[#94A3B8] hover:text-white hover:bg-[#12131A]'
                 }`}
             >
               <Settings className="w-4 h-4" />
@@ -540,7 +540,7 @@ export default function DashboardPage() {
                   <motion.button
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
-                    onClick={() => router.push('/create')}
+                    onClick={handleCreateNewCV}
                     className="flex items-center justify-center gap-2 bg-gradient-to-r from-[#6366F1] to-[#818CF8] hover:from-[#4F46E5] hover:to-[#6366F1] text-white px-6 py-3 rounded-xl font-bold text-xs shadow-lg shadow-[#6366F1]/20 transition-all shrink-0 cursor-pointer"
                   >
                     <Plus className="w-4 h-4" />
@@ -586,13 +586,12 @@ export default function DashboardPage() {
                         <div className="absolute top-0 right-0 w-24 h-24 bg-[#A855F7]/5 rounded-full blur-2xl" />
                         <div className="flex items-center justify-between">
                           <span className="text-xs font-bold text-[#64748B] uppercase tracking-wider">Tasa de Completado</span>
-                          <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold border ${
-                            completionRate >= 80
+                          <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold border ${completionRate >= 80
                               ? 'bg-[#10B981]/10 text-[#34D399] border-[#10B981]/20'
                               : completionRate >= 50
                                 ? 'bg-[#F59E0B]/10 text-[#FBBF24] border-[#F59E0B]/20'
                                 : 'bg-[#EF4444]/10 text-[#F87171] border-[#EF4444]/20'
-                          }`}>{completionRate >= 80 ? 'Completo' : 'Próxima Meta'}</span>
+                            }`}>{completionRate >= 80 ? 'Completo' : 'Próxima Meta'}</span>
                         </div>
                         <div className="mt-4 flex items-baseline gap-2">
                           <span className="text-4xl font-black text-white">{completionRate}%</span>
@@ -624,11 +623,10 @@ export default function DashboardPage() {
                         <div className="absolute top-0 right-0 w-24 h-24 bg-[#10B981]/5 rounded-full blur-2xl" />
                         <div className="flex items-center justify-between">
                           <span className="text-xs font-bold text-[#64748B] uppercase tracking-wider">Datos del Perfil</span>
-                          <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold border ${
-                            suggestionsCount >= 8
+                          <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold border ${suggestionsCount >= 8
                               ? 'bg-[#10B981]/10 text-[#34D399] border-[#10B981]/20'
                               : 'bg-[#F59E0B]/10 text-[#FBBF24] border-[#F59E0B]/20'
-                          }`}>{suggestionsCount >= 8 ? 'Óptimo' : 'Mejorable'}</span>
+                            }`}>{suggestionsCount >= 8 ? 'Óptimo' : 'Mejorable'}</span>
                         </div>
                         <div className="mt-4 flex items-baseline gap-2">
                           <span className="text-4xl font-black text-white">{suggestionsCount}</span>
@@ -777,8 +775,8 @@ export default function DashboardPage() {
                               </td>
                               <td className="py-4">
                                 <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold ${cv.is_public
-                                    ? 'bg-[#10B981]/10 text-[#34D399] border border-[#10B981]/20'
-                                    : 'bg-[#F59E0B]/10 text-[#FBBF24] border border-[#F59E0B]/20'
+                                  ? 'bg-[#10B981]/10 text-[#34D399] border border-[#10B981]/20'
+                                  : 'bg-[#F59E0B]/10 text-[#FBBF24] border border-[#F59E0B]/20'
                                   }`}>
                                   {cv.is_public ? 'Público' : 'Privado'}
                                 </span>
@@ -864,8 +862,8 @@ export default function DashboardPage() {
                           <Files className="w-5 h-5" />
                         </div>
                         <span className={`inline-flex items-center px-2 py-0.5 rounded text-[9px] font-bold ${cv.is_public
-                            ? 'bg-[#10B981]/10 text-[#34D399] border border-[#10B981]/20'
-                            : 'bg-[#F59E0B]/10 text-[#FBBF24] border border-[#F59E0B]/20'
+                          ? 'bg-[#10B981]/10 text-[#34D399] border border-[#10B981]/20'
+                          : 'bg-[#F59E0B]/10 text-[#FBBF24] border border-[#F59E0B]/20'
                           }`}>
                           {cv.is_public ? 'Público' : 'Privado'}
                         </span>
@@ -1001,8 +999,8 @@ export default function DashboardPage() {
                         </div>
                       </div>
                       <span className={`text-[10px] font-bold px-3 py-1 rounded-full ${aiResult.overall_score >= 80 ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' :
-                          aiResult.overall_score >= 50 ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20' :
-                            'bg-red-500/10 text-red-400 border border-red-500/20'
+                        aiResult.overall_score >= 50 ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20' :
+                          'bg-red-500/10 text-red-400 border border-red-500/20'
                         }`}>
                         {aiResult.overall_score >= 80 ? 'Excelente Perfil' : aiResult.overall_score >= 50 ? 'Requiere Mejoras' : 'Perfil Deficiente'}
                       </span>
@@ -1405,8 +1403,8 @@ export default function DashboardPage() {
                             <button
                               key={tab}
                               className={`px-3 py-1.5 rounded-lg text-[10px] font-black tracking-wider uppercase transition-all ${idx === 0
-                                  ? 'bg-[#6366F1] text-white shadow-md'
-                                  : 'text-[#64748B] hover:text-white'
+                                ? 'bg-[#6366F1] text-white shadow-md'
+                                : 'text-[#64748B] hover:text-white'
                                 }`}
                             >
                               {tab}
@@ -1426,8 +1424,8 @@ export default function DashboardPage() {
                             <div className="flex items-center gap-4 shrink-0">
                               <span className="text-xs font-black text-white">{item.score}</span>
                               <span className={`inline-flex items-center px-2 py-0.5 rounded text-[8px] font-black uppercase ${item.status === 'Completado'
-                                  ? 'bg-[#10B981]/15 text-[#34D399] border border-[#10B981]/25'
-                                  : 'bg-[#6366F1]/15 text-[#818CF8] border border-[#6366F1]/25'
+                                ? 'bg-[#10B981]/15 text-[#34D399] border border-[#10B981]/25'
+                                : 'bg-[#6366F1]/15 text-[#818CF8] border border-[#6366F1]/25'
                                 }`}>
                                 {item.status}
                               </span>
