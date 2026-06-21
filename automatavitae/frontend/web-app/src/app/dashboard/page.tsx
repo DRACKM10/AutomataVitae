@@ -16,6 +16,7 @@ interface UserProfile {
   userId: string;
   email: string;
   fullName?: string;
+  picture?: string;
 }
 
 interface CVItem {
