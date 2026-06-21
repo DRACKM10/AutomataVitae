@@ -21,6 +21,6 @@ RUN npm run build
 
 ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
 
-EXPOSE 3007
+
 
 CMD ["npm", "start"]
