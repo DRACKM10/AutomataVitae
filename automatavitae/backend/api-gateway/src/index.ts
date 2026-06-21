@@ -115,7 +115,7 @@ app.use((req: Request, res: Response) => {
   });
 });
 
-app.listen(Number(PORT), () => {
+app.listen(Number(PORT), '0.0.0.0', () => {
   console.log('╔════════════════════════════════════════╗');
   console.log('║   🌐 API GATEWAY - AUTOMATAVITAE      ║');
   console.log('╚════════════════════════════════════════╝');

@@ -33,6 +33,6 @@ app.get('/health', async (req, res) => {
   }
 });
 
-app.listen(Number(PORT), () => {
+app.listen(Number(PORT), '0.0.0.0', () => {
   console.log(`MicroServicioIA is running on http://0.0.0.0:${PORT}`);
 });

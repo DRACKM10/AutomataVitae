@@ -52,6 +52,6 @@ pool.query('SELECT NOW()')
         process.exit(1);
     });
 
-app.listen(Number(PORT), () => {
+app.listen(Number(PORT), '0.0.0.0', () => {
     console.log(`User-Service corriendo en http://0.0.0.0:${PORT}`);
 });

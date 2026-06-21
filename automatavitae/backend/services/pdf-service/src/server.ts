@@ -40,7 +40,7 @@ app.get('/health', async (_req, res) => {
 app.use('/api/v1/pdf', pdfRoutes);
 
 // Iniciar servidor
-app.listen(Number(PORT), () => {
+app.listen(Number(PORT), '0.0.0.0', () => {
     console.log('╔════════════════════════════════════════╗');
     console.log('║   📄 PDF-SERVICE - AUTOMATAVITAE       ║');
     console.log('╚════════════════════════════════════════╝');
