@@ -16,8 +16,8 @@ export class CvRepository {
 
             // 1. Insertar en resumes
             const resumeSql = `
-                INSERT INTO resumes (user_id, title, summary, phone, location)
-                VALUES ($1, $2, $3, $4, $5)
+                INSERT INTO resumes (user_id, title, summary, phone, location, template_id, full_name, email)
+                VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
                 RETURNING id;
             `;
             const resumeRes = await client.query(resumeSql, [
@@ -25,7 +25,10 @@ export class CvRepository {
                 resumeData.personalInfo.title,
                 resumeData.personalInfo.summary,
                 resumeData.personalInfo.phone,
-                resumeData.personalInfo.location
+                resumeData.personalInfo.location,
+                resumeData.templateId || 'automata_standard',
+                resumeData.personalInfo.fullName || '',
+                resumeData.personalInfo.email || ''
             ]);
             const resumeId = resumeRes.rows[0].id;
 
@@ -86,7 +89,7 @@ export class CvRepository {
     }
 
     async findByUserId(userId: string) {
-        const sql = `SELECT id, title, is_public, created_at, updated_at FROM resumes WHERE user_id = $1 ORDER BY updated_at DESC;`;
+        const sql = `SELECT id, title, is_public, template_id, created_at, updated_at FROM resumes WHERE user_id = $1 ORDER BY updated_at DESC;`;
         const result = await query(sql, [userId]);
         return result.rows;
     }
@@ -139,4 +142,68 @@ export class CvRepository {
             client.release();
         }
     }
-}
+
+    async updateFullResume(resumeId: string, userId: string, resumeData: any) {
+        const client = await pool.connect();
+        try {
+            await client.query('BEGIN');
+
+            // 1. Verificar que el CV pertenece al usuario
+            const ownerCheck = await client.query(`SELECT id FROM resumes WHERE id = $1 AND user_id = $2`, [resumeId, userId]);
+            if (ownerCheck.rowCount === 0) throw new Error('ACCESO_DENEGADO');
+
+            // 2. Actualizar el registro principal
+            await client.query(
+                `UPDATE resumes SET title=$1, summary=$2, phone=$3, location=$4, template_id=$5, full_name=$6, email=$7, updated_at=NOW() WHERE id=$8`,
+                [
+                    resumeData.personalInfo.title,
+                    resumeData.personalInfo.summary,
+                    resumeData.personalInfo.phone,
+                    resumeData.personalInfo.location,
+                    resumeData.templateId || 'automata_standard',
+                    resumeData.personalInfo.fullName || '',
+                    resumeData.personalInfo.email || '',
+                    resumeId
+                ]
+            );
+
+            // 3. Reemplazar experiencias
+            await client.query(`DELETE FROM resume_experiences WHERE resume_id = $1`, [resumeId]);
+            if (resumeData.experience && resumeData.experience.length > 0) {
+                for (const exp of resumeData.experience) {
+                    await client.query(
+                        `INSERT INTO resume_experiences (resume_id, company, position, description, start_date, end_date, is_current) VALUES ($1,$2,$3,$4,$5,$6,$7)`,
+                        [resumeId, exp.company, exp.position, exp.description, formatDateForDb(exp.startDate), formatDateForDb(exp.endDate), exp.current || false]
+                    );
+                }
+            }
+
+            // 4. Reemplazar educación
+            await client.query(`DELETE FROM resume_educations WHERE resume_id = $1`, [resumeId]);
+            if (resumeData.education && resumeData.education.length > 0) {
+                for (const edu of resumeData.education) {
+                    await client.query(
+                        `INSERT INTO resume_educations (resume_id, institution, degree, field, start_date, end_date, is_current) VALUES ($1,$2,$3,$4,$5,$6,$7)`,
+                        [resumeId, edu.institution, edu.degree, edu.field, formatDateForDb(edu.startDate), formatDateForDb(edu.endDate), edu.current || false]
+                    );
+                }
+            }
+
+            // 5. Reemplazar habilidades
+            await client.query(`DELETE FROM resume_skills WHERE resume_id = $1`, [resumeId]);
+            if (resumeData.skills && resumeData.skills.length > 0) {
+                for (const skill of resumeData.skills) {
+                    await client.query(`INSERT INTO resume_skills (resume_id, skill) VALUES ($1,$2)`, [resumeId, skill]);
+                }
+            }
+
+            await client.query('COMMIT');
+            return { id: resumeId, ...resumeData };
+        } catch (error) {
+            await client.query('ROLLBACK');
+            throw error;
+        } finally {
+            client.release();
+        }
+    }
+}

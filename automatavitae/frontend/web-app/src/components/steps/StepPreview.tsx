@@ -24,7 +24,8 @@ function decodeJwtPayload(token: string): { id?: string; sub?: string; userId?: 
 
 export const StepPreview: React.FC = () => {
   const router = useRouter();
-  const { resumeData, clearResumeData } = useResume();
+  const { resumeData, clearResumeData, updateTemplateId, setEditingCvId } = useResume();
+  const editingCvId = resumeData.editingCvId;
   const previewRef = useRef<HTMLDivElement>(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
@@ -40,8 +41,12 @@ export const StepPreview: React.FC = () => {
 
     setIsSaving(true);
     try {
-      const response = await fetch(`${apiUrl}/api/cvs`, {
-        method: 'POST',
+      const isEditing = Boolean(editingCvId);
+      const url = isEditing ? `${apiUrl}/api/cvs/${editingCvId}` : `${apiUrl}/api/cvs`;
+      const method = isEditing ? 'PUT' : 'POST';
+
+      const response = await fetch(url, {
+        method,
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
@@ -51,9 +56,16 @@ export const StepPreview: React.FC = () => {
 
       if (!response.ok) throw new Error('Error al guardar el CV');
 
-      toast.success('¡CV guardado exitosamente!', {
-        description: 'Tu hoja de vida ha sido guardada en tu cuenta.',
-      });
+      if (isEditing) {
+        toast.success('¡CV actualizado!', {
+          description: 'Los cambios han sido guardados correctamente.',
+        });
+        setEditingCvId(undefined);
+      } else {
+        toast.success('¡CV guardado exitosamente!', {
+          description: 'Tu hoja de vida ha sido guardada en tu cuenta.',
+        });
+      }
     } catch (error) {
       toast.error('Error al guardar', { description: 'No se pudo conectar con el servidor.' });
     } finally {
@@ -86,7 +98,7 @@ export const StepPreview: React.FC = () => {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
-        body: JSON.stringify({ userId, resumeData }),
+        body: JSON.stringify({ userId, resumeData, template: resumeData.templateId || 'automata_standard' }),
       });
 
       if (!response.ok) {
@@ -154,11 +166,35 @@ export const StepPreview: React.FC = () => {
           </div>
         </div>
 
+        {/* Selector de Plantilla */}
+        {hasContent && (
+          <div className="mb-6 flex flex-wrap gap-2">
+            {[
+              { id: 'automata_standard', label: 'Standard' },
+              { id: 'modern_glass', label: 'Modern Glass' },
+              { id: 'executive_split', label: 'Executive Split' },
+              { id: 'creative_studio', label: 'Creative Studio' }
+            ].map(tpl => (
+              <button
+                key={tpl.id}
+                onClick={() => updateTemplateId(tpl.id)}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                  (resumeData.templateId || 'automata_standard') === tpl.id
+                    ? 'bg-blue-600 text-white shadow-lg border-transparent'
+                    : 'bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-700'
+                }`}
+              >
+                {tpl.label}
+              </button>
+            ))}
+          </div>
+        )}
+
         {/* Vista previa completa */}
         <div
-          className="my-6 bg-slate-950/40 rounded-lg p-6 border border-slate-800 max-h-[600px] overflow-y-auto"
+          className="my-6 bg-slate-950/40 rounded-lg p-6 border border-slate-800 max-h-[600px] overflow-y-auto flex justify-center"
         >
-          <div ref={previewRef} className="bg-white text-black min-h-[1056px] w-[794px] mx-auto shadow-sm">
+          <div ref={previewRef} className="w-[794px] min-h-[1056px] shadow-sm shrink-0">
             <ResumePreview />
           </div>
         </div>

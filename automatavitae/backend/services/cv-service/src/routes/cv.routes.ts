@@ -11,6 +11,7 @@ router.use(validateJWT);
 router.post('/', cvController.create);
 router.get('/', cvController.getAll);
 router.get('/:id', cvController.getById);
+router.put('/:id', cvController.update);
 router.delete('/:id', cvController.delete);
 
 export default router;

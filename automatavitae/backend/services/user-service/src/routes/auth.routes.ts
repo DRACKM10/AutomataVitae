@@ -11,5 +11,6 @@ router.post('/login', authController.login);
 router.post('/google', authController.googleLogin);
 router.post('/github', authController.githubLogin);
 router.get('/me', validateJWT, authController.getMe);
+router.put('/me', validateJWT, authController.updateProfile);
 
-export default router;
+export default router;

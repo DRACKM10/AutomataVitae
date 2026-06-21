@@ -33,4 +33,11 @@ export class CvService {
         if (!deleted) throw new Error('ERROR_ELIMINANDO_CV');
         return true;
     }
-}
+
+    async updateCv(resumeId: string, userId: string, resumeData: any) {
+        if (!resumeData.personalInfo || !resumeData.personalInfo.title) {
+            throw new Error('EL_TITULO_ES_OBLIGATORIO');
+        }
+        return await cvRepository.updateFullResume(resumeId, userId, resumeData);
+    }
+}

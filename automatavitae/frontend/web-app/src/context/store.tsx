@@ -35,6 +35,8 @@ export interface ResumeData {
   experience: Experience[];
   education: Education[];
   skills: string[];
+  templateId?: string;
+  editingCvId?: string;
 }
 
 interface ResumeContextType {
@@ -47,6 +49,8 @@ interface ResumeContextType {
   updateEducation: (id: string, edu: Partial<Education>) => void;
   deleteEducation: (id: string) => void;
   updateSkills: (skills: string[]) => void;
+  updateTemplateId: (id: string) => void;
+  setEditingCvId: (id: string | undefined) => void;
   clearResumeData: () => void;
 }
 
@@ -73,6 +77,7 @@ export const ResumeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     experience: [],
     education: [],
     skills: [],
+    templateId: 'automata_standard',
   });
 
   // Load initial from localStorage if present
@@ -98,24 +103,6 @@ export const ResumeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       localStorage.setItem('resumeData', JSON.stringify(resumeData));
     }
   }, [resumeData]);
-
-  const clearResumeData = () => {
-    const fresh = {
-      personalInfo: {
-        fullName: '',
-        email: '',
-        phone: '',
-        location: '',
-        title: '',
-        summary: '',
-      },
-      experience: [],
-      education: [],
-      skills: [],
-    };
-    setResumeData(fresh);
-    localStorage.removeItem('resumeData');
-  };
 
   const updatePersonalInfo = (info: Partial<PersonalInfo>) => {
     setResumeData(prev => ({
@@ -167,10 +154,35 @@ export const ResumeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   };
 
   const updateSkills = (skills: string[]) => {
-    setResumeData(prev => ({
-      ...prev,
-      skills,
-    }));
+    setResumeData(prev => ({ ...prev, skills }));
+  };
+
+  const updateTemplateId = (id: string) => {
+    setResumeData(prev => ({ ...prev, templateId: id }));
+  };
+
+  const setEditingCvId = (id: string | undefined) => {
+    setResumeData(prev => ({ ...prev, editingCvId: id }));
+  };
+
+  const clearResumeData = () => {
+    const fresh = {
+      personalInfo: {
+        fullName: '',
+        email: '',
+        phone: '',
+        location: '',
+        title: '',
+        summary: '',
+      },
+      experience: [],
+      education: [],
+      skills: [],
+      templateId: 'automata_standard',
+      editingCvId: undefined,
+    };
+    setResumeData(fresh);
+    localStorage.removeItem('resumeData');
   };
 
   return (
@@ -185,6 +197,8 @@ export const ResumeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         updateEducation,
         deleteEducation,
         updateSkills,
+        updateTemplateId,
+        setEditingCvId,
         clearResumeData,
       }}
     >

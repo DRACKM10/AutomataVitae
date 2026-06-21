@@ -93,4 +93,30 @@ export class AuthController {
             res.status(500).json({ error: 'Error al recuperar perfil' });
         }
     }
-}
+
+    async updateProfile(req: Request, res: Response): Promise<void> {
+        try {
+            const userId = req.user!.userId;
+            const { fullName } = req.body;
+            if (!fullName || typeof fullName !== 'string' || fullName.trim().length === 0) {
+                res.status(400).json({ error: 'El nombre es obligatorio.' });
+                return;
+            }
+            const updated = await authService.updateProfile(userId, fullName.trim());
+            if (!updated) {
+                res.status(404).json({ error: 'Usuario no encontrado.' });
+                return;
+            }
+            res.status(200).json({
+                user: {
+                    userId: updated.id,
+                    email: updated.email,
+                    fullName: updated.full_name,
+                    picture: updated.avatar_url
+                }
+            });
+        } catch (error) {
+            res.status(500).json({ error: 'Error al actualizar perfil' });
+        }
+    }
+}

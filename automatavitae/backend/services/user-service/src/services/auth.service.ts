@@ -94,6 +94,11 @@ export class AuthService {
         return await userRepository.findById(userId);
     }
 
+    // Actualizar perfil de usuario
+    async updateProfile(userId: string, fullName: string) {
+        return await userRepository.updateProfile(userId, fullName);
+    }
+
     // Helper para firmar el token JWT
     private generateToken(userId: string, email: string): string {
         console.log("user-service signing with secret:", process.env.JWT_SECRET || 'fallback_secret');
@@ -103,4 +108,4 @@ export class AuthService {
             { expiresIn: '24h' }
         );
     }
-}
+}

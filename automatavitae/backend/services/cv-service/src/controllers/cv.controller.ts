@@ -62,4 +62,24 @@ export class CvController {
             }
         }
     }
-}
+
+    async update(req: Request, res: Response): Promise<void> {
+        try {
+            const userId = req.user!.userId;
+            const { id } = req.params;
+            const resumeData = req.body;
+
+            const updated = await cvService.updateCv(id as string, userId, resumeData);
+            res.status(200).json(updated);
+        } catch (error: any) {
+            if (error.message === 'ACCESO_DENEGADO') {
+                res.status(403).json({ error: 'No tienes permisos para editar este CV.' });
+            } else if (error.message === 'EL_TITULO_ES_OBLIGATORIO') {
+                res.status(400).json({ error: 'El título profesional es obligatorio.' });
+            } else {
+                console.error('Error updating CV:', error);
+                res.status(500).json({ error: 'Error interno al actualizar el CV' });
+            }
+        }
+    }
+}
