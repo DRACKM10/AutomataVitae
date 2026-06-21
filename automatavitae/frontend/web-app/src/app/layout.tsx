@@ -46,7 +46,7 @@ export default function RootLayout({
             <ParticleBackground baseOpacity="opacity-40 dark:opacity-50" />
           </div>
           {children}
-          <Toaster position="top-right" richColors />
+          <Toaster position="top-right" richColors closeButton />
         </GoogleOAuthProviderClient>
       </body>
     </html>

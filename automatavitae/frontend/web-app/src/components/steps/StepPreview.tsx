@@ -28,14 +28,17 @@ export const StepPreview: React.FC = () => {
   const previewRef = useRef<HTMLDivElement>(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
   const handleSaveToDatabase = async () => {
+    if (isSaving) return;
     const token = localStorage.getItem('token');
     if (!token || token === 'null' || token === 'undefined') {
       setShowAuthModal(true);
       return;
     }
 
+    setIsSaving(true);
     try {
       const response = await fetch(`${apiUrl}/api/cvs`, {
         method: 'POST',
@@ -53,6 +56,8 @@ export const StepPreview: React.FC = () => {
       });
     } catch (error) {
       toast.error('Error al guardar', { description: 'No se pudo conectar con el servidor.' });
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -162,12 +167,21 @@ export const StepPreview: React.FC = () => {
         <div className="flex flex-col sm:flex-row gap-3">
           <Button
             onClick={handleSaveToDatabase}
-            disabled={!hasContent}
+            disabled={!hasContent || isSaving}
             size="lg"
             className="flex-1 bg-blue-600 hover:bg-blue-700 text-white shadow-lg"
           >
-            <CheckCircle className="w-5 h-5 mr-2" />
-            Guardar en mi Cuenta
+            {isSaving ? (
+              <>
+                <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                Guardando...
+              </>
+            ) : (
+              <>
+                <CheckCircle className="w-5 h-5 mr-2" />
+                Guardar en mi Cuenta
+              </>
+            )}
           </Button>
           <Button
             onClick={handleDownload}
