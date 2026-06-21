@@ -35,7 +35,7 @@ app.use('/api/payments', paymentRouter);
 app.use(errorHandler);
 
 // Iniciar servidor
-app.listen(Number(PORT), '0.0.0.0', () => {
+app.listen(Number(PORT), () => {
   console.log('╔════════════════════════════════════════╗');
   console.log('║   📊 CV ANALYZER - AUTOMATAVITAE      ║');
   console.log('╚════════════════════════════════════════╝');
