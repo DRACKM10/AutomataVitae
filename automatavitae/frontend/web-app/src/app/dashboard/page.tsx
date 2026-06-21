@@ -4,9 +4,9 @@ import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { 
-  LayoutDashboard, Files, Cpu, BookOpen, Settings, Search, Bell, 
-  ChevronRight, TrendingUp, Sparkles, Download, Trash2, Eye, Edit2, 
+import {
+  LayoutDashboard, Files, Cpu, BookOpen, Settings, Search, Bell,
+  ChevronRight, TrendingUp, Sparkles, Download, Trash2, Eye, Edit2,
   Plus, Moon, Sun, Loader2, Mail, User, Check, ExternalLink, Lock, LogOut
 } from 'lucide-react';
 import { toast } from 'sonner';
@@ -45,7 +45,7 @@ export default function DashboardPage() {
   useEffect(() => {
     // Stakent style is strictly dark by default! Let's ensure dark mode is active.
     document.documentElement.classList.add('dark');
-    
+
     const token = localStorage.getItem('token');
     if (!token || token === 'null' || token === 'undefined') {
       toast.error('Acceso denegado', { description: 'Debes iniciar sesión para acceder al panel.' });
@@ -56,6 +56,7 @@ export default function DashboardPage() {
     const fetchData = async () => {
       try {
         // Fetch user profile
+        const apiUrl = process.env.NEXT_PUBLIC_USER_SERVICE_URL || 'http://localhost:3005';
         const profileRes = await fetch(`${apiUrl}/api/users/me`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
@@ -112,11 +113,11 @@ export default function DashboardPage() {
       const detailRes = await fetch(`${apiUrl}/api/cvs/${cvIdToUse}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
-      
+
       if (!detailRes.ok) throw new Error('No se pudo obtener el currículum seleccionado.');
-      
+
       const cvData = await detailRes.json();
-      
+
       // Armar un bloque de texto en bruto con la información del CV
       const parts = [];
       if (cvData.title) parts.push(`Título: ${cvData.title}`);
@@ -130,7 +131,7 @@ export default function DashboardPage() {
       if (cvData.skills && cvData.skills.length > 0) {
         parts.push(`Habilidades: ${cvData.skills.join(', ')}`);
       }
-      
+
       const compiledRawText = parts.join('\n\n');
 
       if (!compiledRawText.trim()) {
@@ -181,7 +182,7 @@ export default function DashboardPage() {
       });
       if (!cvRes.ok) throw new Error('Error al obtener datos del CV');
       const cvData = await cvRes.json();
-      
+
       const mappedResumeData = {
         personalInfo: {
           fullName: profile?.fullName || profile?.email?.split('@')[0] || 'Sin Nombre',
@@ -197,8 +198,8 @@ export default function DashboardPage() {
         experience: (cvData.experience || []).map((exp: any) => ({
           company: exp.company || '',
           position: exp.position || '',
-          startDate: exp.start_date ? new Date(exp.start_date).toISOString().split('T')[0].substring(0,7) : '',
-          endDate: exp.end_date ? new Date(exp.end_date).toISOString().split('T')[0].substring(0,7) : '',
+          startDate: exp.start_date ? new Date(exp.start_date).toISOString().split('T')[0].substring(0, 7) : '',
+          endDate: exp.end_date ? new Date(exp.end_date).toISOString().split('T')[0].substring(0, 7) : '',
           current: exp.is_current || false,
           description: exp.description || ''
         })),
@@ -206,8 +207,8 @@ export default function DashboardPage() {
           institution: edu.institution || '',
           degree: edu.degree || '',
           field: edu.field || '',
-          startDate: edu.start_date ? new Date(edu.start_date).toISOString().split('T')[0].substring(0,7) : '',
-          endDate: edu.end_date ? new Date(edu.end_date).toISOString().split('T')[0].substring(0,7) : '',
+          startDate: edu.start_date ? new Date(edu.start_date).toISOString().split('T')[0].substring(0, 7) : '',
+          endDate: edu.end_date ? new Date(edu.end_date).toISOString().split('T')[0].substring(0, 7) : '',
           current: edu.is_current || false
         })),
         skills: cvData.skills || []
@@ -241,9 +242,9 @@ export default function DashboardPage() {
         description: `Se ha descargado el archivo PDF de ${title}.`
       });
     } catch (error) {
-      toast.error('Error al descargar', { 
-        id: toastId, 
-        description: 'No se pudo generar el PDF. Verifica la conexión.' 
+      toast.error('Error al descargar', {
+        id: toastId,
+        description: 'No se pudo generar el PDF. Verifica la conexión.'
       });
     }
   };
@@ -254,7 +255,7 @@ export default function DashboardPage() {
     router.push('/');
   };
 
-  const filteredCvs = cvs.filter(cv => 
+  const filteredCvs = cvs.filter(cv =>
     cv.title.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
@@ -276,7 +277,7 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-[#08090C] text-[#F8FAFC] font-sans flex overflow-hidden">
-      
+
       {/* LEFT SIDEBAR (Stakent Style) */}
       <aside className="w-64 bg-[#0F1015] border-r border-[#1E222D] flex flex-col justify-between shrink-0 hidden md:flex relative z-25">
         <div className="flex flex-col">
@@ -295,11 +296,10 @@ export default function DashboardPage() {
           <div className="px-4 py-6 space-y-1.5">
             <button
               onClick={() => setActiveTab('dashboard')}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all ${
-                activeTab === 'dashboard'
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all ${activeTab === 'dashboard'
                   ? 'bg-[#181A22] text-[#818CF8] border-l-2 border-[#6366F1]'
                   : 'text-[#94A3B8] hover:text-white hover:bg-[#12131A]'
-              }`}
+                }`}
             >
               <LayoutDashboard className="w-4 h-4" />
               Panel Principal
@@ -307,11 +307,10 @@ export default function DashboardPage() {
 
             <button
               onClick={() => setActiveTab('cvs')}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all ${
-                activeTab === 'cvs'
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all ${activeTab === 'cvs'
                   ? 'bg-[#181A22] text-[#818CF8] border-l-2 border-[#6366F1]'
                   : 'text-[#94A3B8] hover:text-white hover:bg-[#12131A]'
-              }`}
+                }`}
             >
               <Files className="w-4 h-4" />
               Mis Currículums
@@ -322,11 +321,10 @@ export default function DashboardPage() {
 
             <button
               onClick={() => setActiveTab('ai')}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all ${
-                activeTab === 'ai'
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all ${activeTab === 'ai'
                   ? 'bg-[#181A22] text-[#818CF8] border-l-2 border-[#6366F1]'
                   : 'text-[#94A3B8] hover:text-white hover:bg-[#12131A]'
-              }`}
+                }`}
             >
               <Cpu className="w-4 h-4" />
               Asistente IA
@@ -337,11 +335,10 @@ export default function DashboardPage() {
 
             <button
               onClick={() => setActiveTab('templates')}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all ${
-                activeTab === 'templates'
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all ${activeTab === 'templates'
                   ? 'bg-[#181A22] text-[#818CF8] border-l-2 border-[#6366F1]'
                   : 'text-[#94A3B8] hover:text-white hover:bg-[#12131A]'
-              }`}
+                }`}
             >
               <BookOpen className="w-4 h-4" />
               Plantillas
@@ -349,11 +346,10 @@ export default function DashboardPage() {
 
             <button
               onClick={() => setActiveTab('settings')}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all ${
-                activeTab === 'settings'
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all ${activeTab === 'settings'
                   ? 'bg-[#181A22] text-[#818CF8] border-l-2 border-[#6366F1]'
                   : 'text-[#94A3B8] hover:text-white hover:bg-[#12131A]'
-              }`}
+                }`}
             >
               <Settings className="w-4 h-4" />
               Configuración
@@ -377,7 +373,7 @@ export default function DashboardPage() {
 
       {/* MAIN CONTAINER */}
       <div className="flex-1 flex flex-col overflow-y-auto min-h-screen">
-        
+
         {/* HEADER BAR (Stakent Style) */}
         <header className="h-20 bg-[#0F1015] border-b border-[#1E222D] px-6 md:px-8 flex items-center justify-between sticky top-0 z-30">
           {/* Left search */}
@@ -411,8 +407,8 @@ export default function DashboardPage() {
               <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-[#6366F1] to-[#A855F7] flex items-center justify-center text-white font-extrabold text-sm shadow-md">
                 {initial}
               </div>
-              
-              <button 
+
+              <button
                 onClick={handleLogout}
                 className="w-8 h-8 rounded-xl bg-[#16171F]/40 border border-[#272B36]/50 flex items-center justify-center text-[#EF4444] hover:bg-[#EF4444]/10 transition-colors"
                 title="Cerrar Sesión"
@@ -425,10 +421,10 @@ export default function DashboardPage() {
 
         {/* PAGE CONTENT */}
         <main className="flex-1 p-6 md:p-8 space-y-8 max-w-[1400px] w-full mx-auto">
-          
+
           {/* Dynamic Tabs Renderer based on Left Sidebar Menu */}
           <AnimatePresence mode="wait">
-            
+
             {activeTab === 'dashboard' && (
               <motion.div
                 initial={{ opacity: 0, y: 15 }}
@@ -436,7 +432,7 @@ export default function DashboardPage() {
                 exit={{ opacity: 0, y: -15 }}
                 className="space-y-8"
               >
-                
+
                 {/* 1. Header Overview cards block */}
                 <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
                   <div className="space-y-1">
@@ -477,47 +473,88 @@ export default function DashboardPage() {
                     </div>
                   </div>
 
-                  {/* Card 2: Plantilla Recomendada */}
-                  <div className="bg-[#12131A] border border-[#1E222D] rounded-2xl p-5 shadow-xl relative overflow-hidden flex flex-col justify-between min-h-[140px]">
-                    <div className="absolute top-0 right-0 w-24 h-24 bg-[#A855F7]/5 rounded-full blur-2xl" />
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-bold text-[#64748B] uppercase tracking-wider">Tasa de Completado</span>
-                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#EF4444]/10 text-[#F87171] font-bold border border-[#EF4444]/20">Proxima Meta</span>
-                    </div>
-                    <div className="mt-4 flex items-baseline gap-2">
-                      <span className="text-4xl font-black text-white">92%</span>
-                      <span className="text-xs text-[#64748B]">nivel de detalle promedio</span>
-                    </div>
-                    <div className="h-1.5 w-full bg-[#1E222D] rounded-full overflow-hidden mt-4">
-                      <div className="h-full bg-gradient-to-r from-[#A855F7] to-[#C084FC] rounded-full" style={{ width: '92%' }} />
-                    </div>
-                  </div>
+                  {/* Card 2: Tasa de Completado (Dynamic) */}
+                  {(() => {
+                    const completionRate = (() => {
+                      if (!latestCv) return 0;
+                      let filled = 0;
+                      let total = 5;
+                      if (latestCv.title && latestCv.title.trim()) filled++;
+                      if (latestCv.summary && latestCv.summary.trim().length > 10) filled++;
+                      if (latestCv.skills && latestCv.skills.length > 0) filled++;
+                      if (latestCv.experience && latestCv.experience.length > 0) filled++;
+                      if (latestCv.education && latestCv.education.length > 0) filled++;
+                      return Math.round((filled / total) * 100);
+                    })();
+                    return (
+                      <div className="bg-[#12131A] border border-[#1E222D] rounded-2xl p-5 shadow-xl relative overflow-hidden flex flex-col justify-between min-h-[140px]">
+                        <div className="absolute top-0 right-0 w-24 h-24 bg-[#A855F7]/5 rounded-full blur-2xl" />
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-bold text-[#64748B] uppercase tracking-wider">Tasa de Completado</span>
+                          <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold border ${
+                            completionRate >= 80
+                              ? 'bg-[#10B981]/10 text-[#34D399] border-[#10B981]/20'
+                              : completionRate >= 50
+                                ? 'bg-[#F59E0B]/10 text-[#FBBF24] border-[#F59E0B]/20'
+                                : 'bg-[#EF4444]/10 text-[#F87171] border-[#EF4444]/20'
+                          }`}>{completionRate >= 80 ? 'Completo' : 'Próxima Meta'}</span>
+                        </div>
+                        <div className="mt-4 flex items-baseline gap-2">
+                          <span className="text-4xl font-black text-white">{completionRate}%</span>
+                          <span className="text-xs text-[#64748B]">nivel de detalle del CV</span>
+                        </div>
+                        <div className="h-1.5 w-full bg-[#1E222D] rounded-full overflow-hidden mt-4">
+                          <div className="h-full bg-gradient-to-r from-[#A855F7] to-[#C084FC] rounded-full transition-all duration-700" style={{ width: `${completionRate}%` }} />
+                        </div>
+                      </div>
+                    );
+                  })()}
 
-                  {/* Card 3: Auditorías de IA */}
-                  <div className="bg-[#12131A] border border-[#1E222D] rounded-2xl p-5 shadow-xl relative overflow-hidden flex flex-col justify-between min-h-[140px]">
-                    <div className="absolute top-0 right-0 w-24 h-24 bg-[#10B981]/5 rounded-full blur-2xl" />
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-bold text-[#64748B] uppercase tracking-wider">Sugerencias IA</span>
-                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#10B981]/10 text-[#34D399] font-bold border border-[#10B981]/20">Óptimo</span>
-                    </div>
-                    <div className="mt-4 flex items-baseline gap-2">
-                      <span className="text-4xl font-black text-white">12</span>
-                      <span className="text-xs text-[#64748B]">optimizaciones aplicadas</span>
-                    </div>
-                    <div className="h-1.5 w-full bg-[#1E222D] rounded-full overflow-hidden mt-4">
-                      <div className="h-full bg-gradient-to-r from-[#10B981] to-[#34D399] rounded-full" style={{ width: '75%' }} />
-                    </div>
-                  </div>
+                  {/* Card 3: Sugerencias IA (Dynamic) */}
+                  {(() => {
+                    const suggestionsCount = (() => {
+                      let count = 0;
+                      if (!latestCv) return 0;
+                      if (!latestCv.summary || latestCv.summary.trim().length < 10) count++;
+                      if (!latestCv.skills || latestCv.skills.length < 3) count += 2;
+                      if (!latestCv.experience || latestCv.experience.length === 0) count += 2;
+                      if (!latestCv.education || latestCv.education.length === 0) count++;
+                      if (latestCv.skills && latestCv.skills.length > 0) count += latestCv.skills.length;
+                      if (latestCv.experience) count += latestCv.experience.length;
+                      return count;
+                    })();
+                    const sugPct = Math.min(Math.round((suggestionsCount / 15) * 100), 100);
+                    return (
+                      <div className="bg-[#12131A] border border-[#1E222D] rounded-2xl p-5 shadow-xl relative overflow-hidden flex flex-col justify-between min-h-[140px]">
+                        <div className="absolute top-0 right-0 w-24 h-24 bg-[#10B981]/5 rounded-full blur-2xl" />
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-bold text-[#64748B] uppercase tracking-wider">Datos del Perfil</span>
+                          <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold border ${
+                            suggestionsCount >= 8
+                              ? 'bg-[#10B981]/10 text-[#34D399] border-[#10B981]/20'
+                              : 'bg-[#F59E0B]/10 text-[#FBBF24] border-[#F59E0B]/20'
+                          }`}>{suggestionsCount >= 8 ? 'Óptimo' : 'Mejorable'}</span>
+                        </div>
+                        <div className="mt-4 flex items-baseline gap-2">
+                          <span className="text-4xl font-black text-white">{suggestionsCount}</span>
+                          <span className="text-xs text-[#64748B]">elementos registrados</span>
+                        </div>
+                        <div className="h-1.5 w-full bg-[#1E222D] rounded-full overflow-hidden mt-4">
+                          <div className="h-full bg-gradient-to-r from-[#10B981] to-[#34D399] rounded-full transition-all duration-700" style={{ width: `${sugPct}%` }} />
+                        </div>
+                      </div>
+                    );
+                  })()}
                 </div>
 
                 {/* 3. Middle Section split (Stakent Callout & Recommended Card) */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                  
+
                   {/* Left Callout Promotional banner (2/3 width) */}
                   <div className="lg:col-span-2 bg-gradient-to-br from-[#12131A] to-[#1B1D28] border border-[#1E222D] rounded-3xl p-6 relative overflow-hidden shadow-2xl flex flex-col justify-between min-h-[220px]">
                     <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,rgba(99,102,241,0.06),transparent)]" />
                     <div className="absolute top-0 right-0 w-48 h-48 bg-[#A855F7]/10 rounded-full blur-3xl" />
-                    
+
                     <div className="space-y-3 relative z-10">
                       <span className="text-[10px] font-black uppercase tracking-widest text-[#818CF8] bg-[#6366F1]/10 border border-[#6366F1]/20 px-3 py-1 rounded-full">
                         Automata AI Engine
@@ -531,14 +568,14 @@ export default function DashboardPage() {
                     </div>
 
                     <div className="flex items-center gap-4 pt-6 relative z-10">
-                      <button 
+                      <button
                         onClick={() => setActiveTab('ai')}
                         className="bg-white hover:bg-slate-100 text-gray-900 font-bold text-xs px-5 py-2.5 rounded-xl transition-all flex items-center gap-1.5 cursor-pointer"
                       >
                         <Cpu className="w-4 h-4 text-[#6366F1]" />
                         Escanear Currículum
                       </button>
-                      <button 
+                      <button
                         onClick={() => router.push('/create')}
                         className="text-white hover:bg-[#1E222D] font-bold text-xs px-4 py-2.5 rounded-xl transition-all border border-[#272B36] flex items-center gap-1 cursor-pointer"
                       >
@@ -575,7 +612,7 @@ export default function DashboardPage() {
                     </div>
 
                     <div className="pt-6 border-t border-[#1E222D] mt-6">
-                      <button 
+                      <button
                         onClick={() => setActiveTab('settings')}
                         className="w-full bg-[#16171F] hover:bg-[#20222D] text-white border border-[#272B36] text-xs font-bold py-2.5 rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer"
                       >
@@ -588,7 +625,7 @@ export default function DashboardPage() {
 
                 {/* 4. Detailed CV List Table ("Mis Hojas de Vida") */}
                 <div className="bg-[#12131A] border border-[#1E222D] rounded-3xl p-6 shadow-2xl space-y-6">
-                  
+
                   <div className="flex items-center justify-between border-b border-[#1E222D] pb-5">
                     <div className="space-y-1">
                       <h3 className="text-base font-black text-white flex items-center gap-2">
@@ -613,7 +650,7 @@ export default function DashboardPage() {
                           Comienza ahora mismo con nuestro constructor intuitivo y plasma tu perfil.
                         </p>
                       </div>
-                      <button 
+                      <button
                         onClick={() => router.push('/create')}
                         className="bg-[#6366F1] hover:bg-[#4F46E5] text-white font-bold text-xs px-4 py-2 rounded-xl transition-all shadow-md cursor-pointer"
                       >
@@ -644,11 +681,10 @@ export default function DashboardPage() {
                                 </div>
                               </td>
                               <td className="py-4">
-                                <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold ${
-                                  cv.is_public 
-                                    ? 'bg-[#10B981]/10 text-[#34D399] border border-[#10B981]/20' 
+                                <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold ${cv.is_public
+                                    ? 'bg-[#10B981]/10 text-[#34D399] border border-[#10B981]/20'
                                     : 'bg-[#F59E0B]/10 text-[#FBBF24] border border-[#F59E0B]/20'
-                                }`}>
+                                  }`}>
                                   {cv.is_public ? 'Público' : 'Privado'}
                                 </span>
                               </td>
@@ -727,11 +763,10 @@ export default function DashboardPage() {
                         <div className="p-3 bg-[#6366F1]/10 text-[#818CF8] border border-[#6366F1]/20 rounded-xl">
                           <Files className="w-5 h-5" />
                         </div>
-                        <span className={`inline-flex items-center px-2 py-0.5 rounded text-[9px] font-bold ${
-                          cv.is_public 
-                            ? 'bg-[#10B981]/10 text-[#34D399] border border-[#10B981]/20' 
+                        <span className={`inline-flex items-center px-2 py-0.5 rounded text-[9px] font-bold ${cv.is_public
+                            ? 'bg-[#10B981]/10 text-[#34D399] border border-[#10B981]/20'
                             : 'bg-[#F59E0B]/10 text-[#FBBF24] border border-[#F59E0B]/20'
-                        }`}>
+                          }`}>
                           {cv.is_public ? 'Público' : 'Privado'}
                         </span>
                       </div>
@@ -740,7 +775,7 @@ export default function DashboardPage() {
                         <p className="text-[10px] text-[#64748B]">Editado el {new Date(cv.updated_at).toLocaleDateString()}</p>
                       </div>
                       <div className="mt-6 pt-4 border-t border-[#272B36]/60 flex items-center justify-between">
-                        <button 
+                        <button
                           onClick={() => router.push(`/create/preview`)}
                           className="text-xs text-[#818CF8] hover:text-white font-bold transition-colors cursor-pointer"
                         >
@@ -785,7 +820,7 @@ export default function DashboardPage() {
                       <label className="text-xs font-bold text-white uppercase tracking-wider block ml-1">Selecciona un Currículum para analizar:</label>
                       {cvs.length > 0 ? (
                         <div className="relative">
-                          <select 
+                          <select
                             value={selectedCvId}
                             onChange={(e) => setSelectedCvId(e.target.value)}
                             className="w-full appearance-none bg-[#16171F] border border-[#272B36] rounded-xl px-4 py-3.5 text-sm text-white focus:border-[#A855F7] focus:ring-1 focus:ring-[#A855F7] outline-none transition-all cursor-pointer shadow-inner"
@@ -804,7 +839,7 @@ export default function DashboardPage() {
                           <p className="text-xs text-amber-400 font-medium">No tienes ningún currículum guardado. Crea uno primero en la sección "Crear Nuevo CV".</p>
                         </div>
                       )}
-                      
+
                       <div className="flex justify-end pt-2">
                         <button
                           onClick={handleAnalyzeCV}
@@ -836,7 +871,7 @@ export default function DashboardPage() {
 
                 {/* RESULTADOS */}
                 {aiResult && !isAnalyzing && (
-                  <motion.div 
+                  <motion.div
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
                     className="grid grid-cols-1 md:grid-cols-3 gap-6"
@@ -848,11 +883,11 @@ export default function DashboardPage() {
                       <div className="relative flex items-center justify-center w-32 h-32">
                         <svg className="w-full h-full transform -rotate-90">
                           <circle cx="64" cy="64" r="56" fill="none" stroke="#1E222D" strokeWidth="12" />
-                          <circle 
-                            cx="64" cy="64" r="56" fill="none" 
-                            stroke={aiResult.overall_score >= 80 ? '#10B981' : aiResult.overall_score >= 50 ? '#F59E0B' : '#EF4444'} 
-                            strokeWidth="12" 
-                            strokeDasharray="351.8" 
+                          <circle
+                            cx="64" cy="64" r="56" fill="none"
+                            stroke={aiResult.overall_score >= 80 ? '#10B981' : aiResult.overall_score >= 50 ? '#F59E0B' : '#EF4444'}
+                            strokeWidth="12"
+                            strokeDasharray="351.8"
                             strokeDashoffset={351.8 - (351.8 * aiResult.overall_score) / 100}
                             className="transition-all duration-1000 ease-out"
                           />
@@ -862,11 +897,10 @@ export default function DashboardPage() {
                           <span className="text-[10px] text-[#64748B]">/ 100</span>
                         </div>
                       </div>
-                      <span className={`text-[10px] font-bold px-3 py-1 rounded-full ${
-                        aiResult.overall_score >= 80 ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 
-                        aiResult.overall_score >= 50 ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20' : 
-                        'bg-red-500/10 text-red-400 border border-red-500/20'
-                      }`}>
+                      <span className={`text-[10px] font-bold px-3 py-1 rounded-full ${aiResult.overall_score >= 80 ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' :
+                          aiResult.overall_score >= 50 ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20' :
+                            'bg-red-500/10 text-red-400 border border-red-500/20'
+                        }`}>
                         {aiResult.overall_score >= 80 ? 'Excelente Perfil' : aiResult.overall_score >= 50 ? 'Requiere Mejoras' : 'Perfil Deficiente'}
                       </span>
                     </div>
@@ -901,7 +935,7 @@ export default function DashboardPage() {
                           <Check className="w-4 h-4 text-[#818CF8]" />
                           Keywords y Habilidades Detectadas (ATS)
                         </h4>
-                        <button 
+                        <button
                           onClick={() => {
                             setSelectedCvId('');
                             setAiResult(null);
@@ -1024,23 +1058,19 @@ export default function DashboardPage() {
               // Dynamic Skills
               const displayedSkills = latestCv?.skills && latestCv.skills.length > 0
                 ? latestCv.skills
-                : ['React', 'TypeScript', 'Tailwind CSS', 'Node.js', 'Next.js', 'PostgreSQL'];
+                : [];
 
               // Dynamic Location
-              const displayedLocation = latestCv?.location || 'Bogotá, CO';
+              const displayedLocation = latestCv?.location || profile?.email?.split('@')[1]?.split('.')[0] || 'Sin ubicación';
 
               // Dynamic Activity feed (representing their past work experiences)
               const displayedActivities = latestCv?.experience && latestCv.experience.length > 0
                 ? latestCv.experience.slice(0, 3).map((exp: any) => ({
-                    name: exp.company || 'Experiencia',
-                    role: exp.position || 'Colaborador',
-                    time: exp.is_current ? 'Actual' : (exp.start_date ? new Date(exp.start_date).getFullYear().toString() : '')
-                  }))
-                : [
-                    { name: 'Automata AI Core', role: 'Resume Audit Success', time: 'Hace 5 min' },
-                    { name: 'SaaSify Partner', role: 'CV Shared Publicly', time: 'Hace 2 horas' },
-                    { name: 'Direct PDF Export', role: 'Downloaded Standard Format', time: 'Ayer' }
-                  ];
+                  name: exp.company || 'Experiencia',
+                  role: exp.position || 'Colaborador',
+                  time: exp.is_current ? 'Actual' : (exp.start_date ? new Date(exp.start_date).getFullYear().toString() : '')
+                }))
+                : [];
 
               // Dynamic Audits based on CV contents
               const getDynamicAudits = () => {
@@ -1114,11 +1144,13 @@ export default function DashboardPage() {
                         <div className="space-y-3">
                           <h4 className="text-xs font-black uppercase tracking-wider text-[#94A3B8]">Skills</h4>
                           <div className="flex flex-wrap gap-1.5">
-                            {displayedSkills.map((skill: any) => (
+                            {displayedSkills.length > 0 ? displayedSkills.map((skill: any) => (
                               <span key={skill} className="text-[10px] font-bold px-2.5 py-1 bg-[#1E222D] text-[#E2E8F0] rounded-lg border border-[#272B36] hover:border-[#6366F1] transition-colors select-none">
                                 {skill}
                               </span>
-                            ))}
+                            )) : (
+                              <span className="text-[10px] text-[#64748B] italic">Agrega habilidades a tu CV para verlas aquí</span>
+                            )}
                           </div>
                         </div>
 
@@ -1142,18 +1174,20 @@ export default function DashboardPage() {
                           </div>
                           <div className="bg-[#16171F] border border-[#222531] rounded-2xl p-3.5 space-y-1">
                             <span className="text-[9px] uppercase font-black tracking-widest text-[#64748B]">Timezone</span>
-                            <p className="text-xs font-bold text-white">UTC-5 (EST)</p>
+                            <p className="text-xs font-bold text-white">{Intl.DateTimeFormat().resolvedOptions().timeZone}</p>
                           </div>
                         </div>
 
                         {/* Recent Activities */}
                         <div className="space-y-3 pt-2">
                           <h4 className="text-xs font-black uppercase tracking-wider text-[#94A3B8] flex items-center justify-between">
-                            <span>Recent Activity</span>
-                            <span className="text-[9px] text-[#818CF8] hover:underline cursor-pointer">Ver más</span>
+                            <span>Experiencia Laboral</span>
+                            {displayedActivities.length > 0 && (
+                              <span className="text-[9px] text-[#818CF8] hover:underline cursor-pointer">Ver más</span>
+                            )}
                           </h4>
                           <div className="space-y-3">
-                            {displayedActivities.map((item: any, idx: number) => (
+                            {displayedActivities.length > 0 ? displayedActivities.map((item: any, idx: number) => (
                               <div key={idx} className="flex items-center justify-between p-3 bg-[#16171F] border border-[#222531] rounded-xl">
                                 <div className="space-y-0.5">
                                   <p className="text-xs font-bold text-white">{item.name}</p>
@@ -1161,7 +1195,11 @@ export default function DashboardPage() {
                                 </div>
                                 <span className="text-[9px] text-slate-500 font-medium shrink-0">{item.time}</span>
                               </div>
-                            ))}
+                            )) : (
+                              <div className="p-4 bg-[#16171F] border border-[#222531] rounded-xl text-center">
+                                <p className="text-[10px] text-[#64748B] italic">Agrega experiencia laboral a tu CV para verla aquí</p>
+                              </div>
+                            )}
                           </div>
                         </div>
 
@@ -1178,11 +1216,11 @@ export default function DashboardPage() {
                         <span className="text-[10px] text-[#64748B] font-bold uppercase tracking-wider mt-1 block">ATS Score</span>
                       </div>
                       <div className="bg-[#12131A] border border-[#1E222D] rounded-2xl p-4 text-center shadow-lg relative overflow-hidden">
-                        <span className="text-2xl font-black text-white block">100%</span>
+                        <span className="text-2xl font-black text-white block">{cvs.length > 0 ? '100%' : '0%'}</span>
                         <span className="text-[10px] text-[#64748B] font-bold uppercase tracking-wider mt-1 block">Availability</span>
                       </div>
                       <div className="bg-[#12131A] border border-[#1E222D] rounded-2xl p-4 text-center shadow-lg relative overflow-hidden">
-                        <span className="text-2xl font-black text-white block">{Math.round(atsScore * 0.96)}%</span>
+                        <span className="text-2xl font-black text-white block">{latestCv?.summary ? Math.round(atsScore * 0.96) : 0}%</span>
                         <span className="text-[10px] text-[#64748B] font-bold uppercase tracking-wider mt-1 block">Readability</span>
                       </div>
                     </div>
@@ -1191,7 +1229,7 @@ export default function DashboardPage() {
                     <div className="bg-[#12131A] border border-[#1E222D] rounded-3xl p-6 shadow-xl grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
                       <div className="space-y-4">
                         <h4 className="text-sm font-black uppercase tracking-wider text-[#94A3B8]">Aspect Score</h4>
-                        
+
                         {/* Arc Progress chart using beautiful SVG */}
                         <div className="relative w-full max-w-[180px] aspect-square mx-auto flex items-center justify-center">
                           <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
@@ -1252,17 +1290,16 @@ export default function DashboardPage() {
                     <div className="bg-[#12131A] border border-[#1E222D] rounded-3xl p-6 shadow-xl space-y-6">
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#1E222D]/60 pb-5">
                         <h4 className="text-sm font-black uppercase tracking-wider text-white">Auditorías de Rendimiento</h4>
-                        
+
                         {/* Styled Filter tabs */}
                         <div className="flex items-center gap-1.5 bg-[#16171F] p-1 rounded-xl border border-[#272B36] shrink-0">
                           {[`All (${dynamicAudits.length})`, `New (${dynamicAudits.filter(a => a.status === 'Sugerido').length})`, 'Screening (0)'].map((tab, idx) => (
                             <button
                               key={tab}
-                              className={`px-3 py-1.5 rounded-lg text-[10px] font-black tracking-wider uppercase transition-all ${
-                                idx === 0
+                              className={`px-3 py-1.5 rounded-lg text-[10px] font-black tracking-wider uppercase transition-all ${idx === 0
                                   ? 'bg-[#6366F1] text-white shadow-md'
                                   : 'text-[#64748B] hover:text-white'
-                              }`}
+                                }`}
                             >
                               {tab}
                             </button>
@@ -1280,11 +1317,10 @@ export default function DashboardPage() {
                             </div>
                             <div className="flex items-center gap-4 shrink-0">
                               <span className="text-xs font-black text-white">{item.score}</span>
-                              <span className={`inline-flex items-center px-2 py-0.5 rounded text-[8px] font-black uppercase ${
-                                item.status === 'Completado'
+                              <span className={`inline-flex items-center px-2 py-0.5 rounded text-[8px] font-black uppercase ${item.status === 'Completado'
                                   ? 'bg-[#10B981]/15 text-[#34D399] border border-[#10B981]/25'
                                   : 'bg-[#6366F1]/15 text-[#818CF8] border border-[#6366F1]/25'
-                              }`}>
+                                }`}>
                                 {item.status}
                               </span>
                             </div>
@@ -1299,12 +1335,12 @@ export default function DashboardPage() {
             })()}
 
           </AnimatePresence>
-          
+
         </main>
       </div>
 
-      <InterviewChatModal 
-        open={isInterviewModalOpen} 
+      <InterviewChatModal
+        open={isInterviewModalOpen}
         onOpenChange={setIsInterviewModalOpen}
         cvAnalysisId={aiResult?.id || null}
         userId={profile?.userId || null}
