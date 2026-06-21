@@ -44,7 +44,7 @@ export default function LoginPage() {
     setErrorMsg('');
     try {
       const apiUrl = process.env.NEXT_PUBLIC_USER_SERVICE_URL || 'http://localhost:3005';
-      const res = await fetch(`${apiUrl}/api/v1/auth/login`, {
+      const res = await fetch(`${apiUrl}/api/users/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
@@ -68,7 +68,7 @@ export default function LoginPage() {
     onSuccess: async (tokenResponse) => {
       try {
         const apiUrl = process.env.NEXT_PUBLIC_USER_SERVICE_URL || 'http://localhost:3005';
-        const res = await fetch(`${apiUrl}/api/v1/auth/google`, {
+        const res = await fetch(`${apiUrl}/api/users/google`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ token: tokenResponse.access_token }),

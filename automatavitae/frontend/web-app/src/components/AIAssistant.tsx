@@ -30,7 +30,7 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ step, context }) => {
       try {
         setLoading(true);
         setUnavailable(false);
-        const response = await fetch('http://localhost:3001/api/cv/suggest', {
+        const response = await fetch(`${apiUrl}/api/cv/suggest`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ step, context }),

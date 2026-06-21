@@ -71,6 +71,12 @@ app.use('/api/cv', createProxyMiddleware({
   }
 }));
 
+app.use('/api/payments', createProxyMiddleware({
+  target: CV_ANALYZER_URL,
+  changeOrigin: true,
+  onProxyReq: fixRequestBody,
+}));
+
 app.use('/api/ia', createProxyMiddleware({
   target: MICROSERVICIO_IA_URL, // ✅ nunca undefined
   changeOrigin: true,

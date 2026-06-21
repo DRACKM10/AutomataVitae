@@ -50,7 +50,7 @@ export default function RegisterPage() {
     setErrorMsg('');
     try {
       const apiUrl = process.env.NEXT_PUBLIC_USER_SERVICE_URL || 'http://localhost:3005';
-      const res = await fetch(`${apiUrl}/api/v1/auth/register`, {
+      const res = await fetch(`${apiUrl}/api/users/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ full_name: name, email, password }),
@@ -74,7 +74,7 @@ export default function RegisterPage() {
     onSuccess: async (tokenResponse) => {
       try {
         const apiUrl = process.env.NEXT_PUBLIC_USER_SERVICE_URL || 'http://localhost:3005';
-        const res = await fetch(`${apiUrl}/api/v1/auth/google`, {
+        const res = await fetch(`${apiUrl}/api/users/google`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ token: tokenResponse.access_token }),

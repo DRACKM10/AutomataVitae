@@ -29,7 +29,7 @@ export default function CVLayout({ children }: { children: React.ReactNode }) {
     const token = localStorage.getItem('token');
     if (token && token !== 'null' && token !== 'undefined') {
       const apiUrl = process.env.NEXT_PUBLIC_USER_SERVICE_URL || 'http://localhost:3005';
-      fetch(`${apiUrl}/api/v1/auth/me`, {
+      fetch(`${apiUrl}/api/users/me`, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
       .then(res => {

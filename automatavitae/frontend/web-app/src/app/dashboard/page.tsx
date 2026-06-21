@@ -26,9 +26,9 @@ interface CVItem {
   updated_at: string;
 }
 
-const PDF_SERVICE_URL = process.env.NEXT_PUBLIC_PDF_SERVICE_URL || 'http://localhost:3007';
-const CV_SERVICE_URL  = process.env.NEXT_PUBLIC_CV_SERVICE_URL  || 'http://localhost:3006';
-const IA_SERVICE_URL  = process.env.NEXT_PUBLIC_IA_SERVICE_URL  || 'http://localhost:3001';
+const apiUrl = process.env.NEXT_PUBLIC_apiUrl || 'http://localhost:3007';
+const apiUrl  = process.env.NEXT_PUBLIC_apiUrl  || 'http://localhost:3006';
+const apiUrl  = process.env.NEXT_PUBLIC_apiUrl  || 'http://localhost:3001';
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -59,7 +59,7 @@ export default function DashboardPage() {
       try {
         // Fetch user profile
         const apiUrl = process.env.NEXT_PUBLIC_USER_SERVICE_URL || 'http://localhost:3005';
-        const profileRes = await fetch(`${apiUrl}/api/v1/auth/me`, {
+        const profileRes = await fetch(`${apiUrl}/api/users/me`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         if (!profileRes.ok) throw new Error('Error al obtener perfil');
@@ -67,7 +67,7 @@ export default function DashboardPage() {
         setProfile(profileData.user);
 
         // Fetch CVs
-        const cvsRes = await fetch(`${CV_SERVICE_URL}/api/v1/cvs`, {
+        const cvsRes = await fetch(`${apiUrl}/api/cvs`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         if (cvsRes.ok) {
@@ -76,7 +76,7 @@ export default function DashboardPage() {
 
           if (cvsData.length > 0) {
             try {
-              const detailRes = await fetch(`${CV_SERVICE_URL}/api/v1/cvs/${cvsData[0].id}`, {
+              const detailRes = await fetch(`${apiUrl}/api/cvs/${cvsData[0].id}`, {
                 headers: { 'Authorization': `Bearer ${token}` }
               });
               if (detailRes.ok) {
@@ -112,7 +112,7 @@ export default function DashboardPage() {
     try {
       const token = localStorage.getItem('token');
       // Obtener detalles completos del CV seleccionado
-      const detailRes = await fetch(`${CV_SERVICE_URL}/api/v1/cvs/${cvIdToUse}`, {
+      const detailRes = await fetch(`${apiUrl}/api/cvs/${cvIdToUse}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       
@@ -140,8 +140,8 @@ export default function DashboardPage() {
         throw new Error('El currículum seleccionado parece no tener información.');
       }
 
-      const response = await fetch(`${IA_SERVICE_URL}/api/ia/analyze`, {
-        method: 'POST',
+      const response = await fetch(`${apiUrl}/api/ia/analyze`, {
+        method: `POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
@@ -179,7 +179,7 @@ export default function DashboardPage() {
     const toastId = toast.loading('Generando tu PDF...', { description: 'Esto puede tomar unos segundos.' });
 
     try {
-      const cvRes = await fetch(`${CV_SERVICE_URL}/api/v1/cvs/${cvId}`, {
+      const cvRes = await fetch(`${apiUrl}/api/cvs/${cvId}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (!cvRes.ok) throw new Error('Error al obtener datos del CV');
@@ -216,7 +216,7 @@ export default function DashboardPage() {
         skills: cvData.skills || []
       };
 
-      const pdfRes = await fetch(`${PDF_SERVICE_URL}/api/v1/pdf/generate/cv`, {
+      const pdfRes = await fetch(`${apiUrl}/api/pdf/generate/cv`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

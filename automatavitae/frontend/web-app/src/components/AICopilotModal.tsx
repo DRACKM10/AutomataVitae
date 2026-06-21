@@ -60,7 +60,7 @@ export function AICopilotModal({ open, onOpenChange }: AICopilotModalProps) {
 
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:3001/api/ia/improve', {
+      const response = await fetch(`${apiUrl}/api/ia/improve`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

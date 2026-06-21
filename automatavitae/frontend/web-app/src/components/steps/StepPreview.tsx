@@ -9,8 +9,8 @@ import { ResumePreview } from './ResumePreview';
 import { motion, AnimatePresence } from 'motion/react';
 import { toast } from 'sonner';
 
-const PDF_SERVICE_URL = process.env.NEXT_PUBLIC_PDF_SERVICE_URL || 'http://localhost:3007';
-const CV_SERVICE_URL  = process.env.NEXT_PUBLIC_CV_SERVICE_URL  || 'http://localhost:3006';
+const apiUrl = process.env.NEXT_PUBLIC_apiUrl || 'http://localhost:3007';
+const apiUrl  = process.env.NEXT_PUBLIC_apiUrl  || 'http://localhost:3006';
 
 /** Extrae el payload del JWT sin librerías externas */
 function decodeJwtPayload(token: string): { id?: string; sub?: string; userId?: string } | null {
@@ -38,7 +38,7 @@ export const StepPreview: React.FC = () => {
     }
 
     try {
-      const response = await fetch(`${CV_SERVICE_URL}/api/v1/cvs`, {
+      const response = await fetch(`${apiUrl}/api/cvs`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -76,7 +76,7 @@ export const StepPreview: React.FC = () => {
     const toastId = toast.loading('Generando tu PDF...', { description: 'Esto puede tomar unos segundos.' });
 
     try {
-      const response = await fetch(`${PDF_SERVICE_URL}/api/v1/pdf/generate/cv`, {
+      const response = await fetch(`${apiUrl}/api/pdf/generate/cv`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

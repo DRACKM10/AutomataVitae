@@ -60,7 +60,7 @@ export function InterviewChatModal({ open, onOpenChange, cvAnalysisId, userId }:
     setIsInitializing(true);
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:3001/api/ia/interview/start', {
+      const response = await fetch(`${apiUrl}/api/ia/interview/start`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -99,7 +99,7 @@ export function InterviewChatModal({ open, onOpenChange, cvAnalysisId, userId }:
 
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:3001/api/ia/interview/message', {
+      const response = await fetch(`${apiUrl}/api/ia/interview/message`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
