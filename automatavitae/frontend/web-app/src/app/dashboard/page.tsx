@@ -141,7 +141,7 @@ export default function DashboardPage() {
       }
 
       const response = await fetch(`${apiUrl}/api/ia/analyze`, {
-        method: `POST',
+        method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
