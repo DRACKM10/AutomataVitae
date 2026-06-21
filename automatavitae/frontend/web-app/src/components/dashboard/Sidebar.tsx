@@ -34,7 +34,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, cvsCo
         <div className="px-4 py-6 space-y-1.5">
           <button
             onClick={() => setActiveTab('dashboard')}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all ${activeTab === 'dashboard'
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold cursor-pointer transition-all ${activeTab === 'dashboard'
               ? 'bg-[#181A22] text-[#818CF8] border-l-2 border-[#6366F1]'
               : 'text-[#94A3B8] hover:text-white hover:bg-[#12131A]'
               }`}
@@ -45,7 +45,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, cvsCo
 
           <button
             onClick={() => setActiveTab('cvs')}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all ${activeTab === 'cvs'
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold cursor-pointer transition-all ${activeTab === 'cvs'
               ? 'bg-[#181A22] text-[#818CF8] border-l-2 border-[#6366F1]'
               : 'text-[#94A3B8] hover:text-white hover:bg-[#12131A]'
               }`}
@@ -59,7 +59,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, cvsCo
 
           <button
             onClick={() => setActiveTab('ai')}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all ${activeTab === 'ai'
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold cursor-pointer transition-all ${activeTab === 'ai'
               ? 'bg-[#181A22] text-[#818CF8] border-l-2 border-[#6366F1]'
               : 'text-[#94A3B8] hover:text-white hover:bg-[#12131A]'
               }`}
@@ -73,7 +73,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, cvsCo
 
           <button
             onClick={() => setActiveTab('templates')}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all ${activeTab === 'templates'
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold cursor-pointer transition-all ${activeTab === 'templates'
               ? 'bg-[#181A22] text-[#818CF8] border-l-2 border-[#6366F1]'
               : 'text-[#94A3B8] hover:text-white hover:bg-[#12131A]'
               }`}
@@ -84,7 +84,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, cvsCo
 
           <button
             onClick={() => setActiveTab('settings')}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all ${activeTab === 'settings'
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold cursor-pointer transition-all ${activeTab === 'settings'
               ? 'bg-[#181A22] text-[#818CF8] border-l-2 border-[#6366F1]'
               : 'text-[#94A3B8] hover:text-white hover:bg-[#12131A]'
               }`}
@@ -102,7 +102,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, cvsCo
           <Sparkles className="w-6 h-6 text-[#A855F7] mx-auto mb-2" />
           <h4 className="text-xs font-black text-white uppercase tracking-wider">Automata Pro</h4>
           <p className="text-[10px] text-[#94A3B8] mt-1 mb-3">Diseños ilimitados con IA de última generación</p>
-          <button className="w-full bg-gradient-to-r from-[#6366F1] to-[#818CF8] hover:from-[#4F46E5] hover:to-[#6366F1] text-white font-bold text-xs py-2 rounded-xl transition-all shadow-md">
+          <button className="w-full bg-gradient-to-r from-[#6366F1] to-[#818CF8] hover:from-[#4F46E5] hover:to-[#6366F1] text-white font-bold text-xs py-2 rounded-xl transition-all shadow-md cursor-pointer">
             Mejorar Plan
           </button>
         </div>
