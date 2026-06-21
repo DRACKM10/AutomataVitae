@@ -7,6 +7,17 @@ import { pool } from './config/db';
 // Cargar variables de entorno de autenticación
 dotenv.config();
 
+// Manejadores de errores globales para detectar fallos en logs
+process.on('uncaughtException', (err) => {
+    console.error('UNCAUGHT EXCEPTION! Shutting down...', err);
+    process.exit(1);
+});
+
+process.on('unhandledRejection', (err) => {
+    console.error('UNHANDLED REJECTION! Shutting down...', err);
+    process.exit(1);
+});
+
 const app = express();
 const PORT = process.env.PORT || 3005;
 
@@ -24,6 +35,14 @@ app.get('/health', async (req, res) => {
         res.status(500).json({ status: 'DOWN', error: (error as Error).message });
     }
 });
+
+// Verificación de conexión a la base de datos al iniciar
+pool.query('SELECT NOW()')
+    .then(() => console.log('Database connected successfully'))
+    .catch((err) => {
+        console.error('Database connection failed:', err);
+        process.exit(1);
+    });
 
 app.listen(PORT, () => {
     console.log(`User-Service corriendo en http://localhost:${PORT}`);
