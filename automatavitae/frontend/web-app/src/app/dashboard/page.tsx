@@ -287,7 +287,62 @@ export default function DashboardPage() {
   const handleLogout = () => {
     localStorage.removeItem('token');
     toast.success('Sesión cerrada', { description: 'Has cerrado sesión correctamente.' });
-    router.push('/');
+    router.push('/login');
+  };
+
+  const handleCreateNewCV = () => {
+    localStorage.removeItem('resumeData');
+    router.push('/create');
+  };
+
+  const handleEditCV = async (cvId: string) => {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+
+    const toastId = toast.loading('Cargando currículum...');
+    try {
+      const response = await fetch(`${apiUrl}/api/cvs/${cvId}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (!response.ok) throw new Error('Error al obtener el CV');
+      const data = await response.json();
+
+      const resumeData = {
+        personalInfo: {
+          fullName: profile?.fullName || profile?.email?.split('@')[0] || '',
+          email: profile?.email || '',
+          phone: data.phone || '',
+          location: data.location || '',
+          title: data.title || '',
+          summary: data.summary || ''
+        },
+        experience: (data.experience || []).map((exp: any) => ({
+          id: exp.id || Math.random().toString(36).substr(2, 9),
+          company: exp.company || '',
+          position: exp.position || '',
+          startDate: exp.start_date ? new Date(exp.start_date).toISOString().split('T')[0].substring(0, 7) : '',
+          endDate: exp.end_date ? new Date(exp.end_date).toISOString().split('T')[0].substring(0, 7) : '',
+          current: exp.is_current || false,
+          description: exp.description || ''
+        })),
+        education: (data.education || []).map((edu: any) => ({
+          id: edu.id || Math.random().toString(36).substr(2, 9),
+          institution: edu.institution || '',
+          degree: edu.degree || '',
+          field: edu.field || '',
+          startDate: edu.start_date ? new Date(edu.start_date).toISOString().split('T')[0].substring(0, 7) : '',
+          endDate: edu.end_date ? new Date(edu.end_date).toISOString().split('T')[0].substring(0, 7) : '',
+          current: edu.is_current || false
+        })),
+        skills: data.skills || []
+      };
+
+      localStorage.setItem('resumeData', JSON.stringify(resumeData));
+      toast.dismiss(toastId);
+      router.push('/create/preview');
+    } catch (error) {
+      toast.error('Error', { id: toastId, description: 'No se pudo cargar el currículum.' });
+    }
   };
 
   const filteredCvs = cvs.filter(cv =>
@@ -616,7 +671,7 @@ export default function DashboardPage() {
                         Escanear Currículum
                       </button>
                       <button
-                        onClick={() => router.push('/create')}
+                        onClick={handleCreateNewCV}
                         className="text-white hover:bg-[#1E222D] font-bold text-xs px-4 py-2.5 rounded-xl transition-all border border-[#272B36] flex items-center gap-1 cursor-pointer"
                       >
                         Crear nuevo CV
@@ -691,7 +746,7 @@ export default function DashboardPage() {
                         </p>
                       </div>
                       <button
-                        onClick={() => router.push('/create')}
+                        onClick={handleCreateNewCV}
                         className="bg-[#6366F1] hover:bg-[#4F46E5] text-white font-bold text-xs px-4 py-2 rounded-xl transition-all shadow-md cursor-pointer"
                       >
                         Crear mi Primer CV
@@ -749,9 +804,7 @@ export default function DashboardPage() {
                                     <Eye className="w-3.5 h-3.5" />
                                   </button>
                                   <button
-                                    onClick={() => {
-                                      router.push(`/create/preview`);
-                                    }}
+                                    onClick={() => handleEditCV(cv.id)}
                                     className="p-2 hover:bg-[#20222D] text-[#818CF8] hover:text-white rounded-lg border border-transparent hover:border-[#272B36] transition-all cursor-pointer"
                                     title="Editar"
                                   >
@@ -823,7 +876,7 @@ export default function DashboardPage() {
                       </div>
                       <div className="mt-6 pt-4 border-t border-[#272B36]/60 flex items-center justify-between">
                         <button
-                          onClick={() => router.push(`/create/preview`)}
+                          onClick={() => handleEditCV(cv.id)}
                           className="text-xs text-[#818CF8] hover:text-white font-bold transition-colors cursor-pointer"
                         >
                           Editar CV
