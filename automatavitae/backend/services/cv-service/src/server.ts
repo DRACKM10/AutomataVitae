@@ -15,6 +15,6 @@ app.use(express.json());
 // Montar rutas del microservicio de CVs
 app.use('/api/v1/cvs', cvRoutes);
 
-app.listen(PORT, () => {
-  console.log(`🚀 CV-Service corriendo en http://localhost:${PORT}`);
+app.listen(Number(PORT), '0.0.0.0', () => {
+  console.log(`🚀 CV-Service corriendo en http://0.0.0.0:${PORT}`);
 });

@@ -37,11 +37,11 @@ app.get('/health', async (_req, res) => {
 app.use('/api/v1/pdf', pdfRoutes);
 
 // Iniciar servidor
-app.listen(PORT, () => {
+app.listen(Number(PORT), '0.0.0.0', () => {
     console.log('╔════════════════════════════════════════╗');
     console.log('║   📄 PDF-SERVICE - AUTOMATAVITAE       ║');
     console.log('╚════════════════════════════════════════╝');
-    console.log(`\n✅ Servidor corriendo en: http://localhost:${PORT}`);
+    console.log(`\n✅ Servidor corriendo en: http://0.0.0.0:${PORT}`);
     console.log(`🔍 Health check:           http://localhost:${PORT}/health`);
     console.log(`📄 Generar CV PDF:  POST   http://localhost:${PORT}/api/v1/pdf/generate/cv`);
     console.log(`📊 Generar Reporte: POST   http://localhost:${PORT}/api/v1/pdf/generate/analysis-report`);
